@@ -10,21 +10,42 @@
             padding: 0;
             box-sizing: border-box;
         }
+/* <!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保齡球比賽計分系統 v2.2</title>
+    <style> */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0; /* 重要：移除 body 的 padding */
         }
 
         .container {
             max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
+            margin: 20px auto;
+            background: #f8f9fa;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+        }
+        /* 手機版容器設定 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0; /* 移除左右邊距 */
+                border-radius: 0; /* 移除圓角讓內容更寬 */
+                min-height: 100vh;
+                max-width: 100vw; /* 使用全螢幕寬度 */
+            }
         }
 
         .header {
@@ -83,6 +104,16 @@
             padding: 30px;
         }
 
+        /* 手機版主要內容 */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 15px; /* 適中的內邊距 */
+            }
+        }
+
+
         .section {
             background: white;
             border-radius: 15px;
@@ -91,13 +122,22 @@
             border: 1px solid #e9ecef;
         }
 
+        /* 手機版 section */
+        @media (max-width: 768px) {
+            .section {
+                padding: 20px; /* 保持適當的內邊距 */
+                border-radius: 10px;
+            }
+}
+
+
         .section h2 {
             color: #333;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 1.5em;
+            font-size: 1em;
         }
 
         .form-group {
@@ -242,6 +282,10 @@
             white-space: pre-wrap;
             max-height: 200px;
             overflow-y: auto;
+            overflow-x: hidden; /* 防止水平滾動 */
+            width: 100%; /* 確保寬度為100% */
+            word-break: break-all; /* 長文字會換行 */
+            box-sizing: border-box; /* 確保padding不會增加寬度 */
         }
 
         .ranking-table {
@@ -270,42 +314,202 @@
             background: #f8f9fa;
         }
 
+        /* 清除按鈕樣式 */
+.clear-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.clear-btn:hover {
+    background: linear-gradient(135deg, #ff5252, #d32f2f);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+/* 清除選項彈窗樣式 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: slideUp 0.3s ease;
+}
+
+.modal-content h3 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 20px;
+}
+
+.clear-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.option-btn {
+    padding: 15px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.option-btn.danger {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+}
+
+.option-btn.warning {
+    background: linear-gradient(135deg, #ffa726, #ff9800);
+    color: white;
+}
+
+.option-btn.secondary {
+    background: linear-gradient(135deg, #78909c, #607d8b);
+    color: white;
+}
+
+.option-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 手機版樣式 */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 20px;
+        margin: 20px;
+    }
+    
+    .option-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
+
+
         @media (max-width: 768px) {
+            body {
+                padding: 0; /* 確保沒有外邊距 */
+            }
+            
+            .container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+                width: 100vw; /* 強制使用全寬 */
+            }
+            
+            .header {
+                padding: 20px 15px; /* 減少左右邊距但保持可讀性 */
+            }
+            
             .main-content {
                 grid-template-columns: 1fr;
-                gap: 20px;
-                padding: 20px;
+                gap: 15px;
+                padding: 15px; /* 適中的邊距 */
             }
-
-            .header h1 {
-                font-size: 2em;
+            
+            .section {
+                padding: 15px; /* 適中的內邊距 */
+                margin: 0;
             }
-
+            
             .env-switcher {
                 position: static;
                 justify-content: center;
-                margin-top: 15px;
+                margin: 15px 0;
+                padding: 0 15px;
             }
-
+            
+            /* 確保表格和按鈕區域使用全寬 */
             .ranking-buttons {
                 flex-direction: column;
+                gap: 10px;
+                margin: 0 -5px; /* 負邊距讓按鈕更寬 */
             }
-
+            
             .ranking-btn {
+                margin: 0 5px;
                 min-width: auto;
             }
+            
+            .result {
+                margin: 15px -5px 0; /* 負邊距讓表格更寬 */
+                padding: 15px;
+            }
         }
+
+
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="env-switcher">
-                <button class="env-btn active" onclick="switchEnvironment('test')">🧪 測試環境</button>
-                <button class="env-btn" onclick="switchEnvironment('production')">🚀 正式環境</button>
+            <div class="env-switcher" style="display: none;">
+                <button class="env-btn " onclick="switchEnvironment('test')">🧪 測試環境</button>
+                <button class="env-btn active" onclick="switchEnvironment('production')">🚀 正式環境</button>
+                <button class="env-btn" style="background: rgba(255, 255, 255, 0.1);" onclick="toggleEnvSwitcher()">✖️ 關閉</button>
             </div>
-            <h1>🎳 保齡球比賽計分系統 v2.2</h1>
-            <p>符合 n8n Action Switch · 分局輸入 · 即時排名</p>
+            <button id="envToggleBtn" style="position: absolute; top: 20px; right: 20px; padding: 8px 16px; background: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 20px; cursor: pointer; transition: all 0.3s ease;" onclick="toggleEnvSwitcher()">⚙️ 環境設定</button>
+            
+            <h1 style="padding-top: 40px;">🎳 保齡球比賽計分系統 v2.2</h1>
+            <!-- <p>符合 n8n Action Switch · 分局輸入 · 即時排名</p> -->
+
+            <script>
+                function toggleEnvSwitcher() {
+                    const switcher = document.querySelector('.env-switcher');
+                    const toggleBtn = document.getElementById('envToggleBtn');
+                    if (switcher.style.display === 'none') {
+                        switcher.style.display = 'flex';
+                        toggleBtn.style.display = 'none';
+                    } else {
+                        switcher.style.display = 'none';
+                        toggleBtn.style.display = 'block';
+                    }
+                }
+            </script>
         </div>
 
         <div class="main-content">
@@ -313,10 +517,21 @@
             <div class="section">
                 <h2>📝 分數輸入</h2>
                 
-                <div class="form-group">
-                    <label for="teamName">🏆 隊伍名稱</label>
-                    <input type="text" id="teamName" placeholder="請輸入隊伍名稱" maxlength="50">
-                </div>
+<div class="form-group">
+    <label for="teamName">🏆 隊伍名稱</label>
+    <select id="teamName">
+        <option value="A">A隊</option>
+        <option value="B">B隊</option>
+        <option value="C">C隊</option>
+        <option value="D">D隊</option>
+        <option value="E">E隊</option>
+        <option value="F">F隊</option>
+        <option value="G">G隊</option>
+        <option value="H">H隊</option>
+        <option value="I">I隊</option>
+        <option value="J">J隊</option>
+    </select>
+</div>
 
                 <div class="form-group">
                     <label for="roundSelect">🎯 選擇局數</label>
@@ -326,17 +541,37 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" >
                     <label for="score">🎳 分數</label>
-                    <input type="number" id="score" placeholder="0-300" min="0" max="300">
+                    <input type="number" id="score" placeholder="0-5000" min="0" max="5000">
                 </div>
 
-                <div class="form-group">
+
+
+                <div class="form-group" id="scoreInputGroup">
                     <label for="members">👥 隊員人數</label>
-                    <input type="number" id="members" placeholder="1-10" min="1" max="10" value="1">
+                    <input type="number" id="members" placeholder="1-16" min="1" max="16" value="1">
                 </div>
+                                <script>
+                    // 監聽局數選擇變化
+                    document.getElementById('roundSelect').addEventListener('change', function() {
+                        const scoreInputGroup = document.getElementById('scoreInputGroup');
+                        if (this.value === '第二局') {
+                            scoreInputGroup.style.display = 'none';
+                        } else {
+                            scoreInputGroup.style.display = 'block';
+                        }
+                    });
+                </script>
 
-                <button class="btn" onclick="submitScore()">📤 上傳分數</button>
+                <!-- <button class="btn" onclick="submitScore()">📤 上傳分數</button> -->
+                <!-- 找到你的上傳分數按鈕區域，通常在這附近： -->
+                <button onclick="submitScore()" class="btn">📤 上傳分數</button>
+
+                <!-- 在上傳按鈕下方加入清除按鈕 -->
+                <button onclick="showClearOptions()" class="clear-btn">
+                    🗑️ 清除分數選項
+                </button>
 
                 <div id="submitResult" class="result" style="display: none;"></div>
             </div>
@@ -372,9 +607,30 @@
 
             <!-- 除錯資訊區域 -->
             <div class="section debug-section">
-                <h2>🔧 除錯資訊</h2>
-                <div class="debug-content" id="debugInfo">載入中...</div>
+                <h2>
+                    🔧 除錯資訊
+                    <button id="toggleDebugBtn" style="margin-left: auto; padding: 5px 10px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; cursor: pointer; font-size: 0.8em;" onclick="toggleDebugSection()">
+                        顯示除錯資訊
+                    </button>
+                </h2>
+                <div class="debug-content" id="debugInfo" style="display: none; font-size: 14px; line-height: 1.5;">載入中...</div>
             </div>
+
+            <script>
+                function toggleDebugSection() {
+                    const debugContent = document.getElementById('debugInfo');
+                    const toggleBtn = document.getElementById('toggleDebugBtn');
+                    
+                    if (debugContent.style.display === 'none') {
+                        debugContent.style.display = 'block';
+                        toggleBtn.textContent = '隱藏除錯資訊';
+                        updateDebugInfo(); // 更新除錯資訊
+                    } else {
+                        debugContent.style.display = 'none';
+                        toggleBtn.textContent = '顯示除錯資訊';
+                    }
+                }
+            </script>
         </div>
     </div>
 
@@ -385,7 +641,7 @@
             test: 'https://weekly-large-calf.ngrok-free.app/webhook-test/bowling-score'
         };
 
-        let currentEnvironment = 'test';
+        let currentEnvironment = 'production';
         let currentRankings = [];
         // ============ 環境切換函數 ============
         function switchEnvironment(env) {
@@ -398,9 +654,8 @@
             document.querySelector(`[onclick="switchEnvironment('${env}')"]`).classList.add('active');
             
             updateDebugInfo();
-            showMessage(`已切換到 ${env === 'test' ? '測試' : '正式'} 環境`, 'info');
+            showMessage(`已切換到 ${env === 'production' ? '正式' : '測試'} 環境`, 'info');
         }
-
         // ============ 分數提交函數 (符合 n8n Action Switch) ============
         async function submitScore() {
             const teamName = document.getElementById('teamName').value.trim();
@@ -414,13 +669,13 @@
                 return;
             }
 
-            if (isNaN(score) || score < 0 || score > 300) {
-                showSubmitResult('請輸入有效分數 (0-300)', 'error');
+            if (isNaN(score) || score < 0 || score > 4800) {
+                showSubmitResult(`請輸入有效分數 (0-4800)`, 'error');
                 return;
             }
 
-            if (isNaN(members) || members < 1 || members > 10) {
-                showSubmitResult('請輸入有效隊員人數 (1-10)', 'error');
+            if (isNaN(members) || members < 1 || members > 16) {
+                showSubmitResult('請輸入有效隊員人數 (1-16)', 'error');
                 return;
             }
 
@@ -500,86 +755,114 @@
         }
 
         // ============ 獲取排名函數 (符合 n8n Action Switch) ============
-        async function getRankings() {
-            const resultDiv = document.getElementById('rankingResult');
-            
-            resultDiv.className = 'result info';
-            resultDiv.innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 2em; margin-bottom: 10px;">🔄</div>
-                    <h3>正在載入排名資料...</h3>
-                    <p>環境: ${currentEnvironment === 'test' ? '測試' : '正式'}</p>
-                </div>
-            `;
-            
-            try {
-                // 符合 n8n Action Switch 的請求格式
-                const requestData = {
-                    action: "getRankings",  // 對應您 n8n 的第二個路由規則
-                    timestamp: new Date().toISOString(),
-                    environment: currentEnvironment
-                };
+async function getRankings() {
+    const resultDiv = document.getElementById('rankingResult');
+    
+    resultDiv.className = 'result info';
+    resultDiv.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+            <div style="font-size: 2em; margin-bottom: 10px;">🔄</div>
+            <h3>正在載入排名資料...</h3>
+            <p>環境: ${currentEnvironment === 'test' ? '測試' : '正式'}</p>
+        </div>
+    `;
+    
+    try {
+        // 符合 n8n Action Switch 的請求格式
+        const requestData = {
+            action: "getRankings",  // 對應您 n8n 的第二個路由規則
+            timestamp: new Date().toISOString(),
+            environment: currentEnvironment
+        };
 
-                console.log('請求排名資料:', requestData);
+        console.log('請求排名資料:', requestData);
+        console.log('API 端點:', API_ENDPOINTS[currentEnvironment]);
 
-                const response = await fetch(API_ENDPOINTS[currentEnvironment], {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': 'true'
-                    },
-                    body: JSON.stringify(requestData),
-                    mode: 'cors'
-                });
+        const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'ngrok-skip-browser-warning': 'true'
+            },
+            body: JSON.stringify(requestData),
+            mode: 'cors'
+        });
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                let data;
-                const responseText = await response.text();
-                console.log('Raw ranking response:', responseText);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', [...response.headers.entries()]);
 
-                try {
-                    data = JSON.parse(responseText);
-                } catch (parseError) {
-                    throw new Error(`伺服器回應不是有效的 JSON`);
-                }
-                
-                if (data && data.success && data.rankings && Array.isArray(data.rankings)) {
-                    currentRankings = data.rankings;
-                    displayRankings(data.rankings, 'total');
-                } else if (data && Array.isArray(data)) {
-                    currentRankings = data;
-                    displayRankings(data, 'total');
-                } else {
-                    throw new Error(`資料格式不正確`);
-                }
-                
-            } catch (error) {
-                console.error('獲取排名失敗:', error);
-                
-                resultDiv.className = 'result error';
-                resultDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <h3>❌ 獲取排名失敗</h3>
-                        <p><strong>錯誤訊息：</strong>${error.message}</p>
-                        <p><strong>當前環境：</strong>${currentEnvironment === 'test' ? '測試' : '正式'}</p>
-                        
-                        <div style="margin-top: 15px;">
-                            <button onclick="testConnection()" style="margin: 5px; padding: 8px 16px; background: #ffc107; color: black; border: none; border-radius: 4px; cursor: pointer;">
-                                🔧 測試連線
-                            </button>
-                            <button onclick="getRankings()" style="margin: 5px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                🔄 重試
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.log('Error response:', errorText);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}\n回應內容: ${errorText}`);
         }
+        
+        let data;
+        const responseText = await response.text();
+        console.log('Raw ranking response:', responseText);
+        console.log('Response length:', responseText.length);
+        console.log('Response type:', typeof responseText);
+
+        // 檢查回應是否為空
+        if (!responseText || responseText.trim() === '') {
+            throw new Error('伺服器回應為空');
+        }
+
+        // 檢查回應是否看起來像 HTML（可能是錯誤頁面）
+        if (responseText.trim().startsWith('<')) {
+            throw new Error('伺服器回應是 HTML 而不是 JSON，可能是錯誤頁面');
+        }
+
+        try {
+            data = JSON.parse(responseText);
+            console.log('Parsed data:', data);
+        } catch (parseError) {
+            console.error('JSON 解析錯誤:', parseError);
+            console.log('無法解析的內容前 500 字元:', responseText.substring(0, 500));
+            throw new Error(`伺服器回應不是有效的 JSON:\n${responseText.substring(0, 200)}...`);
+        }
+        
+        // 檢查資料格式
+        if (data && data.success && data.rankings && Array.isArray(data.rankings)) {
+            console.log('使用 data.rankings 格式');
+            currentRankings = data.rankings;
+            displayRankings(data.rankings, 'total');
+        } else if (data && Array.isArray(data)) {
+            console.log('使用直接陣列格式');
+            currentRankings = data;
+            displayRankings(data, 'total');
+        } else {
+            console.log('未知的資料格式:', data);
+            throw new Error(`資料格式不正確。收到的資料: ${JSON.stringify(data).substring(0, 200)}...`);
+        }
+        
+    } catch (error) {
+        console.error('獲取排名失敗:', error);
+        
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <h3>❌ 獲取排名失敗</h3>
+                <p><strong>錯誤訊息：</strong>${error.message}</p>
+                <p><strong>當前環境：</strong>${currentEnvironment === 'test' ? '測試' : '正式'}</p>
+                <p><strong>API 端點：</strong>${API_ENDPOINTS[currentEnvironment]}</p>
+                
+                <div style="margin-top: 15px;">
+                    <button onclick="testConnection()" style="margin: 5px; padding: 8px 16px; background: #ffc107; color: black; border: none; border-radius: 4px; cursor: pointer;">
+                        🔧 測試連線
+                    </button>
+                    <button onclick="getRankings()" style="margin: 5px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        🔄 重試
+                    </button>
+                    <button onclick="console.log('API_ENDPOINTS:', API_ENDPOINTS); console.log('currentEnvironment:', currentEnvironment);" style="margin: 5px; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        🐛 調試資訊
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+}
 
         // ============ 測試連線函數 ============
         async function testConnection() {
@@ -768,6 +1051,348 @@ Action 格式: upload/getRankings (符合 n8n Action Switch)
             // 每30秒自動更新除錯資訊
             setInterval(updateDebugInfo, 30000);
         });
+
+        // 顯示清除選項彈窗
+function showClearOptions() {
+    const modal = document.createElement('div');
+    modal.innerHTML = `
+        <div class="modal-overlay" onclick="closeClearModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <h3>🗑️ 清除分數選項</h3>
+                
+                <div class="clear-options">
+                    <button onclick="clearAllScores()" class="option-btn danger">
+                        🗑️ 清除所有分數
+                        <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">清除所有隊伍所有局數的分數</div>
+                    </button>
+                    
+                    <button onclick="clearByRound()" class="option-btn warning">
+                        📊 清除特定局數
+                        <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">清除所有隊伍的某一局分數</div>
+                    </button>
+                    
+                    <button onclick="clearByTeam()" class="option-btn warning">
+                        👥 清除特定隊伍
+                        <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">清除某隊伍所有局數的分數</div>
+                    </button>
+                </div>
+                
+                <button onclick="closeClearModal()" class="option-btn secondary">
+                    ❌ 取消
+                </button>
+            </div>
+        </div>
+    `;
+    
+    modal.className = 'clear-modal';
+    document.body.appendChild(modal);
+}
+
+// 關閉清除選項彈窗
+function closeClearModal() {
+    const modal = document.querySelector('.clear-modal');
+    if (modal) {
+        modal.style.animation = 'fadeIn 0.3s ease reverse';
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+// 清除所有分數
+// 清除所有分數
+async function clearAllScores() {
+    if (!confirm('⚠️ 確定要清除所有隊伍的所有分數嗎？\n此操作無法復原！')) {
+        return;
+    }
+
+    try {
+        showLoadingMessage('🔄 正在清除所有分數...');
+        
+        const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+        const rounds = ['第一局', '第二局', '第三局'];
+        
+        let successCount = 0;
+        let totalCount = teams.length * rounds.length;
+        
+        for (const team of teams) {
+            for (const round of rounds) {
+                const clearData = {
+                    action: "upload",
+                    team_name: team,
+                    round: round,
+                    score: 0,
+                    members: 1,
+                    timestamp: new Date().toISOString(),
+                    environment: currentEnvironment
+                };
+
+                const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(clearData)
+                });
+
+                if (response.ok) {
+                    successCount++;
+                }
+            }
+        }
+
+        hideLoadingMessage();
+        showSubmitResult(`✅ 成功清除 ${successCount}/${totalCount} 項分數！`, 'success');
+        closeClearModal();
+        
+        setTimeout(async () => {
+            try {
+                console.log('嘗試更新排名...');
+                await getRankings();
+            } catch (error) {
+                console.log('自動更新排名失敗，但清除操作已完成:', error.message);
+            }
+        }, 1000);
+        
+    } catch (error) {
+        hideLoadingMessage();
+        console.error('清除所有分數錯誤:', error);
+        showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
+    }
+}
+
+// 按局數清除
+async function clearByRound() {
+    const rounds = ['第一局', '第二局', '第三局'];
+    const roundOptions = rounds.map((round, index) => 
+        `${index + 1}. ${round}`
+    ).join('\n');
+    
+    const roundChoice = prompt(`請選擇要清除的局數 (輸入數字):\n${roundOptions}`);
+    
+    if (!roundChoice || isNaN(roundChoice) || roundChoice < 1 || roundChoice > rounds.length) {
+        showSubmitResult('❌ 請輸入有效的局數選項', 'error');
+        return;
+    }
+    
+    const selectedRound = rounds[parseInt(roundChoice) - 1];
+    
+    if (!confirm(`⚠️ 確定要清除所有隊伍的「${selectedRound}」分數嗎？`)) {
+        return;
+    }
+
+    try {
+        showLoadingMessage(`🔄 正在清除${selectedRound}分數...`);
+        
+        const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+        let successCount = 0;
+        
+        for (const team of teams) {
+            const clearData = {
+                action: "upload",
+                team_name: team,
+                round: selectedRound,
+                score: 0,
+                members: 1,
+                timestamp: new Date().toISOString(),
+                environment: currentEnvironment
+            };
+            
+            const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                body: JSON.stringify(clearData)
+            });
+            
+            if (response.ok) {
+                successCount++;
+            }
+        }
+        
+        hideLoadingMessage();
+        showSubmitResult(`✅ 成功清除 ${successCount}/${teams.length} 隊的${selectedRound}分數！`, 'success');
+        closeClearModal();
+        
+        setTimeout(async () => {
+            try {
+                console.log('嘗試更新排名...');
+                await getRankings();
+            } catch (error) {
+                console.log('自動更新排名失敗，但清除操作已完成:', error.message);
+            }
+        }, 1000);
+        
+    } catch (error) {
+        hideLoadingMessage();
+        console.error('清除局數分數錯誤:', error);
+        showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
+    }
+} // ← 這個結束括號很重要！
+
+// 按隊伍清除
+async function clearByTeam() {
+    const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+    const teamOptions = teams.map((team, index) => 
+        `${index + 1}. ${team}隊`
+    ).join('\n');
+    
+    const teamChoice = prompt(`請選擇要清除的隊伍 (輸入數字):\n${teamOptions}`);
+    
+    if (!teamChoice || isNaN(teamChoice) || teamChoice < 1 || teamChoice > teams.length) {
+        showSubmitResult('❌ 請輸入有效的隊伍選項', 'error');
+        return;
+    }
+    
+    const selectedTeam = teams[parseInt(teamChoice) - 1];
+    
+    if (!confirm(`⚠️ 確定要清除「${selectedTeam}隊」所有局數的分數嗎？`)) {
+        return;
+    }
+
+    try {
+        showLoadingMessage(`🔄 正在清除${selectedTeam}隊分數...`);
+        
+        const rounds = ['第一局', '第二局', '第三局'];
+        let successCount = 0;
+        
+        for (const round of rounds) {
+            const clearData = {
+                action: "upload",
+                team_name: selectedTeam,
+                round: round,
+                score: 0,
+                members: 1,
+                timestamp: new Date().toISOString(),
+                environment: currentEnvironment
+            };
+            
+            const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                body: JSON.stringify(clearData)
+            });
+            
+            if (response.ok) {
+                successCount++;
+            }
+        }
+        
+        hideLoadingMessage();
+        showSubmitResult(`✅ 成功清除 ${selectedTeam}隊 ${successCount}/${rounds.length} 局分數！`, 'success');
+        closeClearModal();
+        
+        setTimeout(async () => {
+            try {
+                console.log('嘗試更新排名...');
+                await getRankings();
+            } catch (error) {
+                console.log('自動更新排名失敗，但清除操作已完成:', error.message);
+            }
+        }, 1000);
+        
+    } catch (error) {
+        hideLoadingMessage();
+        console.error('清除隊伍分數錯誤:', error);
+        showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
+    }
+}
+
+// 顯示載入訊息
+function showLoadingMessage(message) {
+    hideLoadingMessage();
+    
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'loading-message';
+    loadingDiv.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            z-index: 2000;
+            font-size: 16px;
+            font-weight: 600;
+        ">
+            ${message}
+        </div>
+    `;
+    
+    document.body.appendChild(loadingDiv);
+}
+
+// 隱藏載入訊息
+function hideLoadingMessage() {
+    const loadingDiv = document.getElementById('loading-message');
+    if (loadingDiv) {
+        loadingDiv.remove();
+    }
+}
+
+// 顯示訊息的函數
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    messageDiv.textContent = message;
+    
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        z-index: 1500;
+        max-width: 300px;
+        word-wrap: break-word;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    switch(type) {
+        case 'success':
+            messageDiv.style.background = 'linear-gradient(135deg, #4caf50, #45a049)';
+            break;
+        case 'error':
+            messageDiv.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)';
+            break;
+        default:
+            messageDiv.style.background = 'linear-gradient(135deg, #2196f3, #1976d2)';
+    }
+    
+    if (!document.getElementById('message-animations')) {
+        const style = document.createElement('style');
+        style.id = 'message-animations';
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.style.animation = 'slideInRight 0.3s ease reverse';
+            setTimeout(() => messageDiv.remove(), 300);
+        }
+    }, 3000);
+}
+
     </script>
 </body>
 </html>
