@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>保齡球比賽即時排名</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5em;
+        }
+
+        .ranking-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .ranking-btn {
+            flex: 1;
+            min-width: 150px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ranking-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .update-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+        }
+
+        .update-btn:hover {
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 100px;
+        }
+
+        .result.success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result.info {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .ranking-table th,
+        .ranking-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .ranking-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .ranking-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .timestamp {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .refresh-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 自動更新指示器 */
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .auto-refresh input {
+            margin-right: 8px;
+        }
+
+        /* 加載動畫 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .section {
+                padding: 15px;
+            }
+
+            .ranking-buttons {
+                flex-direction: column;
+            }
+
+            .ranking-btn {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎳 保齡球比賽即時排名</h1>
+            <p>總分排名 · 即時更新</p>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>🏅 比賽排名</h2>
+                
+                <div class="ranking-buttons">
+                    <button class="ranking-btn" onclick="displayRankings('round1')">🎯 第一局排名</button>
+                    <button class="ranking-btn" onclick="displayRankings('total')">📊 總分排名</button>
+                </div>
+
+                <div id="rankingResult" class="result info">
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">🎳</div>
+                        <h3>正在載入比賽排名...</h3>
+                        <p>資料將在幾秒鐘內顯示</p>
+                        <div class="loading" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+
+                <div class="timestamp" id="lastUpdated">
+                    最後更新時間: 載入中...
+                </div>
+
+                <div class="refresh-container">
+                    <button class="refresh-btn" onclick="getRankings()">
+                        🔄 立即更新排名
+                    </button>
+                    
+                    <div class="auto-refresh">
+                        <input type="checkbox" id="autoRefresh" checked>
+                        <label for="autoRefresh">自動更新 (每30秒)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ 全域變數和配置 ============
+        const API_ENDPOINT = 'https://weekly-large-calf.ngrok-free.app/webhook/bowling-score';
+        let currentRankings = [];
+        let currentDisplayMode = 'total';
+        let autoRefreshInterval;
+        
+        // ============ 獲取排名函數 ============
+        async function getRankings() {
+            const resultDiv = document.getElementById('rankingResult');
+            
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 2em; margin-bottom: 10px;">🔄</div>
+                    <h3>正在載入排名資料...</h3>
+                    <p>請稍候片刻</p>
+                </div>
+            `;
+            
+            try {
+                const requestData = {
+                    action: "getRankings",
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(requestData),
+                    mode: 'cors'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                let data;
+                const responseText = await response.text();
+
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    throw new Error(`伺服器回應不是有效的 JSON`);
+                }
+                
+                if (data && data.success && data.rankings && Array.isArray(data.rankings)) {
+                    currentRankings = data.rankings;
+                    displayRankings(currentDisplayMode);
+                } else if (data && Array.isArray(data)) {
+                    currentRankings = data;
+                    displayRankings(currentDisplayMode);
+                } else {
+                    throw new Error(`資料格式不正確`);
+                }
+                
+                // 更新最後更新時間
+                updateLastUpdatedTime();
+                
+            } catch (error) {
+                console.error('獲取排名失敗:', error);
+                
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3>❌ 無法獲取排名</h3>
+                        <p>請稍後再試</p>
+                        
+                        <div style="margin-top: 15px;">
+                            <button onclick="getRankings()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                🔄 重新嘗試
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // ============ 顯示排名函數 ============
+        function displayRankings(type = 'total') {
+            currentDisplayMode = type;
+            const resultDiv = document.getElementById('rankingResult');
+            
+            if (!currentRankings || !Array.isArray(currentRankings) || currentRankings.length === 0) {
+                resultDiv.className = 'result info';
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3>📋 暫無比賽資料</h3>
+                        <p>目前還沒有任何隊伍上傳成績</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const typeTitle = type === 'round1' ? '第一局排名' : '總分排名';
+            const showTotal = type === 'total';
+            
+            // 排序邏輯
+            let sortedRankings = [...currentRankings];
+            if (type === 'round1') {
+                sortedRankings.sort((a, b) => (b.round1_score || 0) - (a.round1_score || 0));
+            } else {
+                sortedRankings.sort((a, b) => (b.total_score || 0) - (a.total_score || 0));
+            }
+            
+            let tableHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h3 style="color: #333; margin: 0;">
+                        ${showTotal ? '🏆' : '🎯'} ${typeTitle}
+                    </h3>
+                    <p style="color: #666; margin: 5px 0;">共 ${sortedRankings.length} 支隊伍參賽</p>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>🏅 排名</th>
+                                <th>🏆 隊伍</th>
+                                <th>🎯 第一局</th>
+                                ${showTotal ? '<th>🎯 第二局</th>' : ''}
+                                ${showTotal ? '<th>📊 總分</th>' : ''}
+                                <th>👥 人數</th>
+                                <th>📈 平均</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            sortedRankings.forEach((team, index) => {
+                const rank = index + 1;
+                const round1 = team.round1_score || 0;
+                const round2 = team.round2_score || 0;
+                const total = team.total_score || round1 + round2;
+                const members = team.members || 1;
+                const average = Math.round(total / members);
+                
+                const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+                
+                tableHTML += `
+                    <tr>
+                        <td><strong>${rankIcon}</strong></td>
+                        <td><strong>${team.team_name || '未知隊伍'}</strong></td>
+                        <td>${round1}</td>
+                        ${showTotal ? `<td>${round2}</td>` : ''}
+                        ${showTotal ? `<td><strong>${total}</strong></td>` : ''}
+                        <td>${members}</td>
+                        <td>${average}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            resultDiv.className = 'result success';
+            resultDiv.innerHTML = tableHTML;
+            
+            // 高亮顯示當前選中的按鈕
+            document.querySelectorAll('.ranking-btn').forEach(btn => {
+                if ((type === 'round1' && btn.textContent.includes('第一局')) || 
+                    (type === 'total' && btn.textContent.includes('總分'))) {
+                    btn.style.background = 'linear-gradient(135deg, #1e88e5, #1565c0)';
+                    btn.style.boxShadow = '0 4px 15px rgba(30, 136, 229, 0.3)';
+                } else {
+                    btn.style.background = '';
+                    btn.style.boxShadow = '';
+                }
+            });
+        }
+
+        // 更新最後更新時間
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-TW');
+            const dateString = now.toLocaleDateString('zh-TW');
+            document.getElementById('lastUpdated').textContent = `最後更新時間: ${dateString} ${timeString}`;
+        }
+
+        // 設置自動更新
+        function setupAutoRefresh() {
+            const checkbox = document.getElementById('autoRefresh');
+            
+            // 初始設定
+            if (checkbox.checked) {
+                startAutoRefresh();
+            }
+            
+            // 監聽變化
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    startAutoRefresh();
+                } else {
+                    stopAutoRefresh();
+                }
+            });
+        }
+        
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            autoRefreshInterval = setInterval(() => {
+                getRankings();
+            }, 30000); // 每30秒更新一次
+            
+            console.log('自動更新已啟動');
+        }
+        
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                console.log('自動更新已停止');
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎳 保齡球比賽即時排名頁面已載入');
+            getRankings();
+            setupAutoRefresh();
+            
+            // 設置頁面標題自動更新
+            setInterval(() => {
+                if (currentRankings && currentRankings.length > 0) {
+                    // 取得排名前三的隊伍
+                    const topTeams = [...currentRankings]
+                        .sort((a, b) => (b.total_score || 0) - (a.total_score || 0))
+                        .slice(0, 3);
+                    
+                    if (topTeams.length > 0) {
+                        const leader = topTeams[0];
+                        document.title = `🥇 ${leader.team_name}隊領先 - 保齡球比賽排名`;
+                    }
+                }
+            }, 60000); // 每分鐘更新一次標題
+        });
+
+        // 當視窗獲得焦點時自動更新
+        window.addEventListener('focus', function() {
+            getRankings();
+        });
+    </script>
+</body>
+</html>
