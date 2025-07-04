@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>保齡球比賽即時排名</title>
+    
+    <!-- 保齡球圖示 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23000'/><circle cx='35' cy='35' r='4' fill='%23fff'/><circle cx='50' cy='30' r='4' fill='%23fff'/><circle cx='65' cy='35' r='4' fill='%23fff'/></svg>" type="image/svg+xml">
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23000'/><circle cx='35' cy='35' r='4' fill='%23fff'/><circle cx='50' cy='30' r='4' fill='%23fff'/><circle cx='65' cy='35' r='4' fill='%23fff'/></svg>" type="image/svg+xml">
+    
     <style>
         * {
             margin: 0;
@@ -1059,7 +1064,10 @@
         
         // 抽籤歷史記錄（用於避免連續相同結果）
         let recentLotteryResults = [];
-        const MAX_RECENT_RESULTS = 3; // 記錄最近3次結果
+        const MAX_RECENT_RESULTS = 5; // 記錄最近5次結果，更好地分析模式
+        
+        // 抽籤併發控制
+        let isDrawingLottery = false;
         
         // ============ 智慧抽籤功能 ============
         
@@ -1069,34 +1077,83 @@
                 return '正常投球';
             }
             
-            // 如果只有1-2種方式，直接隨機選擇
-            if (LOTTERY_STYLES.length <= 2) {
+            // 如果只有1種方式，直接返回
+            if (LOTTERY_STYLES.length === 1) {
+                return LOTTERY_STYLES[0];
+            }
+            
+            // 如果只有2種方式，確保不重複
+            if (LOTTERY_STYLES.length === 2) {
+                if (recentLotteryResults.length > 0) {
+                    const lastResult = recentLotteryResults[recentLotteryResults.length - 1];
+                    const otherStyle = LOTTERY_STYLES.find(style => style !== lastResult);
+                    if (otherStyle) {
+                        console.log(`2種方式避免重複: 上次 ${lastResult}, 這次 ${otherStyle}`);
+                        return otherStyle;
+                    }
+                }
+                // 如果沒有歷史記錄，隨機選擇
                 const randomIndex = Math.floor(Math.random() * LOTTERY_STYLES.length);
                 return LOTTERY_STYLES[randomIndex];
             }
             
-            // 獲取可選的投球方式（排除最近的重複結果）
+            // 3種或以上方式的智慧選擇
             let availableStyles = [...LOTTERY_STYLES];
             
-            // 如果最近2次結果相同，排除該結果
+            // 排除最近1次的結果（更積極避免重複）
+            if (recentLotteryResults.length >= 1) {
+                const lastResult = recentLotteryResults[recentLotteryResults.length - 1];
+                availableStyles = availableStyles.filter(style => style !== lastResult);
+                console.log(`避免重複上次結果: ${lastResult}, 可選項目:`, availableStyles);
+            }
+            
+            // 如果最近2次結果相同，更強力排除
             if (recentLotteryResults.length >= 2) {
                 const lastTwo = recentLotteryResults.slice(-2);
                 if (lastTwo[0] === lastTwo[1]) {
+                    // 強制排除連續出現的結果
                     availableStyles = availableStyles.filter(style => style !== lastTwo[0]);
-                    console.log(`避免連續重複: ${lastTwo[0]}, 可選項目:`, availableStyles);
+                    console.log(`強制避免連續重複: ${lastTwo[0]}, 剩餘選項:`, availableStyles);
                 }
             }
             
-            // 如果過濾後沒有可選項目，使用所有選項
+            // 如果最近3次中有2次相同，也要避免
+            if (recentLotteryResults.length >= 3) {
+                const lastThree = recentLotteryResults.slice(-3);
+                const counts = {};
+                lastThree.forEach(style => {
+                    counts[style] = (counts[style] || 0) + 1;
+                });
+                
+                // 找出出現2次或以上的投球方式
+                const frequentStyles = Object.keys(counts).filter(style => counts[style] >= 2);
+                if (frequentStyles.length > 0) {
+                    const originalLength = availableStyles.length;
+                    availableStyles = availableStyles.filter(style => !frequentStyles.includes(style));
+                    if (availableStyles.length < originalLength) {
+                        console.log(`避免頻繁出現的方式: ${frequentStyles.join(', ')}, 剩餘選項:`, availableStyles);
+                    }
+                }
+            }
+            
+            // 如果過濾後沒有可選項目，至少排除最近1次的結果
             if (availableStyles.length === 0) {
                 availableStyles = [...LOTTERY_STYLES];
+                if (recentLotteryResults.length >= 1) {
+                    const lastResult = recentLotteryResults[recentLotteryResults.length - 1];
+                    const filtered = availableStyles.filter(style => style !== lastResult);
+                    if (filtered.length > 0) {
+                        availableStyles = filtered;
+                    }
+                }
+                console.log('重置選項但避免最近結果:', availableStyles);
             }
             
             // 從可選項目中隨機選擇
             const randomIndex = Math.floor(Math.random() * availableStyles.length);
             const selectedStyle = availableStyles[randomIndex];
             
-            console.log(`智慧抽籤: 選中 ${selectedStyle}, 最近結果:`, recentLotteryResults);
+            console.log(`智慧抽籤結果: ${selectedStyle}, 歷史:`, recentLotteryResults, '可選項:', availableStyles);
             return selectedStyle;
         }
         
@@ -1730,6 +1787,12 @@
         
         // ============ 抽籤功能 ============
         async function drawLottery() {
+            // 防止重複抽籤
+            if (isDrawingLottery) {
+                alert('⏳ 正在抽籤中，請稍候...');
+                return;
+            }
+            
             const teamSelect = document.getElementById('lotteryTeam');
             const roundSelect = document.getElementById('lotteryRound');
             const resultDiv = document.getElementById('lotteryResult');
@@ -1746,6 +1809,9 @@
                 return;
             }
             
+            // 設置抽籤狀態
+            isDrawingLottery = true;
+            
             // 禁用按鈕
             lotteryBtn.disabled = true;
             lotteryBtn.textContent = '檢查抽籤狀態...';
@@ -1760,15 +1826,16 @@
                 </div>
             `;
             
-            // 檢查是否已經抽過籤
-            const hasDrawn = await checkLotteryHistory(team, round);
-            
-            if (hasDrawn) {
-                // 顯示已抽籤的錯誤訊息
-                resultDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <div style="font-size: 3em; margin-bottom: 15px;">❌</div>
-                        <h3 style="color: #d32f2f; margin-bottom: 15px;">抽籤被拒絕</h3>
+            try {
+                // 檢查是否已經抽過籤
+                const hasDrawn = await checkLotteryHistory(team, round);
+                
+                if (hasDrawn) {
+                    // 顯示已抽籤的錯誤訊息
+                    resultDiv.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 3em; margin-bottom: 15px;">❌</div>
+                            <h3 style="color: #d32f2f; margin-bottom: 15px;">抽籤被拒絕</h3>
                         <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
                             <p style="font-weight: 600; margin-bottom: 10px;">
                                 <strong>${team}隊</strong> 的 <strong>${round}</strong> 已經抽過籤了！
@@ -1788,6 +1855,8 @@
                     </div>
                 `;
                 
+                // 重置併發狀態
+                isDrawingLottery = false;
                 lotteryBtn.disabled = false;
                 lotteryBtn.textContent = '🎲 開始抽籤';
                 return;
@@ -1808,6 +1877,8 @@
                     </div>
                 `;
                 updateSourceStatus('error', '沒有可用的投球方式');
+                // 重置併發狀態
+                isDrawingLottery = false;
                 lotteryBtn.disabled = false;
                 lotteryBtn.textContent = '🎲 開始抽籤';
                 return;
@@ -1936,11 +2007,32 @@
                     resultDiv.appendChild(errorMsg);
                 }
                 
-                // 重新啟用按鈕
+                // 重新啟用按鈕並重置併發狀態
+                isDrawingLottery = false;
                 lotteryBtn.disabled = false;
                 lotteryBtn.textContent = '🎲 開始抽籤';
                 
             }, 2000);
+            
+            } catch (error) {
+                console.error('抽籤過程發生錯誤:', error);
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 3em; margin-bottom: 15px;">⚠️</div>
+                        <h3 style="color: #f57c00;">抽籤發生錯誤</h3>
+                        <p style="color: #666; margin-top: 10px;">
+                            ${error.message || '未知錯誤，請稍後再試'}
+                        </p>
+                    </div>
+                `;
+            } finally {
+                // 確保併發狀態被重置
+                isDrawingLottery = false;
+                if (lotteryBtn.disabled) {
+                    lotteryBtn.disabled = false;
+                    lotteryBtn.textContent = '🎲 開始抽籤';
+                }
+            }
         }
         
         // ============ 儲存抽籤結果 ============
