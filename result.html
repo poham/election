@@ -557,6 +557,56 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* 抽籤隊伍鎖定功能樣式 */
+        .lottery-lock-btn {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 100px;
+        }
+
+        .lottery-lock-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .lottery-lock-btn.locked {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .lottery-lock-btn.locked:hover {
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .lottery-lock-status {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .lottery-lock-status.locked {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #155724;
+        }
+
+        @media (max-width: 768px) {
+            .lottery-lock-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                min-width: 80px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -580,19 +630,34 @@
 
                     <div class="form-group">
                         <label for="lotteryTeam">🏆 選擇隊伍</label>
-                        <select id="lotteryTeam">
-                            <option value="">請選擇隊伍</option>
-                            <option value="A">A隊</option>
-                            <option value="B">B隊</option>
-                            <option value="C">C隊</option>
-                            <option value="D">D隊</option>
-                            <option value="E">E隊</option>
-                            <option value="F">F隊</option>
-                            <option value="G">G隊</option>
-                            <option value="H">H隊</option>
-                            <option value="I">I隊</option>
-                            <option value="J">J隊</option>
-                        </select>
+                        <div style="display: flex; gap: 10px; align-items: flex-end;">
+                            <select id="lotteryTeam" style="flex: 1;">
+                                <option value="">請選擇隊伍</option>
+                                <option value="A">A隊</option>
+                                <option value="B">B隊</option>
+                                <option value="C">C隊</option>
+                                <option value="D">D隊</option>
+                                <option value="E">E隊</option>
+                                <option value="F">F隊</option>
+                                <option value="G">G隊</option>
+                                <option value="H">H隊</option>
+                                <option value="I">I隊</option>
+                                <option value="J">J隊</option>
+                            </select>
+                            <button type="button" id="lotteryLockButton" class="lottery-lock-btn" onclick="toggleLotteryTeamLock()">
+                                🔒 鎖定隊伍
+                            </button>
+                        </div>
+                        
+                        <!-- 隊伍鎖定狀態顯示 -->
+                        <div id="lotteryLockStatus" class="lottery-lock-status" style="display: none;">
+                            🔒 已鎖定：<strong>A隊</strong>
+                        </div>
+                        
+                        <!-- 隊伍鎖定提示 -->
+                        <div id="lotteryLockHint" style="display: none;">
+                            <!-- 提示內容會動態填入 -->
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -705,6 +770,154 @@
         
         // 已抽籤記錄（用於限制每組每局只能抽一次）
         let lotteryHistory = new Set();
+        
+        // ============ 隊伍鎖定功能 ============
+        let selectedLotteryTeam = '';
+        let isLotteryTeamLocked = false;
+        
+        // 初始化隊伍鎖定功能
+        function initializeLotteryTeamLock() {
+            const teamSelect = document.getElementById('lotteryTeam');
+            
+            if (teamSelect) {
+                // 監聽隊伍選擇變化
+                teamSelect.addEventListener('change', function() {
+                    const newTeam = this.value;
+                    if (newTeam && newTeam !== selectedLotteryTeam) {
+                        selectedLotteryTeam = newTeam;
+                        updateLotteryLockStatus();
+                        
+                        // 顯示鎖定提示
+                        if (!isLotteryTeamLocked && newTeam) {
+                            showLotteryLockHint();
+                        }
+                    }
+                });
+            }
+        }
+        
+        // 顯示抽籤隊伍鎖定提示
+        function showLotteryLockHint() {
+            const hintDiv = document.getElementById('lotteryLockHint');
+            if (hintDiv) {
+                hintDiv.style.display = 'block';
+                hintDiv.innerHTML = `
+                    <div style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 8px; padding: 12px; margin: 10px 0; font-size: 14px;">
+                        💡 <strong>提示：</strong>點擊 🔒 按鈕可以鎖定 <strong>${selectedLotteryTeam}隊</strong>，方便連續為該隊伍抽第一局和第二局
+                    </div>
+                `;
+                
+                // 5秒後自動隱藏提示
+                setTimeout(() => {
+                    if (hintDiv && !isLotteryTeamLocked) {
+                        hintDiv.style.display = 'none';
+                    }
+                }, 5000);
+            }
+        }
+        
+        // 切換抽籤隊伍鎖定狀態
+        function toggleLotteryTeamLock() {
+            const teamSelect = document.getElementById('lotteryTeam');
+            const lockButton = document.getElementById('lotteryLockButton');
+            
+            if (!selectedLotteryTeam || !teamSelect.value) {
+                alert('請先選擇隊伍！');
+                return;
+            }
+            
+            isLotteryTeamLocked = !isLotteryTeamLocked;
+            selectedLotteryTeam = teamSelect.value;
+            updateLotteryLockStatus();
+            
+            // 顯示鎖定結果
+            const resultDiv = document.getElementById('lotteryResult');
+            if (isLotteryTeamLocked) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">🔒</div>
+                        <h3 style="color: #28a745;">已鎖定 ${selectedLotteryTeam}隊</h3>
+                        <p style="color: #666; margin-top: 10px;">現在可以連續為該隊伍抽第一局和第二局投球方式</p>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">🔓</div>
+                        <h3 style="color: #6c757d;">已解鎖隊伍選擇</h3>
+                        <p style="color: #666; margin-top: 10px;">現在可以自由選擇其他隊伍進行抽籤</p>
+                    </div>
+                `;
+            }
+            
+            // 3秒後隱藏結果
+            setTimeout(() => {
+                if (resultDiv.innerHTML.includes('已鎖定') || resultDiv.innerHTML.includes('已解鎖')) {
+                    resultDiv.style.display = 'none';
+                }
+            }, 3000);
+        }
+        
+        // 更新抽籤隊伍鎖定狀態顯示
+        function updateLotteryLockStatus() {
+            const teamSelect = document.getElementById('lotteryTeam');
+            const lockButton = document.getElementById('lotteryLockButton');
+            const lockStatus = document.getElementById('lotteryLockStatus');
+            const hintDiv = document.getElementById('lotteryLockHint');
+            
+            if (lockButton && lockStatus) {
+                if (isLotteryTeamLocked && selectedLotteryTeam) {
+                    // 鎖定狀態
+                    lockButton.innerHTML = '🔓 解鎖';
+                    lockButton.className = 'lottery-lock-btn locked';
+                    lockStatus.innerHTML = `🔒 已鎖定：<strong>${selectedLotteryTeam}隊</strong>`;
+                    lockStatus.className = 'lottery-lock-status locked';
+                    lockStatus.style.display = 'block';
+                    
+                    // 禁用隊伍選擇
+                    if (teamSelect) {
+                        teamSelect.disabled = true;
+                        teamSelect.style.opacity = '0.6';
+                    }
+                    
+                    // 隱藏提示
+                    if (hintDiv) {
+                        hintDiv.style.display = 'none';
+                    }
+                } else {
+                    // 解鎖狀態
+                    lockButton.innerHTML = '🔒 鎖定隊伍';
+                    lockButton.className = 'lottery-lock-btn';
+                    lockStatus.style.display = 'none';
+                    
+                    // 啟用隊伍選擇
+                    if (teamSelect) {
+                        teamSelect.disabled = false;
+                        teamSelect.style.opacity = '1';
+                    }
+                }
+            }
+        }
+        
+        // 自動填入鎖定的抽籤隊伍
+        function autoFillLockedLotteryTeam() {
+            if (isLotteryTeamLocked && selectedLotteryTeam) {
+                const teamSelect = document.getElementById('lotteryTeam');
+                if (teamSelect && teamSelect.value !== selectedLotteryTeam) {
+                    teamSelect.value = selectedLotteryTeam;
+                }
+                return true;
+            }
+            return false;
+        }
+        
+        // 重置抽籤隊伍鎖定
+        function resetLotteryTeamLock() {
+            isLotteryTeamLocked = false;
+            selectedLotteryTeam = '';
+            updateLotteryLockStatus();
+        }
         
         // ============ 表格放大功能 ============
         let tooltipTimeout;
@@ -1127,6 +1340,9 @@
             const resultDiv = document.getElementById('lotteryResult');
             const lotteryBtn = document.querySelector('.lottery-btn');
             
+            // 如果隊伍被鎖定，自動填入鎖定的隊伍
+            autoFillLockedLotteryTeam();
+            
             const team = teamSelect.value;
             const round = roundSelect.value;
             
@@ -1213,6 +1429,7 @@
                     <div class="lottery-text">
                         <h3>正在為 ${team}隊 ${round} 抽籤...</h3>
                         <p>投球方式來源: ${stylesSource === 'google-sheets' ? 'Google Sheets' : '預設備份'}</p>
+                        ${isLotteryTeamLocked ? `<p style="color: #28a745; font-weight: 600;">🔒 隊伍已鎖定</p>` : ''}
                     </div>
                 </div>
             `;
@@ -1250,6 +1467,7 @@
                                     <span style="font-size: 1.5em; font-weight: bold;">${selectedStyle}</span>
                                 </div>
                                 <small style="opacity: 0.8;">來源: ${stylesSource === 'google-sheets' ? 'Google Sheets' : '預設備份'}</small>
+                                ${isLotteryTeamLocked ? `<br><small style="color: #28a745; font-weight: 600;">🔒 隊伍鎖定中</small>` : ''}
                             </div>
                         </div>
                     </div>
@@ -1278,6 +1496,7 @@
                                 <small style="opacity: 0.9;">
                                     ${team}隊 ${round} 已完成抽籤<br>
                                     該組合已被鎖定，無法再次抽籤
+                                    ${isLotteryTeamLocked ? '<br>🔒 隊伍保持鎖定狀態，可繼續為該隊伍抽其他局數' : ''}
                                 </small>
                             </div>
                         `;
@@ -1615,6 +1834,9 @@
             
             // 初始化表格放大功能
             initTableZoom();
+            
+            // 初始化抽籤隊伍鎖定功能
+            initializeLotteryTeamLock();
             
             getRankings();
             setupAutoRefresh();

@@ -531,6 +531,132 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        /* 進度條樣式 */
+        .progress-container {
+            margin: 20px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .progress-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-header h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .team-status {
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .team-status.pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .team-status.processing {
+            background: #cce5ff;
+            color: #0066cc;
+            border: 1px solid #99d6ff;
+            animation: pulse 1.5s infinite;
+        }
+
+        .team-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .team-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .progress-summary {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .progress-summary h5 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-number.success { color: #28a745; }
+        .stat-number.error { color: #dc3545; }
+        .stat-number.total { color: #6c757d; }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 0;
@@ -595,6 +721,69 @@
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
+            
+            .team-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .team-status {
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+            
+            .summary-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .team-lock-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                min-width: 80px;
+            }
+        }
+
+        /* 隊伍鎖定功能樣式 */
+        .team-lock-btn {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 100px;
+        }
+
+        .team-lock-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .team-lock-btn.locked {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .team-lock-btn.locked:hover {
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .team-lock-status {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .team-lock-status.locked {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #155724;
         }
     </style>
 </head>
@@ -633,18 +822,33 @@
                 
                 <div class="form-group">
                     <label for="teamName">🏆 隊伍名稱</label>
-                    <select id="teamName">
-                        <option value="A">A隊</option>
-                        <option value="B">B隊</option>
-                        <option value="C">C隊</option>
-                        <option value="D">D隊</option>
-                        <option value="E">E隊</option>
-                        <option value="F">F隊</option>
-                        <option value="G">G隊</option>
-                        <option value="H">H隊</option>
-                        <option value="I">I隊</option>
-                        <option value="J">J隊</option>
-                    </select>
+                    <div style="display: flex; gap: 10px; align-items: flex-end;">
+                        <select id="teamName" style="flex: 1;">
+                            <option value="A">A隊</option>
+                            <option value="B">B隊</option>
+                            <option value="C">C隊</option>
+                            <option value="D">D隊</option>
+                            <option value="E">E隊</option>
+                            <option value="F">F隊</option>
+                            <option value="G">G隊</option>
+                            <option value="H">H隊</option>
+                            <option value="I">I隊</option>
+                            <option value="J">J隊</option>
+                        </select>
+                        <button type="button" id="teamLockButton" class="team-lock-btn" onclick="toggleTeamLock()">
+                            🔒 鎖定隊伍
+                        </button>
+                    </div>
+                    
+                    <!-- 隊伍鎖定狀態顯示 -->
+                    <div id="teamLockStatus" class="team-lock-status" style="display: none;">
+                        🔒 已鎖定：<strong>A隊</strong>
+                    </div>
+                    
+                    <!-- 隊伍鎖定提示 -->
+                    <div id="teamLockHint" style="display: none;">
+                        <!-- 提示內容會動態填入 -->
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -995,6 +1199,133 @@
             hideTooltip();
         }
 
+        // ============ 隊伍選擇記憶功能 ============
+        let selectedTeam = '';
+        let isTeamLocked = false;
+        
+        // 初始化隊伍選擇記憶
+        function initializeTeamMemory() {
+            const teamSelect = document.getElementById('teamName');
+            const lockButton = document.getElementById('teamLockButton');
+            
+            if (teamSelect) {
+                // 監聽隊伍選擇變化
+                teamSelect.addEventListener('change', function() {
+                    const newTeam = this.value;
+                    if (newTeam && newTeam !== selectedTeam) {
+                        selectedTeam = newTeam;
+                        updateTeamLockStatus();
+                        
+                        // 顯示鎖定提示
+                        if (!isTeamLocked && newTeam) {
+                            showTeamLockHint();
+                        }
+                    }
+                });
+            }
+        }
+        
+        // 顯示隊伍鎖定提示
+        function showTeamLockHint() {
+            const hintDiv = document.getElementById('teamLockHint');
+            if (hintDiv) {
+                hintDiv.style.display = 'block';
+                hintDiv.innerHTML = `
+                    <div style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 8px; padding: 12px; margin: 10px 0; font-size: 14px;">
+                        💡 <strong>提示：</strong>點擊 🔒 按鈕可以鎖定 <strong>${selectedTeam}隊</strong>，之後輸入分數時不需要重新選擇隊伍
+                    </div>
+                `;
+                
+                // 3秒後自動隱藏提示
+                setTimeout(() => {
+                    if (hintDiv && !isTeamLocked) {
+                        hintDiv.style.display = 'none';
+                    }
+                }, 5000);
+            }
+        }
+        
+        // 切換隊伍鎖定狀態
+        function toggleTeamLock() {
+            const teamSelect = document.getElementById('teamName');
+            const lockButton = document.getElementById('teamLockButton');
+            
+            if (!selectedTeam || !teamSelect.value) {
+                alert('請先選擇隊伍！');
+                return;
+            }
+            
+            isTeamLocked = !isTeamLocked;
+            selectedTeam = teamSelect.value;
+            updateTeamLockStatus();
+            
+            if (isTeamLocked) {
+                showSubmitResult(`🔒 已鎖定 ${selectedTeam}隊\n現在輸入分數時會自動選擇此隊伍`, 'success');
+            } else {
+                showSubmitResult(`🔓 已解鎖隊伍選擇\n現在可以自由選擇其他隊伍`, 'info');
+            }
+        }
+        
+        // 更新隊伍鎖定狀態顯示
+        function updateTeamLockStatus() {
+            const teamSelect = document.getElementById('teamName');
+            const lockButton = document.getElementById('teamLockButton');
+            const lockStatus = document.getElementById('teamLockStatus');
+            const hintDiv = document.getElementById('teamLockHint');
+            
+            if (lockButton && lockStatus) {
+                if (isTeamLocked && selectedTeam) {
+                    // 鎖定狀態
+                    lockButton.innerHTML = '🔓 解鎖';
+                    lockButton.className = 'team-lock-btn locked';
+                    lockStatus.innerHTML = `🔒 已鎖定：<strong>${selectedTeam}隊</strong>`;
+                    lockStatus.className = 'team-lock-status locked';
+                    lockStatus.style.display = 'block';
+                    
+                    // 禁用隊伍選擇
+                    if (teamSelect) {
+                        teamSelect.disabled = true;
+                        teamSelect.style.opacity = '0.6';
+                    }
+                    
+                    // 隱藏提示
+                    if (hintDiv) {
+                        hintDiv.style.display = 'none';
+                    }
+                } else {
+                    // 解鎖狀態
+                    lockButton.innerHTML = '🔒 鎖定隊伍';
+                    lockButton.className = 'team-lock-btn';
+                    lockStatus.style.display = 'none';
+                    
+                    // 啟用隊伍選擇
+                    if (teamSelect) {
+                        teamSelect.disabled = false;
+                        teamSelect.style.opacity = '1';
+                    }
+                }
+            }
+        }
+        
+        // 自動填入鎖定的隊伍
+        function autoFillLockedTeam() {
+            if (isTeamLocked && selectedTeam) {
+                const teamSelect = document.getElementById('teamName');
+                if (teamSelect && teamSelect.value !== selectedTeam) {
+                    teamSelect.value = selectedTeam;
+                }
+                return true;
+            }
+            return false;
+        }
+        
+        // 重置隊伍鎖定（在需要時使用）
+        function resetTeamLock() {
+            isTeamLocked = false;
+            selectedTeam = '';
+            updateTeamLockStatus();
+        }
+
         // ============ 全域變數和配置 ============
         const API_ENDPOINTS = {
             production: 'https://weekly-large-calf.ngrok-free.app/webhook/bowling-score',
@@ -1020,6 +1351,9 @@
 
         // ============ 分數提交函數 ============
         async function submitScore() {
+            // 如果隊伍被鎖定，自動填入鎖定的隊伍
+            autoFillLockedTeam();
+            
             const teamName = document.getElementById('teamName').value.trim();
             const round = document.getElementById('roundSelect').value;
             const score = parseInt(document.getElementById('score').value);
@@ -1027,7 +1361,7 @@
 
             // 驗證輸入
             if (!teamName) {
-                showSubmitResult('請輸入隊伍名稱', 'error');
+                showSubmitResult('請選擇隊伍', 'error');
                 return;
             }
 
@@ -1086,7 +1420,10 @@
                 if (result.success) {
                     showSubmitResult(`✅ 分數提交成功！\n隊伍: ${teamName}\n${round}: ${score}分`, 'success');
                     
-                    document.getElementById('teamName').value = '';
+                    // 根據鎖定狀態決定是否清空隊伍選擇
+                    if (!isTeamLocked) {
+                        document.getElementById('teamName').value = '';
+                    }
                     document.getElementById('score').value = '';
                     
                     setTimeout(() => {
@@ -1095,7 +1432,10 @@
                 } else if (result.組別) {
                     showSubmitResult(`✅ 分數提交成功！\n隊伍: ${result.組別}\n${round}: ${score}分\n總分: ${result.總分}`, 'success');
                     
-                    document.getElementById('teamName').value = '';
+                    // 根據鎖定狀態決定是否清空隊伍選擇
+                    if (!isTeamLocked) {
+                        document.getElementById('teamName').value = '';
+                    }
                     document.getElementById('score').value = '';
                     
                     setTimeout(() => {
@@ -1210,42 +1550,90 @@
             }
 
             try {
-                showStyleResult('🔄 正在清除所有投球方式...', 'info');
-                
                 const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
                 const rounds = ['第一局', '第二局'];
                 
                 let successCount = 0;
+                let failedItems = [];
                 let totalCount = teams.length * rounds.length;
                 
-                for (const team of teams) {
-                    for (const round of rounds) {
-                        const clearData = {
-                            action: "setBowlingStyle",
-                            team_name: team,
-                            round: round,
-                            bowling_style: "",
-                            timestamp: new Date().toISOString(),
-                            environment: currentEnvironment
-                        };
+                // 顯示進度條
+                showProgressBar('🎳 清除投球方式', '正在初始化...');
+                initializeTeamGrid(teams);
+                
+                for (let i = 0; i < teams.length; i++) {
+                    const team = teams[i];
+                    updateTeamStatus(team, 'processing');
+                    
+                    let teamSuccessCount = 0;
+                    
+                    for (let j = 0; j < rounds.length; j++) {
+                        const round = rounds[j];
+                        const currentIndex = i * rounds.length + j + 1;
+                        
+                        try {
+                            console.log(`正在清除 ${team}隊 ${round} 投球方式...`);
+                            
+                            const clearData = {
+                                action: "setBowlingStyle",
+                                team_name: team,
+                                round: round,
+                                bowling_style: "",
+                                timestamp: new Date().toISOString(),
+                                environment: currentEnvironment
+                            };
 
-                        const response = await fetch(API_ENDPOINTS[currentEnvironment], {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'ngrok-skip-browser-warning': 'true'
-                            },
-                            body: JSON.stringify(clearData)
-                        });
+                            const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'ngrok-skip-browser-warning': 'true'
+                                },
+                                body: JSON.stringify(clearData)
+                            });
 
-                        if (response.ok) {
-                            successCount++;
+                            if (response.ok) {
+                                successCount++;
+                                teamSuccessCount++;
+                                console.log(`✅ ${team}隊 ${round} 投球方式清除成功`);
+                            } else {
+                                const errorText = await response.text();
+                                console.error(`❌ ${team}隊 ${round} 投球方式清除失敗:`, response.status, errorText);
+                                failedItems.push(`${team}隊 ${round} (${response.status})`);
+                            }
+                            
+                        } catch (error) {
+                            console.error(`❌ ${team}隊 ${round} 投球方式清除錯誤:`, error);
+                            failedItems.push(`${team}隊 ${round} (網路錯誤)`);
                         }
+                        
+                        // 加入延遲
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                        
+                        // 更新進度
+                        updateProgress(currentIndex, totalCount, `${team}隊 ${round}`);
+                    }
+                    
+                    // 更新隊伍狀態
+                    if (teamSuccessCount === rounds.length) {
+                        updateTeamStatus(team, 'success');
+                    } else {
+                        updateTeamStatus(team, 'error', `${teamSuccessCount}/${rounds.length} 成功`);
                     }
                 }
 
-                showStyleResult(`✅ 成功清除 ${successCount}/${totalCount} 項投球方式設定！`, 'success');
+                // 顯示最終結果
+                showProgressSummary(successCount, failedItems.length, totalCount, failedItems);
+
+                let resultMessage = `投球方式清除完成！\n成功: ${successCount}/${totalCount} 項`;
+                
+                if (failedItems.length > 0) {
+                    resultMessage += `\n失敗項目:\n${failedItems.join('\n')}`;
+                    showStyleResult(resultMessage, 'error');
+                } else {
+                    showStyleResult(resultMessage, 'success');
+                }
                 
                 setTimeout(async () => {
                     try {
@@ -1257,6 +1645,7 @@
                 }, 1000);
                 
             } catch (error) {
+                hideProgressBar();
                 console.error('清除投球方式錯誤:', error);
                 showStyleResult('❌ 清除投球方式失敗: ' + error.message, 'error');
             }
@@ -1565,6 +1954,40 @@
                                 <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">清除某隊伍所有局數的分數</div>
                             </button>
                         </div>
+
+                        <!-- 進度條容器 -->
+                        <div id="clearProgress" class="progress-container">
+                            <div class="progress-header">
+                                <h4 id="progressTitle">正在清除資料...</h4>
+                                <p id="progressSubtitle">請稍候，正在處理中</p>
+                            </div>
+                            
+                            <div class="progress-bar-container">
+                                <div id="progressBar" class="progress-bar">0%</div>
+                            </div>
+                            
+                            <div id="teamGrid" class="team-grid">
+                                <!-- 隊伍狀態會動態填入 -->
+                            </div>
+                            
+                            <div id="progressSummary" class="progress-summary" style="display: none;">
+                                <h5>處理結果統計</h5>
+                                <div class="summary-stats">
+                                    <div class="stat-item">
+                                        <div id="successCount" class="stat-number success">0</div>
+                                        <div class="stat-label">成功</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div id="errorCount" class="stat-number error">0</div>
+                                        <div class="stat-label">失敗</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div id="totalCount" class="stat-number total">0</div>
+                                        <div class="stat-label">總計</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <button onclick="closeClearModal()" class="option-btn secondary">
                             ❌ 取消
@@ -1585,51 +2008,198 @@
             }
         }
 
+        // ============ 進度條控制函數 ============
+        function showProgressBar(title, subtitle = '請稍候，正在處理中') {
+            const progressContainer = document.getElementById('clearProgress');
+            const progressTitle = document.getElementById('progressTitle');
+            const progressSubtitle = document.getElementById('progressSubtitle');
+            const progressBar = document.getElementById('progressBar');
+            const progressSummary = document.getElementById('progressSummary');
+            
+            if (progressContainer && progressTitle && progressSubtitle) {
+                progressTitle.textContent = title;
+                progressSubtitle.textContent = subtitle;
+                progressBar.style.width = '0%';
+                progressBar.textContent = '0%';
+                progressContainer.style.display = 'block';
+                progressSummary.style.display = 'none';
+            }
+        }
+        
+        function updateProgress(current, total, currentItem = '') {
+            const progressBar = document.getElementById('progressBar');
+            const progressSubtitle = document.getElementById('progressSubtitle');
+            
+            if (progressBar) {
+                const percentage = Math.round((current / total) * 100);
+                progressBar.style.width = percentage + '%';
+                progressBar.textContent = percentage + '%';
+            }
+            
+            if (progressSubtitle && currentItem) {
+                progressSubtitle.textContent = `正在處理: ${currentItem} (${current}/${total})`;
+            }
+        }
+        
+        function initializeTeamGrid(teams) {
+            const teamGrid = document.getElementById('teamGrid');
+            if (teamGrid) {
+                teamGrid.innerHTML = '';
+                
+                teams.forEach(team => {
+                    const statusDiv = document.createElement('div');
+                    statusDiv.id = `status-${team}`;
+                    statusDiv.className = 'team-status pending';
+                    statusDiv.textContent = `${team}組 等待中`;
+                    teamGrid.appendChild(statusDiv);
+                });
+            }
+        }
+        
+        function updateTeamStatus(team, status, message = '') {
+            const statusDiv = document.getElementById(`status-${team}`);
+            if (statusDiv) {
+                statusDiv.className = `team-status ${status}`;
+                
+                switch(status) {
+                    case 'processing':
+                        statusDiv.textContent = `${team}組 處理中...`;
+                        break;
+                    case 'success':
+                        statusDiv.textContent = `${team}組 ✅`;
+                        break;
+                    case 'error':
+                        statusDiv.textContent = `${team}組 ❌`;
+                        if (message) {
+                            statusDiv.title = message;
+                        }
+                        break;
+                    default:
+                        statusDiv.textContent = `${team}組 等待中`;
+                }
+            }
+        }
+        
+        function showProgressSummary(successCount, errorCount, totalCount, failedItems = []) {
+            const progressSummary = document.getElementById('progressSummary');
+            const successCountEl = document.getElementById('successCount');
+            const errorCountEl = document.getElementById('errorCount');
+            const totalCountEl = document.getElementById('totalCount');
+            const progressSubtitle = document.getElementById('progressSubtitle');
+            
+            if (progressSummary && successCountEl && errorCountEl && totalCountEl) {
+                successCountEl.textContent = successCount;
+                errorCountEl.textContent = errorCount;
+                totalCountEl.textContent = totalCount;
+                progressSummary.style.display = 'block';
+            }
+            
+            if (progressSubtitle) {
+                if (errorCount === 0) {
+                    progressSubtitle.textContent = '🎉 所有項目處理成功！';
+                } else {
+                    progressSubtitle.textContent = `⚠️ ${errorCount} 個項目處理失敗`;
+                }
+            }
+        }
+        
+        function hideProgressBar() {
+            const progressContainer = document.getElementById('clearProgress');
+            if (progressContainer) {
+                progressContainer.style.display = 'none';
+            }
+        }
+
         async function clearAllScores() {
             if (!confirm('⚠️ 確定要清除所有隊伍的所有分數嗎？\n此操作無法復原！')) {
                 return;
             }
 
             try {
-                showLoadingMessage('🔄 正在清除所有分數...');
-                
                 const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
                 const rounds = ['第一局', '第二局'];
-                
                 let successCount = 0;
+                let failedItems = [];
                 let totalCount = teams.length * rounds.length;
                 
-                for (const team of teams) {
-                    for (const round of rounds) {
-                        const clearData = {
-                            action: "upload",
-                            team_name: team,
-                            round: round,
-                            score: 0,
-                            members: 1,
-                            timestamp: new Date().toISOString(),
-                            environment: currentEnvironment
-                        };
+                // 顯示進度條
+                showProgressBar('🗑️ 清除所有分數', '正在初始化...');
+                initializeTeamGrid(teams);
+                
+                for (let i = 0; i < teams.length; i++) {
+                    const team = teams[i];
+                    updateTeamStatus(team, 'processing');
+                    
+                    let teamSuccessCount = 0;
+                    
+                    for (let j = 0; j < rounds.length; j++) {
+                        const round = rounds[j];
+                        const currentIndex = i * rounds.length + j + 1;
+                        
+                        try {
+                            console.log(`正在清除 ${team}隊 ${round}...`);
+                            
+                            const clearData = {
+                                action: "upload",
+                                team_name: team,
+                                round: round,
+                                score: 0,
+                                members: 1,
+                                timestamp: new Date().toISOString(),
+                                environment: currentEnvironment
+                            };
 
-                        const response = await fetch(API_ENDPOINTS[currentEnvironment], {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'ngrok-skip-browser-warning': 'true'
-                            },
-                            body: JSON.stringify(clearData)
-                        });
+                            const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'ngrok-skip-browser-warning': 'true'
+                                },
+                                body: JSON.stringify(clearData)
+                            });
 
-                        if (response.ok) {
-                            successCount++;
+                            if (response.ok) {
+                                successCount++;
+                                teamSuccessCount++;
+                                console.log(`✅ ${team}隊 ${round} 清除成功`);
+                            } else {
+                                const errorText = await response.text();
+                                console.error(`❌ ${team}隊 ${round} 清除失敗:`, response.status, errorText);
+                                failedItems.push(`${team}隊 ${round} (${response.status})`);
+                            }
+                            
+                        } catch (error) {
+                            console.error(`❌ ${team}隊 ${round} 清除錯誤:`, error);
+                            failedItems.push(`${team}隊 ${round} (網路錯誤)`);
                         }
+                        
+                        // 更新進度
+                        updateProgress(currentIndex, totalCount, `${team}隊 ${round}`);
+                        
+                        // 在每個請求之間加入延遲，避免請求過快
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+                    
+                    // 更新隊伍狀態
+                    if (teamSuccessCount === rounds.length) {
+                        updateTeamStatus(team, 'success');
+                    } else {
+                        updateTeamStatus(team, 'error', `${teamSuccessCount}/${rounds.length} 成功`);
                     }
                 }
 
-                hideLoadingMessage();
-                showSubmitResult(`✅ 成功清除 ${successCount}/${totalCount} 項分數！`, 'success');
-                closeClearModal();
+                // 顯示最終結果
+                showProgressSummary(successCount, failedItems.length, totalCount, failedItems);
+                
+                let resultMessage = `清除完成！\n成功: ${successCount}/${totalCount} 項`;
+                
+                if (failedItems.length > 0) {
+                    resultMessage += `\n失敗項目:\n${failedItems.join('\n')}`;
+                    showSubmitResult(resultMessage, 'error');
+                } else {
+                    showSubmitResult(resultMessage, 'success');
+                }
                 
                 setTimeout(async () => {
                     try {
@@ -1640,7 +2210,7 @@
                 }, 1000);
                 
             } catch (error) {
-                hideLoadingMessage();
+                hideProgressBar();
                 console.error('清除所有分數錯誤:', error);
                 showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
             }
@@ -1666,40 +2236,76 @@
             }
 
             try {
-                showLoadingMessage(`🔄 正在清除${selectedRound}分數...`);
-                
                 const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
                 let successCount = 0;
+                let failedItems = [];
                 
-                for (const team of teams) {
-                    const clearData = {
-                        action: "upload",
-                        team_name: team,
-                        round: selectedRound,
-                        score: 0,
-                        members: 1,
-                        timestamp: new Date().toISOString(),
-                        environment: currentEnvironment
-                    };
+                // 顯示進度條
+                showProgressBar(`🎯 清除${selectedRound}分數`, '正在初始化...');
+                initializeTeamGrid(teams);
+                
+                for (let i = 0; i < teams.length; i++) {
+                    const team = teams[i];
+                    updateTeamStatus(team, 'processing');
                     
-                    const response = await fetch(API_ENDPOINTS[currentEnvironment], {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'ngrok-skip-browser-warning': 'true'
-                        },
-                        body: JSON.stringify(clearData)
-                    });
-                    
-                    if (response.ok) {
-                        successCount++;
+                    try {
+                        console.log(`正在清除 ${team}隊 ${selectedRound}...`);
+                        
+                        const clearData = {
+                            action: "upload",
+                            team_name: team,
+                            round: selectedRound,
+                            score: 0,
+                            members: 1,
+                            timestamp: new Date().toISOString(),
+                            environment: currentEnvironment
+                        };
+                        
+                        const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'ngrok-skip-browser-warning': 'true'
+                            },
+                            body: JSON.stringify(clearData)
+                        });
+                        
+                        if (response.ok) {
+                            successCount++;
+                            updateTeamStatus(team, 'success');
+                            console.log(`✅ ${team}隊 ${selectedRound} 清除成功`);
+                        } else {
+                            const errorText = await response.text();
+                            console.error(`❌ ${team}隊 ${selectedRound} 清除失敗:`, response.status, errorText);
+                            failedItems.push(`${team}隊 (${response.status})`);
+                            updateTeamStatus(team, 'error', `HTTP ${response.status}`);
+                        }
+                        
+                    } catch (error) {
+                        console.error(`❌ ${team}隊 ${selectedRound} 清除錯誤:`, error);
+                        failedItems.push(`${team}隊 (網路錯誤)`);
+                        updateTeamStatus(team, 'error', '網路錯誤');
                     }
+                    
+                    // 加入延遲
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    // 更新進度
+                    updateProgress(i + 1, teams.length, `${team}隊`);
                 }
                 
-                hideLoadingMessage();
-                showSubmitResult(`✅ 成功清除 ${successCount}/${teams.length} 隊的${selectedRound}分數！`, 'success');
-                closeClearModal();
+                // 顯示最終結果
+                showProgressSummary(successCount, failedItems.length, teams.length, failedItems);
+                
+                let resultMessage = `${selectedRound}清除完成！\n成功: ${successCount}/${teams.length} 隊`;
+                
+                if (failedItems.length > 0) {
+                    resultMessage += `\n失敗項目:\n${failedItems.join('\n')}`;
+                    showSubmitResult(resultMessage, 'error');
+                } else {
+                    showSubmitResult(resultMessage, 'success');
+                }
                 
                 setTimeout(async () => {
                     try {
@@ -1710,7 +2316,7 @@
                 }, 1000);
                 
             } catch (error) {
-                hideLoadingMessage();
+                hideProgressBar();
                 console.error('清除局數分數錯誤:', error);
                 showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
             }
@@ -1853,7 +2459,11 @@ Action 格式: upload/getRankings/setBowlingStyle (符合 n8n Action Switch)
 
         // ============ 初始化 ============
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🎳 保齡球計分系統 v2.3 已載入 (支援投球方式管理)');
+            console.log('🎳 保齡球計分系統 v2.4 已載入 (支援隊伍鎖定功能)');
+            
+            // 初始化隊伍記憶功能
+            initializeTeamMemory();
+            
             updateDebugInfo();
             
             // 每30秒自動更新除錯資訊

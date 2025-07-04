@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清除功能診斷工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .test-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .test-btn.danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        .test-btn.danger:hover {
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result.success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result.info {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .team-status {
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .team-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .team-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .team-status.pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 清除功能診斷工具</h1>
+            <p>專門檢查 I 組和 J 組清除問題</p>
+        </div>
+
+        <div class="content">
+            <!-- 單一隊伍測試 -->
+            <div class="test-section">
+                <h3>🎯 單一隊伍清除測試</h3>
+                <p style="margin-bottom: 15px; color: #666;">
+                    測試特定隊伍的清除功能，重點檢查 I 組和 J 組
+                </p>
+                <button class="test-btn" onclick="testSingleTeam('I')">測試 I 組清除</button>
+                <button class="test-btn" onclick="testSingleTeam('J')">測試 J 組清除</button>
+                <button class="test-btn" onclick="testSingleTeam('A')">測試 A 組清除 (對照)</button>
+                <div id="singleResult" class="result info" style="display: none;"></div>
+            </div>
+
+            <!-- 批量清除測試 -->
+            <div class="test-section">
+                <h3>🚀 批量清除測試</h3>
+                <p style="margin-bottom: 15px; color: #666;">
+                    測試所有隊伍的清除功能，並顯示詳細進度
+                </p>
+                <button class="test-btn" onclick="testBatchClear()">測試批量清除 (慢速)</button>
+                <button class="test-btn danger" onclick="testFastClear()">測試快速清除 (原版)</button>
+                <div id="batchResult" class="result info" style="display: none;"></div>
+                
+                <div class="team-grid" id="teamStatus" style="display: none;">
+                    <!-- 隊伍狀態會動態填入 -->
+                </div>
+            </div>
+
+            <!-- 狀態檢查 -->
+            <div class="test-section">
+                <h3>📊 當前狀態檢查</h3>
+                <button class="test-btn" onclick="checkAllTeamsStatus()">檢查所有隊伍狀態</button>
+                <button class="test-btn" onclick="checkIJStatus()">重點檢查 I、J 組</button>
+                <div id="statusResult" class="result info" style="display: none;"></div>
+            </div>
+
+            <!-- Google Sheets 直接測試 -->
+            <div class="test-section">
+                <h3>📋 Google Sheets 寫入測試</h3>
+                <p style="margin-bottom: 15px; color: #666;">
+                    直接測試 Google Sheets 的寫入功能
+                </p>
+                <button class="test-btn" onclick="testDirectWrite('I')">直接寫入 I 組</button>
+                <button class="test-btn" onclick="testDirectWrite('J')">直接寫入 J 組</button>
+                <button class="test-btn danger" onclick="testDirectClear('I')">直接清除 I 組</button>
+                <button class="test-btn danger" onclick="testDirectClear('J')">直接清除 J 組</button>
+                <div id="directResult" class="result info" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_ENDPOINT = 'https://weekly-large-calf.ngrok-free.app/webhook/bowling-score';
+
+        // 顯示結果
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.style.display = 'block';
+            element.textContent = message;
+        }
+
+        // 測試單一隊伍清除
+        async function testSingleTeam(team) {
+            showResult('singleResult', `正在測試 ${team}組 清除功能...`, 'info');
+            
+            try {
+                const rounds = ['第一局', '第二局'];
+                let results = [];
+                
+                for (const round of rounds) {
+                    const startTime = Date.now();
+                    
+                    const clearData = {
+                        action: "upload",
+                        team_name: team,
+                        round: round,
+                        score: 0,
+                        members: 1,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
+                        body: JSON.stringify(clearData)
+                    });
+
+                    const endTime = Date.now();
+                    const responseTime = endTime - startTime;
+                    const responseText = await response.text();
+                    
+                    results.push({
+                        team,
+                        round,
+                        success: response.ok,
+                        status: response.status,
+                        responseTime,
+                        responseText: responseText.substring(0, 200)
+                    });
+                    
+                    // 延遲 500ms
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                let resultMessage = `${team}組 清除測試結果:\n`;
+                resultMessage += `測試時間: ${new Date().toLocaleString()}\n\n`;
+                
+                results.forEach(result => {
+                    resultMessage += `${result.team}組 ${result.round}:\n`;
+                    resultMessage += `- 狀態: ${result.success ? '✅ 成功' : '❌ 失敗'}\n`;
+                    resultMessage += `- HTTP 狀態碼: ${result.status}\n`;
+                    resultMessage += `- 回應時間: ${result.responseTime}ms\n`;
+                    resultMessage += `- 回應內容: ${result.responseText}\n\n`;
+                });
+                
+                const allSuccess = results.every(r => r.success);
+                showResult('singleResult', resultMessage, allSuccess ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('singleResult', `❌ ${team}組 測試失敗:\n${error.message}`, 'error');
+            }
+        }
+
+        // 測試批量清除 (慢速版本)
+        async function testBatchClear() {
+            showResult('batchResult', '正在進行批量清除測試 (慢速版本)...', 'info');
+            
+            const teamStatusDiv = document.getElementById('teamStatus');
+            teamStatusDiv.style.display = 'grid';
+            teamStatusDiv.innerHTML = '';
+            
+            try {
+                const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                const rounds = ['第一局', '第二局'];
+                let results = [];
+                
+                // 創建隊伍狀態顯示
+                teams.forEach(team => {
+                    const statusDiv = document.createElement('div');
+                    statusDiv.id = `status-${team}`;
+                    statusDiv.className = 'team-status pending';
+                    statusDiv.textContent = `${team}組 等待中`;
+                    teamStatusDiv.appendChild(statusDiv);
+                });
+                
+                for (let i = 0; i < teams.length; i++) {
+                    const team = teams[i];
+                    const statusDiv = document.getElementById(`status-${team}`);
+                    statusDiv.textContent = `${team}組 處理中...`;
+                    statusDiv.className = 'team-status pending';
+                    
+                    let teamSuccess = true;
+                    
+                    for (const round of rounds) {
+                        try {
+                            const clearData = {
+                                action: "upload",
+                                team_name: team,
+                                round: round,
+                                score: 0,
+                                members: 1,
+                                timestamp: new Date().toISOString()
+                            };
+
+                            const response = await fetch(API_ENDPOINT, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'ngrok-skip-browser-warning': 'true'
+                                },
+                                body: JSON.stringify(clearData)
+                            });
+
+                            results.push({
+                                team,
+                                round,
+                                success: response.ok,
+                                status: response.status
+                            });
+                            
+                            if (!response.ok) {
+                                teamSuccess = false;
+                            }
+                            
+                        } catch (error) {
+                            results.push({
+                                team,
+                                round,
+                                success: false,
+                                error: error.message
+                            });
+                            teamSuccess = false;
+                        }
+                        
+                        // 延遲 300ms
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+                    
+                    // 更新隊伍狀態
+                    statusDiv.textContent = `${team}組 ${teamSuccess ? '✅' : '❌'}`;
+                    statusDiv.className = `team-status ${teamSuccess ? 'success' : 'error'}`;
+                    
+                    // 更新進度
+                    const progress = Math.round(((i + 1) / teams.length) * 100);
+                    showResult('batchResult', `批量清除進行中... ${progress}%\n已處理: ${team}組`, 'info');
+                }
+                
+                // 統計結果
+                const successCount = results.filter(r => r.success).length;
+                const totalCount = results.length;
+                
+                let resultMessage = `批量清除測試完成!\n`;
+                resultMessage += `成功: ${successCount}/${totalCount}\n`;
+                resultMessage += `完成時間: ${new Date().toLocaleString()}\n\n`;
+                
+                // 顯示失敗的項目
+                const failures = results.filter(r => !r.success);
+                if (failures.length > 0) {
+                    resultMessage += `失敗項目:\n`;
+                    failures.forEach(f => {
+                        resultMessage += `- ${f.team}組 ${f.round}: ${f.error || f.status}\n`;
+                    });
+                }
+                
+                showResult('batchResult', resultMessage, failures.length === 0 ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('batchResult', `❌ 批量測試失敗:\n${error.message}`, 'error');
+            }
+        }
+
+        // 測試快速清除 (原版本)
+        async function testFastClear() {
+            showResult('batchResult', '正在進行快速清除測試 (原版本)...', 'info');
+            
+            try {
+                const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                const rounds = ['第一局', '第二局'];
+                let results = [];
+                
+                // 同時發送所有請求 (原版本的做法)
+                const promises = [];
+                
+                for (const team of teams) {
+                    for (const round of rounds) {
+                        const clearData = {
+                            action: "upload",
+                            team_name: team,
+                            round: round,
+                            score: 0,
+                            members: 1,
+                            timestamp: new Date().toISOString()
+                        };
+
+                        const promise = fetch(API_ENDPOINT, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'ngrok-skip-browser-warning': 'true'
+                            },
+                            body: JSON.stringify(clearData)
+                        }).then(response => ({
+                            team,
+                            round,
+                            success: response.ok,
+                            status: response.status
+                        })).catch(error => ({
+                            team,
+                            round,
+                            success: false,
+                            error: error.message
+                        }));
+                        
+                        promises.push(promise);
+                    }
+                }
+                
+                // 等待所有請求完成
+                results = await Promise.all(promises);
+                
+                // 統計結果
+                const successCount = results.filter(r => r.success).length;
+                const totalCount = results.length;
+                
+                let resultMessage = `快速清除測試完成!\n`;
+                resultMessage += `成功: ${successCount}/${totalCount}\n`;
+                resultMessage += `完成時間: ${new Date().toLocaleString()}\n\n`;
+                
+                // 按隊伍分組顯示結果
+                const teamResults = {};
+                results.forEach(r => {
+                    if (!teamResults[r.team]) {
+                        teamResults[r.team] = [];
+                    }
+                    teamResults[r.team].push(r);
+                });
+                
+                Object.keys(teamResults).forEach(team => {
+                    const teamSuccess = teamResults[team].every(r => r.success);
+                    resultMessage += `${team}組: ${teamSuccess ? '✅ 成功' : '❌ 失敗'}\n`;
+                });
+                
+                showResult('batchResult', resultMessage, successCount === totalCount ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('batchResult', `❌ 快速測試失敗:\n${error.message}`, 'error');
+            }
+        }
+
+        // 檢查所有隊伍狀態
+        async function checkAllTeamsStatus() {
+            showResult('statusResult', '正在檢查所有隊伍狀態...', 'info');
+            
+            try {
+                const requestData = {
+                    action: "getRankings",
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const responseText = await response.text();
+                let data;
+                
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    throw new Error(`JSON 解析失敗: ${parseError.message}`);
+                }
+                
+                if (data && data.rankings && Array.isArray(data.rankings)) {
+                    const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                    let result = `所有隊伍狀態檢查:\n檢查時間: ${new Date().toLocaleString()}\n\n`;
+                    
+                    teams.forEach(team => {
+                        const teamData = data.rankings.find(r => r.team_name === team);
+                        if (teamData) {
+                            result += `${team}組:\n`;
+                            result += `  第一局: ${teamData.round1_score || 0} 分\n`;
+                            result += `  第二局: ${teamData.round2_score || 0} 分\n`;
+                            result += `  總分: ${teamData.total_score || 0} 分\n`;
+                            result += `  人數: ${teamData.members || 0} 人\n`;
+                            result += `  第一局投球方式: ${teamData.round1_style || '未設定'}\n`;
+                            result += `  第二局投球方式: ${teamData.round2_style || '未設定'}\n\n`;
+                        } else {
+                            result += `${team}組: 無資料\n\n`;
+                        }
+                    });
+                    
+                    showResult('statusResult', result, 'success');
+                } else {
+                    showResult('statusResult', '❌ 無法獲取隊伍狀態資料', 'error');
+                }
+                
+            } catch (error) {
+                showResult('statusResult', `❌ 檢查狀態失敗:\n${error.message}`, 'error');
+            }
+        }
+
+        // 重點檢查 I、J 組
+        async function checkIJStatus() {
+            showResult('statusResult', '正在重點檢查 I、J 組狀態...', 'info');
+            
+            try {
+                const requestData = {
+                    action: "getRankings",
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const responseText = await response.text();
+                let data = JSON.parse(responseText);
+                
+                if (data && data.rankings && Array.isArray(data.rankings)) {
+                    let result = `I、J 組狀態重點檢查:\n檢查時間: ${new Date().toLocaleString()}\n\n`;
+                    
+                    ['I', 'J'].forEach(team => {
+                        const teamData = data.rankings.find(r => r.team_name === team);
+                        result += `${team}組詳細狀態:\n`;
+                        
+                        if (teamData) {
+                            result += `  ✅ 在資料庫中找到資料\n`;
+                            result += `  第一局分數: ${teamData.round1_score || 0}\n`;
+                            result += `  第二局分數: ${teamData.round2_score || 0}\n`;
+                            result += `  總分: ${teamData.total_score || 0}\n`;
+                            result += `  人數: ${teamData.members || 0}\n`;
+                            result += `  第一局投球方式: ${teamData.round1_style || '未設定'}\n`;
+                            result += `  第二局投球方式: ${teamData.round2_style || '未設定'}\n`;
+                            result += `  上傳時間: ${teamData.upload_time || '未知'}\n`;
+                        } else {
+                            result += `  ❌ 在資料庫中找不到資料\n`;
+                            result += `  可能原因: 從未上傳過分數或資料被清除\n`;
+                        }
+                        result += `\n`;
+                    });
+                    
+                    showResult('statusResult', result, 'success');
+                } else {
+                    showResult('statusResult', '❌ 無法獲取排名資料', 'error');
+                }
+                
+            } catch (error) {
+                showResult('statusResult', `❌ 檢查 I、J 組失敗:\n${error.message}`, 'error');
+            }
+        }
+
+        // 直接寫入測試
+        async function testDirectWrite(team) {
+            showResult('directResult', `正在測試直接寫入 ${team}組...`, 'info');
+            
+            try {
+                const testData = {
+                    action: "upload",
+                    team_name: team,
+                    round: "第一局",
+                    score: 999,
+                    members: 4,
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const responseText = await response.text();
+                
+                let result = `${team}組 直接寫入測試結果:\n`;
+                result += `狀態: ${response.ok ? '✅ 成功' : '❌ 失敗'}\n`;
+                result += `HTTP 狀態碼: ${response.status}\n`;
+                result += `回應內容: ${responseText}\n`;
+                result += `測試時間: ${new Date().toLocaleString()}\n`;
+                
+                showResult('directResult', result, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('directResult', `❌ ${team}組 直接寫入失敗:\n${error.message}`, 'error');
+            }
+        }
+
+        // 直接清除測試
+        async function testDirectClear(team) {
+            showResult('directResult', `正在測試直接清除 ${team}組...`, 'info');
+            
+            try {
+                const clearData = {
+                    action: "upload",
+                    team_name: team,
+                    round: "第一局",
+                    score: 0,
+                    members: 1,
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(clearData)
+                });
+
+                const responseText = await response.text();
+                
+                let result = `${team}組 直接清除測試結果:\n`;
+                result += `狀態: ${response.ok ? '✅ 成功' : '❌ 失敗'}\n`;
+                result += `HTTP 狀態碼: ${response.status}\n`;
+                result += `回應內容: ${responseText}\n`;
+                result += `測試時間: ${new Date().toLocaleString()}\n`;
+                
+                showResult('directResult', result, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult('directResult', `❌ ${team}組 直接清除失敗:\n${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
