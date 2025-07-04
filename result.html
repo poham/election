@@ -406,6 +406,157 @@
                 font-size: 10px;
             }
         }
+
+        /* 懸停放大功能 */
+        .ranking-table td,
+        .ranking-table th {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ranking-table td:hover,
+        .ranking-table th:hover {
+            background: #e3f2fd !important;
+            z-index: 10;
+        }
+
+        /* 放大提示框 */
+        .cell-tooltip {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 300px;
+            word-wrap: break-word;
+            text-align: center;
+        }
+
+        .cell-tooltip.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .cell-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid rgba(0, 0, 0, 0.9);
+        }
+
+        /* 長按效果 */
+        .cell-pressed {
+            background: #ffeb3b !important;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 放大模式覆蓋層 */
+        .zoom-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .zoom-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .zoom-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .zoom-overlay.show .zoom-content {
+            transform: scale(1);
+        }
+
+        .zoom-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 手機端特殊樣式 */
+        @media (max-width: 768px) {
+            .cell-tooltip {
+                font-size: 18px;
+                padding: 20px 25px;
+                max-width: 90%;
+            }
+            
+            .ranking-table td,
+            .ranking-table th {
+                user-select: none;
+                -webkit-user-select: none;
+                -webkit-touch-callout: none;
+            }
+        }
+
+        /* 放大指示器 */
+        .zoom-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .zoom-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -508,6 +659,22 @@
         </div>
     </div>
 
+    <!-- 放大提示框 -->
+    <div id="cellTooltip" class="cell-tooltip"></div>
+
+    <!-- 放大模式覆蓋層 -->
+    <div id="zoomOverlay" class="zoom-overlay" onclick="closeZoomMode()">
+        <div class="zoom-content" onclick="event.stopPropagation()">
+            <button class="zoom-close" onclick="closeZoomMode()">×</button>
+            <div id="zoomContent"></div>
+        </div>
+    </div>
+
+    <!-- 放大指示器 -->
+    <div id="zoomIndicator" class="zoom-indicator">
+        💡 長按表格可放大查看
+    </div>
+
     <script>
         // ============ 全域變數和配置 ============
         const API_ENDPOINT = 'https://weekly-large-calf.ngrok-free.app/webhook/bowling-score';
@@ -538,6 +705,243 @@
         
         // 已抽籤記錄（用於限制每組每局只能抽一次）
         let lotteryHistory = new Set();
+        
+        // ============ 表格放大功能 ============
+        let tooltipTimeout;
+        let longPressTimeout;
+        let isLongPress = false;
+        let touchStartTime = 0;
+        
+        // 初始化表格放大功能
+        function initTableZoom() {
+            // 顯示使用提示
+            setTimeout(() => {
+                const indicator = document.getElementById('zoomIndicator');
+                indicator.classList.add('show');
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 3000);
+            }, 2000);
+        }
+        
+        // 設置表格單元格事件
+        function setupTableEvents() {
+            const table = document.querySelector('.ranking-table');
+            if (!table) return;
+            
+            const cells = table.querySelectorAll('td, th');
+            
+            cells.forEach(cell => {
+                // 滑鼠事件（桌面）
+                cell.addEventListener('mouseenter', handleCellHover);
+                cell.addEventListener('mouseleave', handleCellLeave);
+                cell.addEventListener('mousemove', handleCellMove);
+                
+                // 觸控事件（手機）
+                cell.addEventListener('touchstart', handleTouchStart, { passive: false });
+                cell.addEventListener('touchend', handleTouchEnd);
+                cell.addEventListener('touchmove', handleTouchMove, { passive: false });
+                
+                // 點擊事件
+                cell.addEventListener('click', handleCellClick);
+            });
+        }
+        
+        // 處理滑鼠懸停
+        function handleCellHover(event) {
+            if (window.innerWidth <= 768) return; // 手機端不使用懸停
+            
+            const cell = event.target;
+            const content = getCellContent(cell);
+            
+            if (content.trim() === '') return;
+            
+            clearTimeout(tooltipTimeout);
+            tooltipTimeout = setTimeout(() => {
+                showTooltip(content, event.clientX, event.clientY);
+            }, 500); // 0.5秒後顯示
+        }
+        
+        // 處理滑鼠離開
+        function handleCellLeave() {
+            clearTimeout(tooltipTimeout);
+            hideTooltip();
+        }
+        
+        // 處理滑鼠移動
+        function handleCellMove(event) {
+            const tooltip = document.getElementById('cellTooltip');
+            if (tooltip.classList.contains('show')) {
+                updateTooltipPosition(event.clientX, event.clientY);
+            }
+        }
+        
+        // 處理觸控開始
+        function handleTouchStart(event) {
+            event.preventDefault();
+            const cell = event.target;
+            touchStartTime = Date.now();
+            isLongPress = false;
+            
+            // 添加按壓效果
+            cell.classList.add('cell-pressed');
+            
+            // 設置長按檢測
+            longPressTimeout = setTimeout(() => {
+                isLongPress = true;
+                const content = getCellContent(cell);
+                if (content.trim() !== '') {
+                    navigator.vibrate && navigator.vibrate(50); // 震動反饋
+                    const touch = event.touches[0];
+                    showTooltip(content, touch.clientX, touch.clientY);
+                }
+            }, 800); // 0.8秒長按
+        }
+        
+        // 處理觸控結束
+        function handleTouchEnd(event) {
+            const cell = event.target;
+            cell.classList.remove('cell-pressed');
+            clearTimeout(longPressTimeout);
+            
+            if (!isLongPress) {
+                hideTooltip();
+            }
+        }
+        
+        // 處理觸控移動
+        function handleTouchMove(event) {
+            clearTimeout(longPressTimeout);
+            const cell = event.target;
+            cell.classList.remove('cell-pressed');
+        }
+        
+        // 處理單元格點擊
+        function handleCellClick(event) {
+            if (isLongPress) {
+                isLongPress = false;
+                return;
+            }
+            
+            const cell = event.target;
+            const content = getCellContent(cell);
+            
+            if (content.trim() !== '' && window.innerWidth <= 768) {
+                // 手機端點擊進入放大模式
+                showZoomMode(content, cell);
+            }
+        }
+        
+        // 獲取單元格內容
+        function getCellContent(cell) {
+            let content = cell.textContent || cell.innerText || '';
+            
+            // 如果是標題行，添加說明
+            if (cell.tagName === 'TH') {
+                content = `📋 欄位說明\n${content}`;
+            } else {
+                // 獲取對應的標題
+                const table = cell.closest('table');
+                const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+                const headerRow = table.querySelector('thead tr');
+                
+                if (headerRow && headerRow.children[cellIndex]) {
+                    const headerText = headerRow.children[cellIndex].textContent;
+                    content = `${headerText}: ${content}`;
+                }
+            }
+            
+            return content;
+        }
+        
+        // 顯示提示框
+        function showTooltip(content, x, y) {
+            const tooltip = document.getElementById('cellTooltip');
+            tooltip.textContent = content;
+            tooltip.classList.add('show');
+            updateTooltipPosition(x, y);
+        }
+        
+        // 隱藏提示框
+        function hideTooltip() {
+            const tooltip = document.getElementById('cellTooltip');
+            tooltip.classList.remove('show');
+        }
+        
+        // 更新提示框位置
+        function updateTooltipPosition(x, y) {
+            const tooltip = document.getElementById('cellTooltip');
+            const rect = tooltip.getBoundingClientRect();
+            
+            let left = x - rect.width / 2;
+            let top = y - rect.height - 15;
+            
+            // 邊界檢查
+            if (left < 10) left = 10;
+            if (left + rect.width > window.innerWidth - 10) {
+                left = window.innerWidth - rect.width - 10;
+            }
+            if (top < 10) top = y + 15;
+            
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        }
+        
+        // 顯示放大模式
+        function showZoomMode(content, cell) {
+            const overlay = document.getElementById('zoomOverlay');
+            const zoomContent = document.getElementById('zoomContent');
+            
+            // 獲取完整的行資料
+            const row = cell.closest('tr');
+            const table = cell.closest('table');
+            const headerRow = table.querySelector('thead tr');
+            
+            let fullContent = '<div style="text-align: center; margin-bottom: 20px;">';
+            fullContent += '<h3 style="color: #333; margin-bottom: 15px;">📊 詳細資訊</h3>';
+            fullContent += '</div>';
+            
+            if (row && headerRow) {
+                fullContent += '<div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">';
+                
+                Array.from(row.children).forEach((cell, index) => {
+                    const header = headerRow.children[index];
+                    if (header && cell) {
+                        const headerText = header.textContent;
+                        const cellText = cell.textContent;
+                        
+                        fullContent += `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #dee2e6;">
+                                <strong style="color: #495057;">${headerText}:</strong>
+                                <span style="color: #212529; font-weight: 600;">${cellText}</span>
+                            </div>
+                        `;
+                    }
+                });
+                
+                fullContent += '</div>';
+            } else {
+                fullContent += `<div style="text-align: center; padding: 20px; font-size: 18px;">${content}</div>`;
+            }
+            
+            fullContent += '<div style="text-align: center; margin-top: 20px; color: #666; font-size: 14px;">';
+            fullContent += '點擊外部區域或 × 按鈕關閉';
+            fullContent += '</div>';
+            
+            zoomContent.innerHTML = fullContent;
+            overlay.classList.add('show');
+            
+            // 防止背景滾動
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 關閉放大模式
+        function closeZoomMode() {
+            const overlay = document.getElementById('zoomOverlay');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+            hideTooltip();
+        }
         
         // ============ 更新投球方式來源狀態顯示 ============
         function updateSourceStatus(source, message) {
@@ -1123,6 +1527,11 @@
             resultDiv.className = 'result success';
             resultDiv.innerHTML = tableHTML;
             
+            // 設置表格放大功能
+            setTimeout(() => {
+                setupTableEvents();
+            }, 100);
+            
             // 高亮顯示當前選中的按鈕
             document.querySelectorAll('.ranking-btn').forEach(btn => {
                 if ((type === 'round1' && btn.textContent.includes('第一局')) || 
@@ -1203,6 +1612,9 @@
             
             // 初始化投球方式來源狀態
             updateSourceStatus('default', '尚未載入');
+            
+            // 初始化表格放大功能
+            initTableZoom();
             
             getRankings();
             setupAutoRefresh();
