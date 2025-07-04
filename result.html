@@ -77,6 +77,156 @@
             flex-wrap: wrap;
         }
 
+        /* 智慧排名選項 */
+        .ranking-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .ranking-filter-btn {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .ranking-filter-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .ranking-filter-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* 手機版智慧排名卡片 */
+        .mobile-ranking-cards {
+            display: none;
+        }
+
+        .ranking-card {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .ranking-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            padding: 15px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card-header.locked-team {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left: 4px solid #28a745;
+        }
+
+        .team-basic-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rank-badge {
+            font-size: 24px;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .team-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .team-average {
+            font-size: 16px;
+            color: #667eea;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .expand-icon {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+            color: #666;
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .card-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .card-details.expanded {
+            max-height: 300px;
+        }
+
+        .detail-content {
+            padding: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px 0;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .detail-value.score {
+            font-family: 'Courier New', monospace;
+            color: #007bff;
+        }
+
+        .detail-value.total {
+            font-size: 18px;
+            color: #28a745;
+        }
+
         .ranking-btn {
             flex: 1;
             min-width: 150px;
@@ -380,6 +530,20 @@
 
         /* 響應式設計 */
         @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+            
+            .container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
             .header h1 {
                 font-size: 1.8em;
             }
@@ -394,16 +558,114 @@
 
             .ranking-buttons {
                 flex-direction: column;
+                gap: 10px;
             }
 
             .ranking-btn {
                 min-width: auto;
             }
 
+            /* 手機版顯示卡片，隱藏表格 */
+            .ranking-table {
+                display: none;
+            }
+            
+            .mobile-ranking-cards {
+                display: block;
+            }
+            
+            .ranking-filter-btn {
+                font-size: 12px;
+                padding: 6px 10px;
+                margin: 2px;
+            }
+            
+            .team-basic-info {
+                gap: 10px;
+            }
+            
+            .rank-badge {
+                font-size: 20px;
+                min-width: 35px;
+            }
+            
+            .team-name {
+                font-size: 16px;
+            }
+            
+            .team-average {
+                font-size: 14px;
+            }
+
+            /* 手機版表格優化（備用） */
+            .ranking-table thead,
+            .ranking-table tbody,
             .ranking-table th,
+            .ranking-table td,
+            .ranking-table tr {
+                display: block;
+            }
+            
+            .ranking-table thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            
+            .ranking-table tr {
+                background: white;
+                border: 1px solid #e9ecef;
+                border-radius: 10px;
+                margin-bottom: 10px;
+                padding: 15px;
+                position: relative;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
             .ranking-table td {
-                padding: 6px 4px;
-                font-size: 10px;
+                border: none;
+                position: relative;
+                padding: 8px 0;
+                text-align: left !important;
+                white-space: normal;
+                word-wrap: break-word;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .ranking-table td:before {
+                content: attr(data-label) ": ";
+                font-weight: bold;
+                color: #667eea;
+                flex-shrink: 0;
+                margin-right: 10px;
+            }
+            
+            .ranking-table td:first-child {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                border-radius: 8px;
+                padding: 10px;
+                margin-bottom: 10px;
+                font-size: 16px;
+                font-weight: bold;
+                text-align: center !important;
+                display: block;
+            }
+            
+            .ranking-table td:first-child:before {
+                content: "排名 ";
+                color: white;
+            }
+            
+            /* 手機版數字顯示優化 */
+            .ranking-table td[data-label*="分數"],
+            .ranking-table td[data-label*="總分"],
+            .ranking-table td[data-label*="平均"] {
+                font-family: 'Courier New', monospace;
+                font-size: 14px;
+                font-weight: bold;
             }
         }
 
@@ -697,12 +959,31 @@
                     <button class="ranking-btn" onclick="displayRankings('total')">📊 總分排名</button>
                 </div>
 
+                <!-- 智慧排名選項 -->
+                <div class="ranking-options" id="rankingOptions" style="display: none;">
+                    <span style="font-size: 14px; color: #666; margin-right: 10px;">顯示選項：</span>
+                    <button class="ranking-filter-btn active" onclick="setRankingFilter('all')">
+                        📋 全部隊伍
+                    </button>
+                    <button class="ranking-filter-btn" onclick="setRankingFilter('top3')">
+                        🏆 前三名
+                    </button>
+                    <button class="ranking-filter-btn" onclick="setRankingFilter('locked')" id="lockedFilterBtn" style="display: none;">
+                        🔒 我的隊伍
+                    </button>
+                </div>
+
                 <div id="rankingResult" class="result info">
                     <div style="text-align: center; padding: 20px;">
                         <div style="font-size: 2em; margin-bottom: 10px;">🎳</div>
                         <h3>正在載入比賽排名...</h3>
                         <p>資料將在幾秒鐘內顯示</p>
                         <div class="loading" style="margin-top: 20px;"></div>
+                    </div>
+                    
+                    <!-- 手機版智慧卡片容器 -->
+                    <div class="mobile-ranking-cards" id="mobileRankingCards">
+                        <!-- 卡片會動態填入 -->
                     </div>
                 </div>
 
@@ -747,6 +1028,11 @@
         let currentDisplayMode = 'total';
         let autoRefreshInterval;
         
+        // 智慧排名功能變數
+        let currentRankingFilter = 'all';
+        let lockedTeam = null;
+        let isTeamLocked = false;
+        
         // 投球方式對應表
         const BOWLING_STYLES = {
             '正常投球': { name: '正常', class: 'style-normal', icon: '🎳' },
@@ -771,6 +1057,88 @@
         // 已抽籤記錄（用於限制每組每局只能抽一次）
         let lotteryHistory = new Set();
         
+        // 抽籤歷史記錄（用於避免連續相同結果）
+        let recentLotteryResults = [];
+        const MAX_RECENT_RESULTS = 3; // 記錄最近3次結果
+        
+        // ============ 智慧抽籤功能 ============
+        
+        // 智慧選擇投球方式（避免重複）
+        function selectSmartLotteryStyle() {
+            if (LOTTERY_STYLES.length === 0) {
+                return '正常投球';
+            }
+            
+            // 如果只有1-2種方式，直接隨機選擇
+            if (LOTTERY_STYLES.length <= 2) {
+                const randomIndex = Math.floor(Math.random() * LOTTERY_STYLES.length);
+                return LOTTERY_STYLES[randomIndex];
+            }
+            
+            // 獲取可選的投球方式（排除最近的重複結果）
+            let availableStyles = [...LOTTERY_STYLES];
+            
+            // 如果最近2次結果相同，排除該結果
+            if (recentLotteryResults.length >= 2) {
+                const lastTwo = recentLotteryResults.slice(-2);
+                if (lastTwo[0] === lastTwo[1]) {
+                    availableStyles = availableStyles.filter(style => style !== lastTwo[0]);
+                    console.log(`避免連續重複: ${lastTwo[0]}, 可選項目:`, availableStyles);
+                }
+            }
+            
+            // 如果過濾後沒有可選項目，使用所有選項
+            if (availableStyles.length === 0) {
+                availableStyles = [...LOTTERY_STYLES];
+            }
+            
+            // 從可選項目中隨機選擇
+            const randomIndex = Math.floor(Math.random() * availableStyles.length);
+            const selectedStyle = availableStyles[randomIndex];
+            
+            console.log(`智慧抽籤: 選中 ${selectedStyle}, 最近結果:`, recentLotteryResults);
+            return selectedStyle;
+        }
+        
+        // 記錄抽籤結果
+        function recordLotteryResult(style) {
+            recentLotteryResults.push(style);
+            
+            // 只保留最近的結果
+            if (recentLotteryResults.length > MAX_RECENT_RESULTS) {
+                recentLotteryResults.shift();
+            }
+            
+            console.log('抽籤歷史更新:', recentLotteryResults);
+        }
+        
+        // 清除抽籤歷史（可用於重置）
+        function clearLotteryHistory() {
+            const previousLength = recentLotteryResults.length;
+            recentLotteryResults = [];
+            
+            // 顯示清除結果
+            const resultDiv = document.getElementById('lotteryResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 3em; margin-bottom: 15px;">🗑️</div>
+                    <h3 style="color: #28a745;">抽籤歷史已清除</h3>
+                    <p style="color: #666; margin-top: 10px;">
+                        已清除 ${previousLength} 筆歷史記錄<br>
+                        下次抽籤將不會避免重複
+                    </p>
+                </div>
+            `;
+            
+            // 3秒後隱藏結果
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 3000);
+            
+            console.log('抽籤歷史已清除，之前有', previousLength, '筆記錄');
+        }
+
         // ============ 隊伍鎖定功能 ============
         let selectedLotteryTeam = '';
         let isLotteryTeamLocked = false;
@@ -885,6 +1253,10 @@
                     if (hintDiv) {
                         hintDiv.style.display = 'none';
                     }
+                    
+                    // 同時觸發排名鎖定功能
+                    lockTeamFromExternal(selectedLotteryTeam);
+                    
                 } else {
                     // 解鎖狀態
                     lockButton.innerHTML = '🔒 鎖定隊伍';
@@ -896,6 +1268,9 @@
                         teamSelect.disabled = false;
                         teamSelect.style.opacity = '1';
                     }
+                    
+                    // 同時解鎖排名功能
+                    unlockTeam();
                 }
             }
         }
@@ -1181,9 +1556,29 @@
                     statusIndicator.textContent = '❌';
                     statusText.textContent = `投球方式來源：載入失敗 (${message})`;
                     break;
+                case 'loading':
+                    statusIndicator.textContent = '⏳';
+                    statusText.textContent = `投球方式來源：${message}`;
+                    break;
                 default:
                     statusIndicator.textContent = '📊';
                     statusText.textContent = '投球方式來源：載入中...';
+            }
+            
+            // 添加詳細資訊
+            if (LOTTERY_STYLES.length > 0) {
+                const detailText = document.createElement('div');
+                detailText.style.fontSize = '12px';
+                detailText.style.color = '#666';
+                detailText.style.marginTop = '5px';
+                detailText.innerHTML = `可用方式: ${LOTTERY_STYLES.join(', ')} | 歷史記錄: ${recentLotteryResults.length}/${MAX_RECENT_RESULTS}`;
+                
+                // 移除舊的詳細資訊
+                const oldDetail = statusElement.querySelector('.detail-info');
+                if (oldDetail) oldDetail.remove();
+                
+                detailText.className = 'detail-info';
+                statusElement.appendChild(detailText);
             }
         }
         
@@ -1440,14 +1835,16 @@
             
             // 模擬抽籤過程（2秒）
             setTimeout(async () => {
-                // 隨機選擇投球方式
-                const randomIndex = Math.floor(Math.random() * LOTTERY_STYLES.length);
-                const selectedStyle = LOTTERY_STYLES[randomIndex];
+                // 智慧選擇投球方式（避免重複）
+                const selectedStyle = selectSmartLotteryStyle();
                 const styleInfo = BOWLING_STYLES[selectedStyle] || { 
                     name: selectedStyle, 
                     icon: '🎳', 
                     class: 'style-normal' 
                 };
+                
+                // 記錄抽籤結果
+                recordLotteryResult(selectedStyle);
                 
                 // 停止動畫，但保持骰子圖案
                 wheel.classList.add('stopped');
@@ -1659,6 +2056,7 @@
         function displayRankings(type = 'total') {
             currentDisplayMode = type;
             const resultDiv = document.getElementById('rankingResult');
+            const rankingOptions = document.getElementById('rankingOptions');
             
             if (!currentRankings || !Array.isArray(currentRankings) || currentRankings.length === 0) {
                 resultDiv.className = 'result info';
@@ -1668,8 +2066,12 @@
                         <p>目前還沒有任何隊伍上傳成績</p>
                     </div>
                 `;
+                rankingOptions.style.display = 'none';
                 return;
             }
+            
+            // 顯示智慧排名選項
+            rankingOptions.style.display = 'flex';
             
             const typeTitle = type === 'round1' ? '第一局排名' : '總分排名';
             const showTotal = type === 'total';
@@ -1682,12 +2084,30 @@
                 sortedRankings.sort((a, b) => (b.total_score || 0) - (a.total_score || 0));
             }
             
+            // 應用智慧排名篩選
+            let filteredRankings = applyRankingFilter(sortedRankings);
+            let titleSuffix = '';
+            
+            switch (currentRankingFilter) {
+                case 'top3':
+                    titleSuffix = ' - 前三名';
+                    break;
+                case 'locked':
+                    if (lockedTeam) {
+                        const teamRank = sortedRankings.findIndex(team => team.team_name === lockedTeam) + 1;
+                        titleSuffix = ` - ${lockedTeam}隊 (第${teamRank}名)`;
+                    }
+                    break;
+                default:
+                    titleSuffix = ` - 全部隊伍`;
+            }
+            
             let tableHTML = `
                 <div style="text-align: center; margin-bottom: 20px;">
                     <h3 style="color: #333; margin: 0;">
-                        ${showTotal ? '🏆' : '🎯'} ${typeTitle}
+                        ${showTotal ? '🏆' : '🎯'} ${typeTitle}${titleSuffix}
                     </h3>
-                    <p style="color: #666; margin: 5px 0;">共 ${sortedRankings.length} 支隊伍參賽</p>
+                    <p style="color: #666; margin: 5px 0;">共 ${filteredRankings.length} 支隊伍${currentRankingFilter === 'all' ? '參賽' : '顯示'}</p>
                 </div>
                 
                 <div style="overflow-x: auto;">
@@ -1708,15 +2128,16 @@
                         <tbody>
             `;
 
-            sortedRankings.forEach((team, index) => {
-                const rank = index + 1;
+            filteredRankings.forEach((team, index) => {
+                // 使用原始排名而不是篩選後的排名
+                const originalRank = sortedRankings.findIndex(t => t.team_name === team.team_name) + 1;
                 const round1 = team.round1_score || 0;
                 const round2 = team.round2_score || 0;
                 const total = team.total_score || round1 + round2;
                 const members = team.members || 1;
                 const average = Math.round(total / members);
                 
-                const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+                const rankIcon = originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : originalRank;
                 
                 // 獲取投球方式
                 const round1Style = getBowlingStyleDisplay(team.round1_style);
@@ -1724,15 +2145,15 @@
                 
                 tableHTML += `
                     <tr>
-                        <td><strong>${rankIcon}</strong></td>
-                        <td><strong>${team.team_name || '未知隊伍'}</strong></td>
-                        <td>${round1}</td>
-                        <td>${round1Style}</td>
-                        ${showTotal ? `<td>${round2}</td>` : ''}
-                        ${showTotal ? `<td>${round2Style}</td>` : ''}
-                        ${showTotal ? `<td><strong>${total}</strong></td>` : ''}
-                        <td>${members}</td>
-                        <td>${average}</td>
+                        <td data-label="排名"><strong>${rankIcon}</strong></td>
+                        <td data-label="隊伍"><strong>${team.team_name || '未知隊伍'}</strong></td>
+                        <td data-label="第一局分數">${round1}</td>
+                        <td data-label="第一局方式">${round1Style}</td>
+                        ${showTotal ? `<td data-label="第二局分數">${round2}</td>` : ''}
+                        ${showTotal ? `<td data-label="第二局方式">${round2Style}</td>` : ''}
+                        ${showTotal ? `<td data-label="總分"><strong>${total}</strong></td>` : ''}
+                        <td data-label="人數">${members}</td>
+                        <td data-label="平均分數">${average}</td>
                     </tr>
                 `;
             });
@@ -1742,9 +2163,12 @@
                     </table>
                 </div>
             `;
-
+            
+            // 生成手機版卡片
+            const mobileCardsHTML = generateMobileRankingCards(filteredRankings, sortedRankings, showTotal);
+            
             resultDiv.className = 'result success';
-            resultDiv.innerHTML = tableHTML;
+            resultDiv.innerHTML = tableHTML + mobileCardsHTML;
             
             // 設置表格放大功能
             setTimeout(() => {
@@ -1762,6 +2186,197 @@
                     btn.style.boxShadow = '';
                 }
             });
+        }
+
+        // ============ 智慧排名功能函數 ============
+        
+        // 設置排名篩選
+        function setRankingFilter(filter) {
+            currentRankingFilter = filter;
+            
+            // 更新按鈕狀態
+            document.querySelectorAll('.ranking-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[onclick="setRankingFilter('${filter}')"]`).classList.add('active');
+            
+            // 重新顯示排名
+            displayRankings(currentDisplayMode);
+        }
+        
+        // 應用排名篩選
+        function applyRankingFilter(sortedRankings) {
+            let filteredData = [...sortedRankings];
+            
+            switch (currentRankingFilter) {
+                case 'top3':
+                    // 前三名不受鎖定影響，直接取前三名
+                    filteredData = filteredData.slice(0, 3);
+                    break;
+                    
+                case 'locked':
+                    if (lockedTeam) {
+                        const teamData = sortedRankings.find(team => team.team_name === lockedTeam);
+                        filteredData = teamData ? [teamData] : [];
+                    } else {
+                        filteredData = [];
+                    }
+                    break;
+                    
+                case 'all':
+                default:
+                    // 全部隊伍模式才處理鎖定隊伍置頂
+                    if (isTeamLocked && lockedTeam) {
+                        const lockedTeamData = filteredData.find(team => team.team_name === lockedTeam);
+                        if (lockedTeamData) {
+                            filteredData = filteredData.filter(team => team.team_name !== lockedTeam);
+                            filteredData.unshift(lockedTeamData); // 置頂
+                        }
+                    }
+                    break;
+            }
+            
+            return filteredData;
+        }
+        
+        // 生成手機版排名卡片
+        function generateMobileRankingCards(filteredRankings, allRankings, showTotal) {
+            let cardsHTML = '<div class="mobile-ranking-cards" id="mobileRankingCards">';
+            
+            // 檢查是否有鎖定隊伍且在全部隊伍模式
+            const hasLockedTeamOnTop = currentRankingFilter === 'all' && isTeamLocked && lockedTeam && 
+                                      filteredRankings.length > 0 && filteredRankings[0].team_name === lockedTeam;
+            
+            filteredRankings.forEach((team, index) => {
+                const originalRank = allRankings.findIndex(t => t.team_name === team.team_name) + 1;
+                const round1 = team.round1_score || 0;
+                const round2 = team.round2_score || 0;
+                const total = team.total_score || round1 + round2;
+                const members = team.members || 1;
+                const average = Math.round(total / members);
+                
+                const rankIcon = originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : originalRank;
+                const isLockedTeam = isTeamLocked && team.team_name === lockedTeam;
+                
+                const round1Style = getBowlingStyleDisplay(team.round1_style);
+                const round2Style = getBowlingStyleDisplay(team.round2_style);
+                
+                // 在鎖定隊伍後添加分隔空間
+                const separatorHTML = (hasLockedTeamOnTop && index === 0) ? 
+                    '<div style="height: 20px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px; margin: 10px 0;"><span style="background: #f8f9fa; padding: 5px 15px; border-radius: 15px;">── 其他隊伍 ──</span></div>' : '';
+                
+                cardsHTML += `
+                    <div class="ranking-card rank-${originalRank <= 3 ? originalRank : 'other'}" data-team="${team.team_name}">
+                        <div class="card-header ${isLockedTeam ? 'locked-team' : ''}" onclick="toggleRankingCardDetails('${team.team_name}')">
+                            <div class="team-basic-info">
+                                <div class="rank-badge">${rankIcon}</div>
+                                <div class="team-name">${team.team_name}隊</div>
+                                <div class="team-average">${average}分</div>
+                                <div class="expand-icon">▼</div>
+                            </div>
+                        </div>
+                        <div class="card-details">
+                            <div class="detail-content">
+                                <div class="detail-row">
+                                    <span class="detail-label">🎯 第一局分數</span>
+                                    <span class="detail-value score">${round1}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">🎳 第一局方式</span>
+                                    <span class="detail-value">${round1Style}</span>
+                                </div>
+                                ${showTotal ? `
+                                <div class="detail-row">
+                                    <span class="detail-label">🎯 第二局分數</span>
+                                    <span class="detail-value score">${round2}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">🎳 第二局方式</span>
+                                    <span class="detail-value">${round2Style}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">📊 總分</span>
+                                    <span class="detail-value total">${total}</span>
+                                </div>
+                                ` : ''}
+                                <div class="detail-row">
+                                    <span class="detail-label">👥 隊員人數</span>
+                                    <span class="detail-value">${members}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">📈 平均分數</span>
+                                    <span class="detail-value">${average}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ${separatorHTML}
+                `;
+            });
+            
+            cardsHTML += '</div>';
+            return cardsHTML;
+        }
+        
+        // 切換排名卡片詳情
+        function toggleRankingCardDetails(teamName) {
+            const card = document.querySelector(`[data-team="${teamName}"]`);
+            const details = card.querySelector('.card-details');
+            const icon = card.querySelector('.expand-icon');
+            
+            if (details.classList.contains('expanded')) {
+                details.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                // 先收合其他卡片
+                document.querySelectorAll('.card-details.expanded').forEach(detail => {
+                    detail.classList.remove('expanded');
+                });
+                document.querySelectorAll('.expand-icon.expanded').forEach(ic => {
+                    ic.classList.remove('expanded');
+                });
+                
+                // 展開當前卡片
+                details.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        }
+        
+        // 鎖定隊伍功能（從其他頁面調用）
+        function lockTeamFromExternal(teamName) {
+            lockedTeam = teamName;
+            isTeamLocked = true;
+            
+            // 顯示鎖定篩選按鈕
+            const lockedFilterBtn = document.getElementById('lockedFilterBtn');
+            if (lockedFilterBtn) {
+                lockedFilterBtn.style.display = 'inline-block';
+                lockedFilterBtn.innerHTML = `🔒 ${teamName}隊`;
+            }
+            
+            // 如果當前有排名資料，重新顯示
+            if (currentRankings && currentRankings.length > 0) {
+                displayRankings(currentDisplayMode);
+            }
+        }
+        
+        // 解鎖隊伍功能
+        function unlockTeam() {
+            lockedTeam = null;
+            isTeamLocked = false;
+            
+            // 隱藏鎖定篩選按鈕
+            const lockedFilterBtn = document.getElementById('lockedFilterBtn');
+            if (lockedFilterBtn) {
+                lockedFilterBtn.style.display = 'none';
+            }
+            
+            // 如果當前篩選是鎖定模式，切換回全部顯示
+            if (currentRankingFilter === 'locked') {
+                setRankingFilter('all');
+            } else {
+                displayRankings(currentDisplayMode);
+            }
         }
 
         // ============ 投球方式顯示函數 ============
