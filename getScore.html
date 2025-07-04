@@ -3,20 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>保齡球比賽計分系統 v2.2</title>
+    <title>保齡球比賽計分系統 v2.3</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-/* <!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>保齡球比賽計分系統 v2.2</title>
-    <style> */
         * {
             margin: 0;
             padding: 0;
@@ -27,7 +15,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 0; /* 重要：移除 body 的 padding */
+            padding: 0;
         }
 
         .container {
@@ -38,13 +26,13 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
-        /* 手機版容器設定 */
+
         @media (max-width: 768px) {
             .container {
-                margin: 0; /* 移除左右邊距 */
-                border-radius: 0; /* 移除圓角讓內容更寬 */
+                margin: 0;
+                border-radius: 0;
                 min-height: 100vh;
-                max-width: 100vw; /* 使用全螢幕寬度 */
+                max-width: 100vw;
             }
         }
 
@@ -104,15 +92,13 @@
             padding: 30px;
         }
 
-        /* 手機版主要內容 */
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
                 gap: 20px;
-                padding: 15px; /* 適中的內邊距 */
+                padding: 15px;
             }
         }
-
 
         .section {
             background: white;
@@ -122,14 +108,12 @@
             border: 1px solid #e9ecef;
         }
 
-        /* 手機版 section */
         @media (max-width: 768px) {
             .section {
-                padding: 20px; /* 保持適當的內邊距 */
+                padding: 20px;
                 border-radius: 10px;
             }
-}
-
+        }
 
         .section h2 {
             color: #333;
@@ -282,10 +266,10 @@
             white-space: pre-wrap;
             max-height: 200px;
             overflow-y: auto;
-            overflow-x: hidden; /* 防止水平滾動 */
-            width: 100%; /* 確保寬度為100% */
-            word-break: break-all; /* 長文字會換行 */
-            box-sizing: border-box; /* 確保padding不會增加寬度 */
+            overflow-x: hidden;
+            width: 100%;
+            word-break: break-all;
+            box-sizing: border-box;
         }
 
         .ranking-table {
@@ -315,144 +299,165 @@
         }
 
         /* 清除按鈕樣式 */
-.clear-btn {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 10px;
-    width: 100%;
-    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-}
+        .clear-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
 
-.clear-btn:hover {
-    background: linear-gradient(135deg, #ff5252, #d32f2f);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-}
+        .clear-btn:hover {
+            background: linear-gradient(135deg, #ff5252, #d32f2f);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
 
-/* 清除選項彈窗樣式 */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease;
-}
+        /* 投球方式管理樣式 */
+        .bowling-style-section {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
 
-.modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    animation: slideUp 0.3s ease;
-}
+        .style-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-.modal-content h3 {
-    margin-bottom: 20px;
-    color: #333;
-    font-size: 20px;
-}
+        .style-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
 
-.clear-options {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
-}
+        .style-btn.normal { background: linear-gradient(135deg, #e3f2fd, #bbdefb); color: #1976d2; }
+        .style-btn.underhand { background: linear-gradient(135deg, #f3e5f5, #e1bee7); color: #7b1fa2; }
+        .style-btn.assisted { background: linear-gradient(135deg, #e8f5e8, #c8e6c9); color: #388e3c; }
+        .style-btn.blindfold { background: linear-gradient(135deg, #fff3e0, #ffe0b2); color: #f57c00; }
+        .style-btn.lefthand { background: linear-gradient(135deg, #fce4ec, #f8bbd9); color: #c2185b; }
 
-.option-btn {
-    padding: 15px 20px;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
+        .style-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
 
-.option-btn.danger {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-    color: white;
-}
+        /* 清除選項彈窗樣式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
 
-.option-btn.warning {
-    background: linear-gradient(135deg, #ffa726, #ff9800);
-    color: white;
-}
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
 
-.option-btn.secondary {
-    background: linear-gradient(135deg, #78909c, #607d8b);
-    color: white;
-}
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 20px;
+        }
 
-.option-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
+        .clear-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+        .option-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-@keyframes slideUp {
-    from { transform: translateY(30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
+        .option-btn.danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
 
-/* 手機版樣式 */
-@media (max-width: 768px) {
-    .modal-content {
-        padding: 20px;
-        margin: 20px;
-    }
-    
-    .option-btn {
-        padding: 12px 16px;
-        font-size: 14px;
-    }
-}
+        .option-btn.warning {
+            background: linear-gradient(135deg, #ffa726, #ff9800);
+            color: white;
+        }
 
+        .option-btn.secondary {
+            background: linear-gradient(135deg, #78909c, #607d8b);
+            color: white;
+        }
+
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
         @media (max-width: 768px) {
             body {
-                padding: 0; /* 確保沒有外邊距 */
+                padding: 0;
             }
             
             .container {
                 margin: 0;
                 border-radius: 0;
                 min-height: 100vh;
-                width: 100vw; /* 強制使用全寬 */
+                width: 100vw;
             }
             
             .header {
-                padding: 20px 15px; /* 減少左右邊距但保持可讀性 */
+                padding: 20px 15px;
             }
             
             .main-content {
                 grid-template-columns: 1fr;
                 gap: 15px;
-                padding: 15px; /* 適中的邊距 */
+                padding: 15px;
             }
             
             .section {
-                padding: 15px; /* 適中的內邊距 */
+                padding: 15px;
                 margin: 0;
             }
             
@@ -463,11 +468,10 @@
                 padding: 0 15px;
             }
             
-            /* 確保表格和按鈕區域使用全寬 */
             .ranking-buttons {
                 flex-direction: column;
                 gap: 10px;
-                margin: 0 -5px; /* 負邊距讓按鈕更寬 */
+                margin: 0 -5px;
             }
             
             .ranking-btn {
@@ -476,12 +480,25 @@
             }
             
             .result {
-                margin: 15px -5px 0; /* 負邊距讓表格更寬 */
+                margin: 15px -5px 0;
                 padding: 15px;
             }
+
+            .modal-content {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .option-btn {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .style-buttons {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
         }
-
-
     </style>
 </head>
 <body>
@@ -494,8 +511,8 @@
             </div>
             <button id="envToggleBtn" style="position: absolute; top: 20px; right: 20px; padding: 8px 16px; background: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 20px; cursor: pointer; transition: all 0.3s ease;" onclick="toggleEnvSwitcher()">⚙️ 環境設定</button>
             
-            <h1 style="padding-top: 40px;">🎳 保齡球比賽計分系統 v2.2</h1>
-            <!-- <p>符合 n8n Action Switch · 分局輸入 · 即時排名</p> -->
+            <h1 style="padding-top: 40px;">🎳 保齡球比賽計分系統 v2.4</h1>
+            <p>分數輸入 · 投球方式管理 · 即時排名</p>
 
             <script>
                 function toggleEnvSwitcher() {
@@ -517,21 +534,21 @@
             <div class="section">
                 <h2>📝 分數輸入</h2>
                 
-<div class="form-group">
-    <label for="teamName">🏆 隊伍名稱</label>
-    <select id="teamName">
-        <option value="A">A隊</option>
-        <option value="B">B隊</option>
-        <option value="C">C隊</option>
-        <option value="D">D隊</option>
-        <option value="E">E隊</option>
-        <option value="F">F隊</option>
-        <option value="G">G隊</option>
-        <option value="H">H隊</option>
-        <option value="I">I隊</option>
-        <option value="J">J隊</option>
-    </select>
-</div>
+                <div class="form-group">
+                    <label for="teamName">🏆 隊伍名稱</label>
+                    <select id="teamName">
+                        <option value="A">A隊</option>
+                        <option value="B">B隊</option>
+                        <option value="C">C隊</option>
+                        <option value="D">D隊</option>
+                        <option value="E">E隊</option>
+                        <option value="F">F隊</option>
+                        <option value="G">G隊</option>
+                        <option value="H">H隊</option>
+                        <option value="I">I隊</option>
+                        <option value="J">J隊</option>
+                    </select>
+                </div>
 
                 <div class="form-group">
                     <label for="roundSelect">🎯 選擇局數</label>
@@ -541,18 +558,17 @@
                     </select>
                 </div>
 
-                <div class="form-group" >
+                <div class="form-group">
                     <label for="score">🎳 分數</label>
                     <input type="number" id="score" placeholder="0-5000" min="0" max="5000">
                 </div>
-
-
 
                 <div class="form-group" id="scoreInputGroup">
                     <label for="members">👥 隊員人數</label>
                     <input type="number" id="members" placeholder="1-16" min="1" max="16" value="1">
                 </div>
-                                <script>
+
+                <script>
                     // 監聽局數選擇變化
                     document.getElementById('roundSelect').addEventListener('change', function() {
                         const scoreInputGroup = document.getElementById('scoreInputGroup');
@@ -564,8 +580,6 @@
                     });
                 </script>
 
-                <!-- <button class="btn" onclick="submitScore()">📤 上傳分數</button> -->
-                <!-- 找到你的上傳分數按鈕區域，通常在這附近： -->
                 <button onclick="submitScore()" class="btn">📤 上傳分數</button>
 
                 <!-- 在上傳按鈕下方加入清除按鈕 -->
@@ -576,8 +590,31 @@
                 <div id="submitResult" class="result" style="display: none;"></div>
             </div>
 
-            <!-- 即時排名區域 -->
+            <!-- 投球方式管理區域 -->
             <div class="section">
+                <h2>🎳 投球方式管理</h2>
+                
+                <div class="form-group">
+                    <label>📋 管理功能</label>
+                    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                        投球方式由各隊在排名頁面抽籤決定，每組每局只能抽籤一次。<br>
+                        如需重新抽籤，請使用下方的重置功能。
+                    </p>
+                </div>
+
+                <button onclick="clearBowlingStyles()" class="clear-btn">
+                    🗑️ 清除所有投球方式
+                </button>
+
+                <button onclick="resetTeamBowlingStyle()" class="clear-btn" style="background: linear-gradient(135deg, #ffa726, #ff9800); margin-top: 10px;">
+                    🔄 重置特定隊伍投球方式
+                </button>
+
+                <div id="styleResult" class="result" style="display: none;"></div>
+            </div>
+
+            <!-- 即時排名區域 -->
+            <div class="section ranking-section">
                 <h2>🏅 即時排名</h2>
                 
                 <div class="ranking-buttons">
@@ -624,7 +661,7 @@
                     if (debugContent.style.display === 'none') {
                         debugContent.style.display = 'block';
                         toggleBtn.textContent = '隱藏除錯資訊';
-                        updateDebugInfo(); // 更新除錯資訊
+                        updateDebugInfo();
                     } else {
                         debugContent.style.display = 'none';
                         toggleBtn.textContent = '顯示除錯資訊';
@@ -633,7 +670,6 @@
             </script>
         </div>
     </div>
-
     <script>
         // ============ 全域變數和配置 ============
         const API_ENDPOINTS = {
@@ -643,6 +679,7 @@
 
         let currentEnvironment = 'production';
         let currentRankings = [];
+
         // ============ 環境切換函數 ============
         function switchEnvironment(env) {
             currentEnvironment = env;
@@ -656,7 +693,8 @@
             updateDebugInfo();
             showMessage(`已切換到 ${env === 'production' ? '正式' : '測試'} 環境`, 'info');
         }
-        // ============ 分數提交函數 (符合 n8n Action Switch) ============
+
+        // ============ 分數提交函數 ============
         async function submitScore() {
             const teamName = document.getElementById('teamName').value.trim();
             const round = document.getElementById('roundSelect').value;
@@ -681,9 +719,8 @@
 
             showSubmitResult('🚀 正在提交分數...', 'info');
 
-            // 符合 n8n Action Switch 的資料格式
             const submitData = {
-                action: "upload",  // 對應您 n8n 的第一個路由規則
+                action: "upload",
                 team_name: teamName,
                 round: round,
                 score: score,
@@ -723,28 +760,26 @@
                 }
 
                 if (result.success) {
-    // 原有的成功處理
-    showSubmitResult(`✅ 分數提交成功！\n隊伍: ${teamName}\n${round}: ${score}分`, 'success');
-    
-    document.getElementById('teamName').value = '';
-    document.getElementById('score').value = '';
-    
-    setTimeout(() => {
-        getRankings();
-    }, 1000);
-} else if (result.組別) {
-    // 新增：處理 n8n 的回應格式
-    showSubmitResult(`✅ 分數提交成功！\n隊伍: ${result.組別}\n${round}: ${score}分\n總分: ${result.總分}`, 'success');
-    
-    document.getElementById('teamName').value = '';
-    document.getElementById('score').value = '';
-    
-    setTimeout(() => {
-        getRankings();
-    }, 1000);
-} else {
-    throw new Error(result.message || '提交失敗');
-}
+                    showSubmitResult(`✅ 分數提交成功！\n隊伍: ${teamName}\n${round}: ${score}分`, 'success');
+                    
+                    document.getElementById('teamName').value = '';
+                    document.getElementById('score').value = '';
+                    
+                    setTimeout(() => {
+                        getRankings();
+                    }, 1000);
+                } else if (result.組別) {
+                    showSubmitResult(`✅ 分數提交成功！\n隊伍: ${result.組別}\n${round}: ${score}分\n總分: ${result.總分}`, 'success');
+                    
+                    document.getElementById('teamName').value = '';
+                    document.getElementById('score').value = '';
+                    
+                    setTimeout(() => {
+                        getRankings();
+                    }, 1000);
+                } else {
+                    throw new Error(result.message || '提交失敗');
+                }
 
             } catch (error) {
                 console.error('提交失敗:', error);
@@ -754,115 +789,252 @@
             updateDebugInfo();
         }
 
-        // ============ 獲取排名函數 (符合 n8n Action Switch) ============
-async function getRankings() {
-    const resultDiv = document.getElementById('rankingResult');
-    
-    resultDiv.className = 'result info';
-    resultDiv.innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-            <div style="font-size: 2em; margin-bottom: 10px;">🔄</div>
-            <h3>正在載入排名資料...</h3>
-            <p>環境: ${currentEnvironment === 'test' ? '測試' : '正式'}</p>
-        </div>
-    `;
-    
-    try {
-        // 符合 n8n Action Switch 的請求格式
-        const requestData = {
-            action: "getRankings",  // 對應您 n8n 的第二個路由規則
-            timestamp: new Date().toISOString(),
-            environment: currentEnvironment
-        };
+        // ============ 重置特定隊伍投球方式函數 ============
+        async function resetTeamBowlingStyle() {
+            const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+            const teamOptions = teams.map((team, index) => 
+                `${index + 1}. ${team}隊`
+            ).join('\n');
+            
+            const teamChoice = prompt(`請選擇要重置投球方式的隊伍 (輸入數字):\n${teamOptions}`);
+            
+            if (!teamChoice || isNaN(teamChoice) || teamChoice < 1 || teamChoice > teams.length) {
+                showStyleResult('❌ 請輸入有效的隊伍選項', 'error');
+                return;
+            }
+            
+            const selectedTeam = teams[parseInt(teamChoice) - 1];
+            
+            // 詢問要重置哪一局
+            const roundOptions = [
+                '1. 第一局',
+                '2. 第二局', 
+                '3. 兩局都重置'
+            ].join('\n');
+            
+            const roundChoice = prompt(`請選擇要重置的局數:\n${roundOptions}`);
+            
+            if (!roundChoice || isNaN(roundChoice) || roundChoice < 1 || roundChoice > 3) {
+                showStyleResult('❌ 請輸入有效的局數選項', 'error');
+                return;
+            }
+            
+            let roundsToReset = [];
+            if (roundChoice === '1') {
+                roundsToReset = ['第一局'];
+            } else if (roundChoice === '2') {
+                roundsToReset = ['第二局'];
+            } else {
+                roundsToReset = ['第一局', '第二局'];
+            }
+            
+            const roundText = roundsToReset.join('和');
+            
+            if (!confirm(`⚠️ 確定要重置「${selectedTeam}隊」的「${roundText}」投球方式嗎？\n重置後該隊伍可以重新抽籤。`)) {
+                return;
+            }
 
-        console.log('請求排名資料:', requestData);
-        console.log('API 端點:', API_ENDPOINTS[currentEnvironment]);
-
-        const response = await fetch(API_ENDPOINTS[currentEnvironment], {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'ngrok-skip-browser-warning': 'true'
-            },
-            body: JSON.stringify(requestData),
-            mode: 'cors'
-        });
-
-        console.log('Response status:', response.status);
-        console.log('Response headers:', [...response.headers.entries()]);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.log('Error response:', errorText);
-            throw new Error(`HTTP ${response.status}: ${response.statusText}\n回應內容: ${errorText}`);
-        }
-        
-        let data;
-        const responseText = await response.text();
-        console.log('Raw ranking response:', responseText);
-        console.log('Response length:', responseText.length);
-        console.log('Response type:', typeof responseText);
-
-        // 檢查回應是否為空
-        if (!responseText || responseText.trim() === '') {
-            throw new Error('伺服器回應為空');
-        }
-
-        // 檢查回應是否看起來像 HTML（可能是錯誤頁面）
-        if (responseText.trim().startsWith('<')) {
-            throw new Error('伺服器回應是 HTML 而不是 JSON，可能是錯誤頁面');
-        }
-
-        try {
-            data = JSON.parse(responseText);
-            console.log('Parsed data:', data);
-        } catch (parseError) {
-            console.error('JSON 解析錯誤:', parseError);
-            console.log('無法解析的內容前 500 字元:', responseText.substring(0, 500));
-            throw new Error(`伺服器回應不是有效的 JSON:\n${responseText.substring(0, 200)}...`);
-        }
-        
-        // 檢查資料格式
-        if (data && data.success && data.rankings && Array.isArray(data.rankings)) {
-            console.log('使用 data.rankings 格式');
-            currentRankings = data.rankings;
-            displayRankings(data.rankings, 'total');
-        } else if (data && Array.isArray(data)) {
-            console.log('使用直接陣列格式');
-            currentRankings = data;
-            displayRankings(data, 'total');
-        } else {
-            console.log('未知的資料格式:', data);
-            throw new Error(`資料格式不正確。收到的資料: ${JSON.stringify(data).substring(0, 200)}...`);
-        }
-        
-    } catch (error) {
-        console.error('獲取排名失敗:', error);
-        
-        resultDiv.className = 'result error';
-        resultDiv.innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-                <h3>❌ 獲取排名失敗</h3>
-                <p><strong>錯誤訊息：</strong>${error.message}</p>
-                <p><strong>當前環境：</strong>${currentEnvironment === 'test' ? '測試' : '正式'}</p>
-                <p><strong>API 端點：</strong>${API_ENDPOINTS[currentEnvironment]}</p>
+            try {
+                showStyleResult(`🔄 正在重置${selectedTeam}隊的${roundText}投球方式...`, 'info');
                 
-                <div style="margin-top: 15px;">
-                    <button onclick="testConnection()" style="margin: 5px; padding: 8px 16px; background: #ffc107; color: black; border: none; border-radius: 4px; cursor: pointer;">
-                        🔧 測試連線
-                    </button>
-                    <button onclick="getRankings()" style="margin: 5px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        🔄 重試
-                    </button>
-                    <button onclick="console.log('API_ENDPOINTS:', API_ENDPOINTS); console.log('currentEnvironment:', currentEnvironment);" style="margin: 5px; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        🐛 調試資訊
-                    </button>
+                let successCount = 0;
+                
+                for (const round of roundsToReset) {
+                    const resetData = {
+                        action: "setBowlingStyle",
+                        team_name: selectedTeam,
+                        round: round,
+                        bowling_style: "",
+                        timestamp: new Date().toISOString(),
+                        environment: currentEnvironment,
+                        source: "reset"
+                    };
+                    
+                    const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
+                        body: JSON.stringify(resetData)
+                    });
+                    
+                    if (response.ok) {
+                        successCount++;
+                    }
+                }
+                
+                showStyleResult(`✅ 成功重置 ${selectedTeam}隊 ${successCount}/${roundsToReset.length} 局投球方式！\n該隊伍現在可以重新抽籤。`, 'success');
+                
+                setTimeout(async () => {
+                    try {
+                        await getRankings();
+                    } catch (error) {
+                        console.log('自動更新排名失敗，但重置操作已完成:', error.message);
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                console.error('重置隊伍投球方式錯誤:', error);
+                showStyleResult('❌ 重置投球方式失敗: ' + error.message, 'error');
+            }
+        }
+        async function clearBowlingStyles() {
+            if (!confirm('⚠️ 確定要清除所有隊伍的投球方式設定嗎？\n此操作無法復原！')) {
+                return;
+            }
+
+            try {
+                showStyleResult('🔄 正在清除所有投球方式...', 'info');
+                
+                const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                const rounds = ['第一局', '第二局'];
+                
+                let successCount = 0;
+                let totalCount = teams.length * rounds.length;
+                
+                for (const team of teams) {
+                    for (const round of rounds) {
+                        const clearData = {
+                            action: "setBowlingStyle",
+                            team_name: team,
+                            round: round,
+                            bowling_style: "",
+                            timestamp: new Date().toISOString(),
+                            environment: currentEnvironment
+                        };
+
+                        const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'ngrok-skip-browser-warning': 'true'
+                            },
+                            body: JSON.stringify(clearData)
+                        });
+
+                        if (response.ok) {
+                            successCount++;
+                        }
+                    }
+                }
+
+                showStyleResult(`✅ 成功清除 ${successCount}/${totalCount} 項投球方式設定！`, 'success');
+                
+                setTimeout(async () => {
+                    try {
+                        console.log('嘗試更新排名...');
+                        await getRankings();
+                    } catch (error) {
+                        console.log('自動更新排名失敗，但清除操作已完成:', error.message);
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                console.error('清除投球方式錯誤:', error);
+                showStyleResult('❌ 清除投球方式失敗: ' + error.message, 'error');
+            }
+        }
+        // ============ 獲取排名函數 ============
+        async function getRankings() {
+            const resultDiv = document.getElementById('rankingResult');
+            
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 2em; margin-bottom: 10px;">🔄</div>
+                    <h3>正在載入排名資料...</h3>
+                    <p>環境: ${currentEnvironment === 'test' ? '測試' : '正式'}</p>
                 </div>
-            </div>
-        `;
-    }
-}
+            `;
+            
+            try {
+                const requestData = {
+                    action: "getRankings",
+                    timestamp: new Date().toISOString(),
+                    environment: currentEnvironment
+                };
+
+                console.log('請求排名資料:', requestData);
+                console.log('API 端點:', API_ENDPOINTS[currentEnvironment]);
+
+                const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(requestData),
+                    mode: 'cors'
+                });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.log('Error response:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}\n回應內容: ${errorText}`);
+                }
+                
+                let data;
+                const responseText = await response.text();
+                console.log('Raw ranking response:', responseText);
+
+                if (!responseText || responseText.trim() === '') {
+                    throw new Error('伺服器回應為空');
+                }
+
+                if (responseText.trim().startsWith('<')) {
+                    throw new Error('伺服器回應是 HTML 而不是 JSON，可能是錯誤頁面');
+                }
+
+                try {
+                    data = JSON.parse(responseText);
+                    console.log('Parsed data:', data);
+                } catch (parseError) {
+                    console.error('JSON 解析錯誤:', parseError);
+                    throw new Error(`伺服器回應不是有效的 JSON:\n${responseText.substring(0, 200)}...`);
+                }
+                
+                if (data && data.success && data.rankings && Array.isArray(data.rankings)) {
+                    console.log('使用 data.rankings 格式');
+                    currentRankings = data.rankings;
+                    displayRankings(data.rankings, 'total');
+                } else if (data && Array.isArray(data)) {
+                    console.log('使用直接陣列格式');
+                    currentRankings = data;
+                    displayRankings(data, 'total');
+                } else {
+                    console.log('未知的資料格式:', data);
+                    throw new Error(`資料格式不正確。收到的資料: ${JSON.stringify(data).substring(0, 200)}...`);
+                }
+                
+            } catch (error) {
+                console.error('獲取排名失敗:', error);
+                
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3>❌ 獲取排名失敗</h3>
+                        <p><strong>錯誤訊息：</strong>${error.message}</p>
+                        <p><strong>當前環境：</strong>${currentEnvironment === 'test' ? '測試' : '正式'}</p>
+                        <p><strong>API 端點：</strong>${API_ENDPOINTS[currentEnvironment]}</p>
+                        
+                        <div style="margin-top: 15px;">
+                            <button onclick="testConnection()" style="margin: 5px; padding: 8px 16px; background: #ffc107; color: black; border: none; border-radius: 4px; cursor: pointer;">
+                                🔧 測試連線
+                            </button>
+                            <button onclick="getRankings()" style="margin: 5px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                🔄 重試
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
 
         // ============ 測試連線函數 ============
         async function testConnection() {
@@ -877,7 +1049,6 @@ async function getRankings() {
             `;
 
             try {
-                // 測試連線也使用 POST 方法，符合 n8n webhook 設定
                 const testData = {
                     action: "test",
                     timestamp: new Date().toISOString(),
@@ -975,7 +1146,9 @@ async function getRankings() {
                                 <th>🏅 排名</th>
                                 <th>🏆 隊伍</th>
                                 <th>🎯 第一局</th>
+                                <th>🎳 第一局方式</th>
                                 ${showTotal ? '<th>🎯 第二局</th>' : ''}
+                                ${showTotal ? '<th>🎳 第二局方式</th>' : ''}
                                 ${showTotal ? '<th>📊 總分</th>' : ''}
                                 <th>👥 人數</th>
                                 <th>📈 平均</th>
@@ -994,12 +1167,18 @@ async function getRankings() {
                 
                 const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
                 
+                // 獲取投球方式
+                const round1Style = getBowlingStyleDisplay(team.round1_style);
+                const round2Style = getBowlingStyleDisplay(team.round2_style);
+                
                 tableHTML += `
                     <tr>
                         <td><strong>${rankIcon}</strong></td>
                         <td><strong>${team.team_name || '未知隊伍'}</strong></td>
                         <td>${round1}</td>
+                        <td>${round1Style}</td>
                         ${showTotal ? `<td>${round2}</td>` : ''}
+                        ${showTotal ? `<td>${round2Style}</td>` : ''}
                         ${showTotal ? `<td><strong>${total}</strong></td>` : ''}
                         <td>${members}</td>
                         <td>${average}</td>
@@ -1017,9 +1196,276 @@ async function getRankings() {
             resultDiv.innerHTML = tableHTML;
         }
 
+        // ============ 投球方式顯示函數 ============
+        function getBowlingStyleDisplay(style) {
+            if (!style || style === '' || style === null) {
+                return '<span style="font-size: 10px; color: #999;">未設定</span>';
+            }
+            
+            const styleMap = {
+                '正常投球': '🎳 正常',
+                '胯下投球': '🤸 胯下',
+                '輔具投球': '🛠️ 輔具',
+                '矇眼投球': '👁️ 矇眼',
+                '左手投球': '👈 左手'
+            };
+            
+            return `<span style="font-size: 10px; font-weight: 600;">${styleMap[style] || style}</span>`;
+        }
+        // ============ 清除分數相關函數 ============
+        function showClearOptions() {
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div class="modal-overlay" onclick="closeClearModal()">
+                    <div class="modal-content" onclick="event.stopPropagation()">
+                        <h3>🗑️ 清除分數選項</h3>
+                        
+                        <div class="clear-options">
+                            <button onclick="clearAllScores()" class="option-btn danger">
+                                🗑️ 清除所有分數
+                                <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">清除所有隊伍所有局數的分數</div>
+                            </button>
+                            
+                            <button onclick="clearByRound()" class="option-btn warning">
+                                📊 清除特定局數
+                                <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">清除所有隊伍的某一局分數</div>
+                            </button>
+                            
+                            <button onclick="clearByTeam()" class="option-btn warning">
+                                👥 清除特定隊伍
+                                <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">清除某隊伍所有局數的分數</div>
+                            </button>
+                        </div>
+                        
+                        <button onclick="closeClearModal()" class="option-btn secondary">
+                            ❌ 取消
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.className = 'clear-modal';
+            document.body.appendChild(modal);
+        }
+
+        function closeClearModal() {
+            const modal = document.querySelector('.clear-modal');
+            if (modal) {
+                modal.style.animation = 'fadeIn 0.3s ease reverse';
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+
+        async function clearAllScores() {
+            if (!confirm('⚠️ 確定要清除所有隊伍的所有分數嗎？\n此操作無法復原！')) {
+                return;
+            }
+
+            try {
+                showLoadingMessage('🔄 正在清除所有分數...');
+                
+                const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                const rounds = ['第一局', '第二局'];
+                
+                let successCount = 0;
+                let totalCount = teams.length * rounds.length;
+                
+                for (const team of teams) {
+                    for (const round of rounds) {
+                        const clearData = {
+                            action: "upload",
+                            team_name: team,
+                            round: round,
+                            score: 0,
+                            members: 1,
+                            timestamp: new Date().toISOString(),
+                            environment: currentEnvironment
+                        };
+
+                        const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'ngrok-skip-browser-warning': 'true'
+                            },
+                            body: JSON.stringify(clearData)
+                        });
+
+                        if (response.ok) {
+                            successCount++;
+                        }
+                    }
+                }
+
+                hideLoadingMessage();
+                showSubmitResult(`✅ 成功清除 ${successCount}/${totalCount} 項分數！`, 'success');
+                closeClearModal();
+                
+                setTimeout(async () => {
+                    try {
+                        await getRankings();
+                    } catch (error) {
+                        console.log('自動更新排名失敗，但清除操作已完成:', error.message);
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                hideLoadingMessage();
+                console.error('清除所有分數錯誤:', error);
+                showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
+            }
+        }
+
+        async function clearByRound() {
+            const rounds = ['第一局', '第二局'];
+            const roundOptions = rounds.map((round, index) => 
+                `${index + 1}. ${round}`
+            ).join('\n');
+            
+            const roundChoice = prompt(`請選擇要清除的局數 (輸入數字):\n${roundOptions}`);
+            
+            if (!roundChoice || isNaN(roundChoice) || roundChoice < 1 || roundChoice > rounds.length) {
+                showSubmitResult('❌ 請輸入有效的局數選項', 'error');
+                return;
+            }
+            
+            const selectedRound = rounds[parseInt(roundChoice) - 1];
+            
+            if (!confirm(`⚠️ 確定要清除所有隊伍的「${selectedRound}」分數嗎？`)) {
+                return;
+            }
+
+            try {
+                showLoadingMessage(`🔄 正在清除${selectedRound}分數...`);
+                
+                const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                let successCount = 0;
+                
+                for (const team of teams) {
+                    const clearData = {
+                        action: "upload",
+                        team_name: team,
+                        round: selectedRound,
+                        score: 0,
+                        members: 1,
+                        timestamp: new Date().toISOString(),
+                        environment: currentEnvironment
+                    };
+                    
+                    const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
+                        body: JSON.stringify(clearData)
+                    });
+                    
+                    if (response.ok) {
+                        successCount++;
+                    }
+                }
+                
+                hideLoadingMessage();
+                showSubmitResult(`✅ 成功清除 ${successCount}/${teams.length} 隊的${selectedRound}分數！`, 'success');
+                closeClearModal();
+                
+                setTimeout(async () => {
+                    try {
+                        await getRankings();
+                    } catch (error) {
+                        console.log('自動更新排名失敗，但清除操作已完成:', error.message);
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                hideLoadingMessage();
+                console.error('清除局數分數錯誤:', error);
+                showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
+            }
+        }
+
+        async function clearByTeam() {
+            const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+            const teamOptions = teams.map((team, index) => 
+                `${index + 1}. ${team}隊`
+            ).join('\n');
+            
+            const teamChoice = prompt(`請選擇要清除的隊伍 (輸入數字):\n${teamOptions}`);
+            
+            if (!teamChoice || isNaN(teamChoice) || teamChoice < 1 || teamChoice > teams.length) {
+                showSubmitResult('❌ 請輸入有效的隊伍選項', 'error');
+                return;
+            }
+            
+            const selectedTeam = teams[parseInt(teamChoice) - 1];
+            
+            if (!confirm(`⚠️ 確定要清除「${selectedTeam}隊」所有局數的分數嗎？`)) {
+                return;
+            }
+
+            try {
+                showLoadingMessage(`🔄 正在清除${selectedTeam}隊分數...`);
+                
+                const rounds = ['第一局', '第二局'];
+                let successCount = 0;
+                
+                for (const round of rounds) {
+                    const clearData = {
+                        action: "upload",
+                        team_name: selectedTeam,
+                        round: round,
+                        score: 0,
+                        members: 1,
+                        timestamp: new Date().toISOString(),
+                        environment: currentEnvironment
+                    };
+                    
+                    const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
+                        body: JSON.stringify(clearData)
+                    });
+                    
+                    if (response.ok) {
+                        successCount++;
+                    }
+                }
+                
+                hideLoadingMessage();
+                showSubmitResult(`✅ 成功清除 ${selectedTeam}隊 ${successCount}/${rounds.length} 局分數！`, 'success');
+                closeClearModal();
+                
+                setTimeout(async () => {
+                    try {
+                        await getRankings();
+                    } catch (error) {
+                        console.log('自動更新排名失敗，但清除操作已完成:', error.message);
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                hideLoadingMessage();
+                console.error('清除隊伍分數錯誤:', error);
+                showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
+            }
+        }
         // ============ 輔助函數 ============
         function showSubmitResult(message, type) {
             const resultDiv = document.getElementById('submitResult');
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `<pre>${message}</pre>`;
+        }
+
+        function showStyleResult(message, type) {
+            const resultDiv = document.getElementById('styleResult');
             resultDiv.className = `result ${type}`;
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = `<pre>${message}</pre>`;
@@ -1038,361 +1484,52 @@ async function getRankings() {
 當前環境: ${currentEnvironment}
 API 端點: ${API_ENDPOINTS[currentEnvironment]}
 排名資料: ${currentRankings.length} 支隊伍
-Action 格式: upload/getRankings (符合 n8n Action Switch)
+Action 格式: upload/getRankings/setBowlingStyle (符合 n8n Action Switch)
 瀏覽器: ${navigator.userAgent}
             `.trim();
         }
 
+        function showLoadingMessage(message) {
+            hideLoadingMessage();
+            
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loading-message';
+            loadingDiv.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0, 0, 0, 0.8);
+                    color: white;
+                    padding: 20px 30px;
+                    border-radius: 10px;
+                    z-index: 2000;
+                    font-size: 16px;
+                    font-weight: 600;
+                ">
+                    ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(loadingDiv);
+        }
+
+        function hideLoadingMessage() {
+            const loadingDiv = document.getElementById('loading-message');
+            if (loadingDiv) {
+                loadingDiv.remove();
+            }
+        }
+
         // ============ 初始化 ============
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🎳 保齡球計分系統 v2.2 已載入 (符合 n8n Action Switch)');
+            console.log('🎳 保齡球計分系統 v2.3 已載入 (支援投球方式管理)');
             updateDebugInfo();
             
             // 每30秒自動更新除錯資訊
             setInterval(updateDebugInfo, 30000);
         });
-
-        // 顯示清除選項彈窗
-function showClearOptions() {
-    const modal = document.createElement('div');
-    modal.innerHTML = `
-        <div class="modal-overlay" onclick="closeClearModal()">
-            <div class="modal-content" onclick="event.stopPropagation()">
-                <h3>🗑️ 清除分數選項</h3>
-                
-                <div class="clear-options">
-                    <button onclick="clearAllScores()" class="option-btn danger">
-                        🗑️ 清除所有分數
-                        <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">清除所有隊伍所有局數的分數</div>
-                    </button>
-                    
-                    <button onclick="clearByRound()" class="option-btn warning">
-                        📊 清除特定局數
-                        <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">清除所有隊伍的某一局分數</div>
-                    </button>
-                    
-                    <button onclick="clearByTeam()" class="option-btn warning">
-                        👥 清除特定隊伍
-                        <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">清除某隊伍所有局數的分數</div>
-                    </button>
-                </div>
-                
-                <button onclick="closeClearModal()" class="option-btn secondary">
-                    ❌ 取消
-                </button>
-            </div>
-        </div>
-    `;
-    
-    modal.className = 'clear-modal';
-    document.body.appendChild(modal);
-}
-
-// 關閉清除選項彈窗
-function closeClearModal() {
-    const modal = document.querySelector('.clear-modal');
-    if (modal) {
-        modal.style.animation = 'fadeIn 0.3s ease reverse';
-        setTimeout(() => modal.remove(), 300);
-    }
-}
-
-// 清除所有分數
-// 清除所有分數
-async function clearAllScores() {
-    if (!confirm('⚠️ 確定要清除所有隊伍的所有分數嗎？\n此操作無法復原！')) {
-        return;
-    }
-
-    try {
-        showLoadingMessage('🔄 正在清除所有分數...');
-        
-        const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-        const rounds = ['第一局', '第二局', '第三局'];
-        
-        let successCount = 0;
-        let totalCount = teams.length * rounds.length;
-        
-        for (const team of teams) {
-            for (const round of rounds) {
-                const clearData = {
-                    action: "upload",
-                    team_name: team,
-                    round: round,
-                    score: 0,
-                    members: 1,
-                    timestamp: new Date().toISOString(),
-                    environment: currentEnvironment
-                };
-
-                const response = await fetch(API_ENDPOINTS[currentEnvironment], {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'ngrok-skip-browser-warning': 'true'
-                    },
-                    body: JSON.stringify(clearData)
-                });
-
-                if (response.ok) {
-                    successCount++;
-                }
-            }
-        }
-
-        hideLoadingMessage();
-        showSubmitResult(`✅ 成功清除 ${successCount}/${totalCount} 項分數！`, 'success');
-        closeClearModal();
-        
-        setTimeout(async () => {
-            try {
-                console.log('嘗試更新排名...');
-                await getRankings();
-            } catch (error) {
-                console.log('自動更新排名失敗，但清除操作已完成:', error.message);
-            }
-        }, 1000);
-        
-    } catch (error) {
-        hideLoadingMessage();
-        console.error('清除所有分數錯誤:', error);
-        showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
-    }
-}
-
-// 按局數清除
-async function clearByRound() {
-    const rounds = ['第一局', '第二局', '第三局'];
-    const roundOptions = rounds.map((round, index) => 
-        `${index + 1}. ${round}`
-    ).join('\n');
-    
-    const roundChoice = prompt(`請選擇要清除的局數 (輸入數字):\n${roundOptions}`);
-    
-    if (!roundChoice || isNaN(roundChoice) || roundChoice < 1 || roundChoice > rounds.length) {
-        showSubmitResult('❌ 請輸入有效的局數選項', 'error');
-        return;
-    }
-    
-    const selectedRound = rounds[parseInt(roundChoice) - 1];
-    
-    if (!confirm(`⚠️ 確定要清除所有隊伍的「${selectedRound}」分數嗎？`)) {
-        return;
-    }
-
-    try {
-        showLoadingMessage(`🔄 正在清除${selectedRound}分數...`);
-        
-        const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-        let successCount = 0;
-        
-        for (const team of teams) {
-            const clearData = {
-                action: "upload",
-                team_name: team,
-                round: selectedRound,
-                score: 0,
-                members: 1,
-                timestamp: new Date().toISOString(),
-                environment: currentEnvironment
-            };
-            
-            const response = await fetch(API_ENDPOINTS[currentEnvironment], {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'ngrok-skip-browser-warning': 'true'
-                },
-                body: JSON.stringify(clearData)
-            });
-            
-            if (response.ok) {
-                successCount++;
-            }
-        }
-        
-        hideLoadingMessage();
-        showSubmitResult(`✅ 成功清除 ${successCount}/${teams.length} 隊的${selectedRound}分數！`, 'success');
-        closeClearModal();
-        
-        setTimeout(async () => {
-            try {
-                console.log('嘗試更新排名...');
-                await getRankings();
-            } catch (error) {
-                console.log('自動更新排名失敗，但清除操作已完成:', error.message);
-            }
-        }, 1000);
-        
-    } catch (error) {
-        hideLoadingMessage();
-        console.error('清除局數分數錯誤:', error);
-        showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
-    }
-} // ← 這個結束括號很重要！
-
-// 按隊伍清除
-async function clearByTeam() {
-    const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-    const teamOptions = teams.map((team, index) => 
-        `${index + 1}. ${team}隊`
-    ).join('\n');
-    
-    const teamChoice = prompt(`請選擇要清除的隊伍 (輸入數字):\n${teamOptions}`);
-    
-    if (!teamChoice || isNaN(teamChoice) || teamChoice < 1 || teamChoice > teams.length) {
-        showSubmitResult('❌ 請輸入有效的隊伍選項', 'error');
-        return;
-    }
-    
-    const selectedTeam = teams[parseInt(teamChoice) - 1];
-    
-    if (!confirm(`⚠️ 確定要清除「${selectedTeam}隊」所有局數的分數嗎？`)) {
-        return;
-    }
-
-    try {
-        showLoadingMessage(`🔄 正在清除${selectedTeam}隊分數...`);
-        
-        const rounds = ['第一局', '第二局', '第三局'];
-        let successCount = 0;
-        
-        for (const round of rounds) {
-            const clearData = {
-                action: "upload",
-                team_name: selectedTeam,
-                round: round,
-                score: 0,
-                members: 1,
-                timestamp: new Date().toISOString(),
-                environment: currentEnvironment
-            };
-            
-            const response = await fetch(API_ENDPOINTS[currentEnvironment], {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'ngrok-skip-browser-warning': 'true'
-                },
-                body: JSON.stringify(clearData)
-            });
-            
-            if (response.ok) {
-                successCount++;
-            }
-        }
-        
-        hideLoadingMessage();
-        showSubmitResult(`✅ 成功清除 ${selectedTeam}隊 ${successCount}/${rounds.length} 局分數！`, 'success');
-        closeClearModal();
-        
-        setTimeout(async () => {
-            try {
-                console.log('嘗試更新排名...');
-                await getRankings();
-            } catch (error) {
-                console.log('自動更新排名失敗，但清除操作已完成:', error.message);
-            }
-        }, 1000);
-        
-    } catch (error) {
-        hideLoadingMessage();
-        console.error('清除隊伍分數錯誤:', error);
-        showSubmitResult('❌ 清除分數失敗: ' + error.message, 'error');
-    }
-}
-
-// 顯示載入訊息
-function showLoadingMessage(message) {
-    hideLoadingMessage();
-    
-    const loadingDiv = document.createElement('div');
-    loadingDiv.id = 'loading-message';
-    loadingDiv.innerHTML = `
-        <div style="
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 10px;
-            z-index: 2000;
-            font-size: 16px;
-            font-weight: 600;
-        ">
-            ${message}
-        </div>
-    `;
-    
-    document.body.appendChild(loadingDiv);
-}
-
-// 隱藏載入訊息
-function hideLoadingMessage() {
-    const loadingDiv = document.getElementById('loading-message');
-    if (loadingDiv) {
-        loadingDiv.remove();
-    }
-}
-
-// 顯示訊息的函數
-function showMessage(message, type = 'info') {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${type}`;
-    messageDiv.textContent = message;
-    
-    messageDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 10px;
-        color: white;
-        font-weight: 600;
-        z-index: 1500;
-        max-width: 300px;
-        word-wrap: break-word;
-        animation: slideInRight 0.3s ease;
-    `;
-    
-    switch(type) {
-        case 'success':
-            messageDiv.style.background = 'linear-gradient(135deg, #4caf50, #45a049)';
-            break;
-        case 'error':
-            messageDiv.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)';
-            break;
-        default:
-            messageDiv.style.background = 'linear-gradient(135deg, #2196f3, #1976d2)';
-    }
-    
-    if (!document.getElementById('message-animations')) {
-        const style = document.createElement('style');
-        style.id = 'message-animations';
-        style.textContent = `
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    document.body.appendChild(messageDiv);
-    
-    setTimeout(() => {
-        if (messageDiv.parentNode) {
-            messageDiv.style.animation = 'slideInRight 0.3s ease reverse';
-            setTimeout(() => messageDiv.remove(), 300);
-        }
-    }, 3000);
-}
-
     </script>
 </body>
 </html>

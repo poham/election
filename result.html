@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
@@ -140,9 +140,10 @@
 
         .ranking-table th,
         .ranking-table td {
-            padding: 12px 8px;
+            padding: 8px 6px;
             text-align: center;
             border-bottom: 1px solid #e9ecef;
+            font-size: 12px;
         }
 
         .ranking-table th {
@@ -219,6 +220,164 @@
             to { transform: rotate(360deg); }
         }
 
+        /* 投球方式樣式 */
+        .bowling-style {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .style-normal { background: #e3f2fd; color: #1976d2; }
+        .style-underhand { background: #f3e5f5; color: #7b1fa2; }
+        .style-assisted { background: #e8f5e8; color: #388e3c; }
+        .style-blindfold { background: #fff3e0; color: #f57c00; }
+        .style-lefthand { background: #fce4ec; color: #c2185b; }
+        .style-unknown { background: #f5f5f5; color: #757575; }
+
+        /* 抽籤介面樣式 */
+        .lottery-container {
+            text-align: center;
+        }
+
+        /* 投球方式來源狀態 */
+        .source-status {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .source-status.google-sheets {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: rgba(76, 175, 80, 0.3);
+            color: #2e7d32;
+        }
+
+        .source-status.fallback {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: rgba(255, 193, 7, 0.3);
+            color: #f57c00;
+        }
+
+        .source-status.error {
+            background: rgba(244, 67, 54, 0.1);
+            border-color: rgba(244, 67, 54, 0.3);
+            color: #c62828;
+        }
+
+        .status-indicator {
+            font-size: 16px;
+        }
+
+        .status-text {
+            font-weight: 600;
+        }
+
+        .lottery-buttons {
+            margin: 20px 0;
+        }
+
+        .lottery-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .lottery-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .lottery-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .lottery-result {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .lottery-animation {
+            margin-bottom: 20px;
+        }
+
+        .lottery-wheel {
+            font-size: 4em;
+            animation: spin 2s linear infinite;
+            display: inline-block;
+        }
+
+        .lottery-wheel.stopped {
+            animation: none;
+        }
+
+        .lottery-text h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .result-display {
+            font-size: 1.2em;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
         /* 響應式設計 */
         @media (max-width: 768px) {
             .header h1 {
@@ -240,6 +399,12 @@
             .ranking-btn {
                 min-width: auto;
             }
+
+            .ranking-table th,
+            .ranking-table td {
+                padding: 6px 4px;
+                font-size: 10px;
+            }
         }
     </style>
 </head>
@@ -247,10 +412,67 @@
     <div class="container">
         <div class="header">
             <h1>🎳 保齡球比賽即時排名</h1>
-            <p>總分排名 · 即時更新</p>
+            <p>總分排名 · 投球方式 · 即時更新</p>
         </div>
 
         <div class="main-content">
+            <!-- 抽籤區域 -->
+            <div class="section">
+                <h2>🎲 投球方式抽籤</h2>
+                
+                <div class="lottery-container">
+                    <!-- 投球方式來源狀態 -->
+                    <div id="styleSourceStatus" class="source-status">
+                        <span class="status-indicator">📊</span>
+                        <span class="status-text">投球方式來源：載入中...</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lotteryTeam">🏆 選擇隊伍</label>
+                        <select id="lotteryTeam">
+                            <option value="">請選擇隊伍</option>
+                            <option value="A">A隊</option>
+                            <option value="B">B隊</option>
+                            <option value="C">C隊</option>
+                            <option value="D">D隊</option>
+                            <option value="E">E隊</option>
+                            <option value="F">F隊</option>
+                            <option value="G">G隊</option>
+                            <option value="H">H隊</option>
+                            <option value="I">I隊</option>
+                            <option value="J">J隊</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lotteryRound">🎯 選擇局數</label>
+                        <select id="lotteryRound">
+                            <option value="第一局">第一局</option>
+                            <option value="第二局">第二局</option>
+                        </select>
+                    </div>
+
+                    <div class="lottery-buttons">
+                        <button class="lottery-btn" onclick="drawLottery()">
+                            🎲 開始抽籤
+                        </button>
+                    </div>
+
+                    <div id="lotteryResult" class="lottery-result" style="display: none;">
+                        <div class="lottery-animation">
+                            <div class="lottery-wheel">🎲</div>
+                        </div>
+                        <div class="lottery-text">
+                            <h3>抽籤結果</h3>
+                            <div class="result-display">
+                                <span id="resultTeam"></span> - <span id="resultRound"></span><br>
+                                <span id="resultStyle"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="section">
                 <h2>🏅 比賽排名</h2>
                 
@@ -292,6 +514,448 @@
         let currentRankings = [];
         let currentDisplayMode = 'total';
         let autoRefreshInterval;
+        
+        // 投球方式對應表
+        const BOWLING_STYLES = {
+            '正常投球': { name: '正常', class: 'style-normal', icon: '🎳' },
+            '胯下投球': { name: '胯下', class: 'style-underhand', icon: '🤸' },
+            '輔具投球': { name: '輔具', class: 'style-assisted', icon: '🛠️' },
+            '矇眼投球': { name: '矇眼', class: 'style-blindfold', icon: '👁️' },
+            '左手投球': { name: '左手', class: 'style-lefthand', icon: '👈' }
+        };
+
+        // 動態投球方式陣列（從 Google Sheets 讀取）
+        let LOTTERY_STYLES = [
+            '正常投球',
+            '胯下投球', 
+            '輔具投球',
+            '矇眼投球',
+            '左手投球'
+        ];
+
+        // 投球方式來源狀態
+        let stylesSource = 'default'; // 'google-sheets', 'fallback', 'error'
+        
+        // 已抽籤記錄（用於限制每組每局只能抽一次）
+        let lotteryHistory = new Set();
+        
+        // ============ 更新投球方式來源狀態顯示 ============
+        function updateSourceStatus(source, message) {
+            const statusElement = document.getElementById('styleSourceStatus');
+            const statusText = statusElement.querySelector('.status-text');
+            const statusIndicator = statusElement.querySelector('.status-indicator');
+            
+            // 移除所有狀態類別
+            statusElement.classList.remove('google-sheets', 'fallback', 'error');
+            
+            switch(source) {
+                case 'google-sheets':
+                    statusElement.classList.add('google-sheets');
+                    statusIndicator.textContent = '✅';
+                    statusText.textContent = `投球方式來源：Google Sheets (${message})`;
+                    break;
+                case 'fallback':
+                    statusElement.classList.add('fallback');
+                    statusIndicator.textContent = '⚠️';
+                    statusText.textContent = `投球方式來源：預設備份 (${message})`;
+                    break;
+                case 'error':
+                    statusElement.classList.add('error');
+                    statusIndicator.textContent = '❌';
+                    statusText.textContent = `投球方式來源：載入失敗 (${message})`;
+                    break;
+                default:
+                    statusIndicator.textContent = '📊';
+                    statusText.textContent = '投球方式來源：載入中...';
+            }
+        }
+        
+        // ============ 檢查是否已經抽過籤 ============
+        async function checkLotteryHistory(team, round) {
+            try {
+                console.log(`檢查 ${team}隊 ${round} 的抽籤狀態...`);
+                
+                const requestData = {
+                    action: "getRankings",
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(requestData),
+                    mode: 'cors'
+                });
+
+                if (!response.ok) {
+                    console.warn('無法檢查抽籤歷史，為安全起見拒絕抽籤');
+                    return true; // 改為 true，無法檢查時拒絕抽籤
+                }
+                
+                const responseText = await response.text();
+                let data;
+
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.warn('抽籤歷史回應格式錯誤，為安全起見拒絕抽籤');
+                    return true; // 改為 true，解析失敗時拒絕抽籤
+                }
+                
+                // 檢查該隊伍該局數是否已有投球方式
+                if (data && data.rankings && Array.isArray(data.rankings)) {
+                    const teamData = data.rankings.find(r => r.team_name === team);
+                    if (teamData) {
+                        let hasStyle = false;
+                        let currentStyle = '';
+                        
+                        if (round === '第一局') {
+                            hasStyle = teamData.round1_style && teamData.round1_style.trim() !== '';
+                            currentStyle = teamData.round1_style || '';
+                        } else if (round === '第二局') {
+                            hasStyle = teamData.round2_style && teamData.round2_style.trim() !== '';
+                            currentStyle = teamData.round2_style || '';
+                        }
+                        
+                        console.log(`${team}隊 ${round} 檢查結果:`, {
+                            hasStyle,
+                            currentStyle,
+                            teamData: teamData
+                        });
+                        
+                        return hasStyle;
+                    } else {
+                        console.log(`${team}隊 沒有找到資料，允許抽籤`);
+                        return false;
+                    }
+                }
+                
+                console.log('沒有排名資料，允許抽籤');
+                return false;
+                
+            } catch (error) {
+                console.error('檢查抽籤歷史失敗:', error);
+                // 發生錯誤時為安全起見拒絕抽籤
+                return true;
+            }
+        }
+        
+        // ============ 從 Google Sheets 讀取投球方式 ============
+        async function loadBowlingStyles() {
+            try {
+                console.log('正在從 Google Sheets 讀取投球方式...');
+                updateSourceStatus('loading', '正在載入...');
+                
+                const requestData = {
+                    action: "getBowlingStyles",
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(requestData),
+                    mode: 'cors'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const responseText = await response.text();
+                let data;
+
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    throw new Error(`伺服器回應不是有效的 JSON`);
+                }
+                
+                if (data && data.success && data.styles && Array.isArray(data.styles)) {
+                    // 更新投球方式陣列
+                    const newStyles = data.styles.map(style => style.name).filter(name => name && name.trim() !== '');
+                    
+                    if (newStyles.length > 0) {
+                        LOTTERY_STYLES = newStyles;
+                        
+                        // 更新投球方式對應表
+                        data.styles.forEach(style => {
+                            if (style.name && style.name.trim() !== '') {
+                                BOWLING_STYLES[style.name] = {
+                                    name: style.display_name || style.name,
+                                    class: style.css_class || 'style-normal',
+                                    icon: style.icon || '🎳'
+                                };
+                            }
+                        });
+                        
+                        console.log('投球方式載入成功:', LOTTERY_STYLES);
+                        updateSourceStatus('google-sheets', `${newStyles.length} 種投球方式`);
+                        stylesSource = 'google-sheets';
+                        return true;
+                    } else {
+                        throw new Error('Google Sheets 中沒有有效的投球方式');
+                    }
+                } else {
+                    throw new Error('Google Sheets 回應格式不正確');
+                }
+                
+            } catch (error) {
+                console.error('載入投球方式失敗，使用預設設定:', error);
+                updateSourceStatus('fallback', `使用預設 ${LOTTERY_STYLES.length} 種方式`);
+                stylesSource = 'fallback';
+                return false;
+            }
+        }
+        
+        // ============ 抽籤功能 ============
+        async function drawLottery() {
+            const teamSelect = document.getElementById('lotteryTeam');
+            const roundSelect = document.getElementById('lotteryRound');
+            const resultDiv = document.getElementById('lotteryResult');
+            const lotteryBtn = document.querySelector('.lottery-btn');
+            
+            const team = teamSelect.value;
+            const round = roundSelect.value;
+            
+            if (!team) {
+                alert('請選擇隊伍！');
+                return;
+            }
+            
+            // 禁用按鈕
+            lotteryBtn.disabled = true;
+            lotteryBtn.textContent = '檢查抽籤狀態...';
+            
+            // 顯示檢查狀態
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 2em; margin-bottom: 10px;">🔍</div>
+                    <h3>正在檢查 ${team}隊 ${round} 抽籤狀態...</h3>
+                    <p>請稍候</p>
+                </div>
+            `;
+            
+            // 檢查是否已經抽過籤
+            const hasDrawn = await checkLotteryHistory(team, round);
+            
+            if (hasDrawn) {
+                // 顯示已抽籤的錯誤訊息
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 3em; margin-bottom: 15px;">❌</div>
+                        <h3 style="color: #d32f2f; margin-bottom: 15px;">抽籤被拒絕</h3>
+                        <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                            <p style="font-weight: 600; margin-bottom: 10px;">
+                                <strong>${team}隊</strong> 的 <strong>${round}</strong> 已經抽過籤了！
+                            </p>
+                            <p style="font-size: 14px; opacity: 0.8;">
+                                每組每局只能抽籤一次，這是為了確保比賽的公平性。
+                            </p>
+                        </div>
+                        <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 10px; padding: 15px;">
+                            <p style="font-weight: 600; margin-bottom: 8px;">如需重新抽籤：</p>
+                            <p style="font-size: 14px;">
+                                1. 聯繫管理員<br>
+                                2. 在管理介面重置該隊伍的投球方式<br>
+                                3. 重置後即可重新抽籤
+                            </p>
+                        </div>
+                    </div>
+                `;
+                
+                lotteryBtn.disabled = false;
+                lotteryBtn.textContent = '🎲 開始抽籤';
+                return;
+            }
+            
+            lotteryBtn.textContent = '載入投球方式...';
+            
+            // 先載入最新的投球方式
+            await loadBowlingStyles();
+            
+            // 檢查是否有可用的投球方式
+            if (LOTTERY_STYLES.length === 0) {
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 3em; margin-bottom: 15px;">⚠️</div>
+                        <h3 style="color: #f57c00;">沒有可用的投球方式</h3>
+                        <p>請檢查 Google Sheets 設定或聯繫管理員</p>
+                    </div>
+                `;
+                updateSourceStatus('error', '沒有可用的投球方式');
+                lotteryBtn.disabled = false;
+                lotteryBtn.textContent = '🎲 開始抽籤';
+                return;
+            }
+            
+            lotteryBtn.textContent = '抽籤中...';
+            
+            // 顯示抽籤進行中
+            resultDiv.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="lottery-animation">
+                        <div class="lottery-wheel">🎲</div>
+                    </div>
+                    <div class="lottery-text">
+                        <h3>正在為 ${team}隊 ${round} 抽籤...</h3>
+                        <p>投球方式來源: ${stylesSource === 'google-sheets' ? 'Google Sheets' : '預設備份'}</p>
+                    </div>
+                </div>
+            `;
+            
+            // 開始轉輪動畫
+            const wheel = document.querySelector('.lottery-wheel');
+            wheel.classList.remove('stopped');
+            
+            // 模擬抽籤過程（2秒）
+            setTimeout(async () => {
+                // 隨機選擇投球方式
+                const randomIndex = Math.floor(Math.random() * LOTTERY_STYLES.length);
+                const selectedStyle = LOTTERY_STYLES[randomIndex];
+                const styleInfo = BOWLING_STYLES[selectedStyle] || { 
+                    name: selectedStyle, 
+                    icon: '🎳', 
+                    class: 'style-normal' 
+                };
+                
+                // 停止動畫，但保持骰子圖案
+                wheel.classList.add('stopped');
+                
+                // 顯示結果
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="lottery-animation">
+                            <div class="lottery-wheel stopped">🎲</div>
+                        </div>
+                        <div class="lottery-text">
+                            <h3>抽籤結果</h3>
+                            <div class="result-display">
+                                <span id="resultTeam">${team}隊</span> - <span id="resultRound">${round}</span><br>
+                                <div style="margin: 15px 0;">
+                                    <span style="font-size: 2em;">${styleInfo.icon}</span><br>
+                                    <span style="font-size: 1.5em; font-weight: bold;">${selectedStyle}</span>
+                                </div>
+                                <small style="opacity: 0.8;">來源: ${stylesSource === 'google-sheets' ? 'Google Sheets' : '預設備份'}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // 自動儲存抽籤結果
+                try {
+                    await saveLotteryResult(team, round, selectedStyle);
+                    
+                    // 記錄抽籤歷史（本地記錄，防止重複點擊）
+                    lotteryHistory.add(`${team}-${round}`);
+                    
+                    // 顯示成功訊息
+                    setTimeout(() => {
+                        const successMsg = document.createElement('div');
+                        successMsg.innerHTML = `
+                            <div style="
+                                background: rgba(76, 175, 80, 0.9);
+                                color: white;
+                                padding: 15px;
+                                border-radius: 10px;
+                                margin-top: 15px;
+                                font-weight: 600;
+                            ">
+                                ✅ 抽籤結果已自動儲存！<br>
+                                <small style="opacity: 0.9;">
+                                    ${team}隊 ${round} 已完成抽籤<br>
+                                    該組合已被鎖定，無法再次抽籤
+                                </small>
+                            </div>
+                        `;
+                        resultDiv.appendChild(successMsg);
+                        
+                        // 5秒後移除成功訊息
+                        setTimeout(() => {
+                            if (successMsg.parentNode) {
+                                successMsg.remove();
+                            }
+                        }, 5000);
+                        
+                        // 更新排名顯示
+                        setTimeout(() => {
+                            getRankings();
+                        }, 1000);
+                    }, 500);
+                    
+                } catch (error) {
+                    console.error('儲存抽籤結果失敗:', error);
+                    
+                    // 顯示錯誤訊息
+                    const errorMsg = document.createElement('div');
+                    errorMsg.innerHTML = `
+                        <div style="
+                            background: rgba(244, 67, 54, 0.9);
+                            color: white;
+                            padding: 15px;
+                            border-radius: 10px;
+                            margin-top: 15px;
+                            font-weight: 600;
+                        ">
+                            ❌ 儲存失敗！<br>
+                            <small style="opacity: 0.9;">
+                                抽籤結果無法儲存到系統中<br>
+                                請聯繫管理員或重新嘗試
+                            </small>
+                        </div>
+                    `;
+                    resultDiv.appendChild(errorMsg);
+                }
+                
+                // 重新啟用按鈕
+                lotteryBtn.disabled = false;
+                lotteryBtn.textContent = '🎲 開始抽籤';
+                
+            }, 2000);
+        }
+        
+        // ============ 儲存抽籤結果 ============
+        async function saveLotteryResult(team, round, style) {
+            const styleData = {
+                action: "setBowlingStyle",
+                team_name: team,
+                round: round,
+                bowling_style: style,
+                timestamp: new Date().toISOString(),
+                source: "lottery"
+            };
+
+            console.log('儲存抽籤結果:', styleData);
+
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                body: JSON.stringify(styleData)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.text();
+            console.log('抽籤結果儲存成功:', result);
+            
+            return result;
+        }
         
         // ============ 獲取排名函數 ============
         async function getRankings() {
@@ -410,7 +1074,9 @@
                                 <th>🏅 排名</th>
                                 <th>🏆 隊伍</th>
                                 <th>🎯 第一局</th>
+                                <th>🎳 第一局方式</th>
                                 ${showTotal ? '<th>🎯 第二局</th>' : ''}
+                                ${showTotal ? '<th>🎳 第二局方式</th>' : ''}
                                 ${showTotal ? '<th>📊 總分</th>' : ''}
                                 <th>👥 人數</th>
                                 <th>📈 平均</th>
@@ -429,12 +1095,18 @@
                 
                 const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
                 
+                // 獲取投球方式
+                const round1Style = getBowlingStyleDisplay(team.round1_style);
+                const round2Style = getBowlingStyleDisplay(team.round2_style);
+                
                 tableHTML += `
                     <tr>
                         <td><strong>${rankIcon}</strong></td>
                         <td><strong>${team.team_name || '未知隊伍'}</strong></td>
                         <td>${round1}</td>
+                        <td>${round1Style}</td>
                         ${showTotal ? `<td>${round2}</td>` : ''}
+                        ${showTotal ? `<td>${round2Style}</td>` : ''}
                         ${showTotal ? `<td><strong>${total}</strong></td>` : ''}
                         <td>${members}</td>
                         <td>${average}</td>
@@ -462,6 +1134,20 @@
                     btn.style.boxShadow = '';
                 }
             });
+        }
+
+        // ============ 投球方式顯示函數 ============
+        function getBowlingStyleDisplay(style) {
+            if (!style || style === '' || style === null) {
+                return '<span class="bowling-style style-unknown">未設定</span>';
+            }
+            
+            const styleInfo = BOWLING_STYLES[style];
+            if (styleInfo) {
+                return `<span class="bowling-style ${styleInfo.class}">${styleInfo.icon} ${styleInfo.name}</span>`;
+            } else {
+                return `<span class="bowling-style style-unknown">${style}</span>`;
+            }
         }
 
         // 更新最後更新時間
@@ -514,6 +1200,10 @@
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🎳 保齡球比賽即時排名頁面已載入');
+            
+            // 初始化投球方式來源狀態
+            updateSourceStatus('default', '尚未載入');
+            
             getRankings();
             setupAutoRefresh();
             
