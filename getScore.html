@@ -763,6 +763,12 @@
             border: 1px solid #f5c6cb;
         }
 
+        .team-status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -1212,6 +1218,44 @@
                     🔄 重置特定隊伍投球方式
                 </button>
 
+                <button onclick="verifyBowlingStylesClear()" class="clear-btn" style="background: linear-gradient(135deg, #17a2b8, #138496); margin-top: 10px;">
+                    🔍 驗證清除結果
+                </button>
+
+                <!-- 投球管理專用進度條容器 -->
+                <div id="bowlingProgress" class="progress-container">
+                    <div class="progress-header">
+                        <h4 id="bowlingProgressTitle">正在處理投球方式...</h4>
+                        <p id="bowlingProgressSubtitle">請稍候，正在處理中</p>
+                    </div>
+                    
+                    <div class="progress-bar-container">
+                        <div id="bowlingProgressBar" class="progress-bar">0%</div>
+                    </div>
+                    
+                    <div id="bowlingTeamGrid" class="team-grid">
+                        <!-- 隊伍狀態會動態填入 -->
+                    </div>
+                    
+                    <div id="bowlingProgressSummary" class="progress-summary" style="display: none;">
+                        <h5>處理結果統計</h5>
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <div id="bowlingSuccessCount" class="stat-number success">0</div>
+                                <div class="stat-label">成功</div>
+                            </div>
+                            <div class="stat-item">
+                                <div id="bowlingErrorCount" class="stat-number error">0</div>
+                                <div class="stat-label">失敗</div>
+                            </div>
+                            <div class="stat-item">
+                                <div id="bowlingTotalCount" class="stat-number total">0</div>
+                                <div class="stat-label">總計</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="styleResult" class="result" style="display: none;"></div>
             </div>
 
@@ -1581,10 +1625,16 @@
         
         // 自動填入鎖定的隊伍
         function autoFillLockedTeam() {
-            if (isTeamLocked && selectedTeam) {
-                const teamSelect = document.getElementById('teamName');
-                if (teamSelect && teamSelect.value !== selectedTeam) {
-                    teamSelect.value = selectedTeam;
+            const teamSelect = document.getElementById('teamName');
+            
+            // 檢查兩套鎖定變數，確保任一套有效都能工作
+            const lockedTeam = (isTeamLocked && selectedTeam) ? selectedTeam : 
+                              (isScoreTeamLocked && scoreLockedTeam) ? scoreLockedTeam : null;
+            
+            if (lockedTeam && teamSelect) {
+                if (teamSelect.value !== lockedTeam) {
+                    teamSelect.value = lockedTeam;
+                    console.log(`🔒 自動填入鎖定的隊伍: ${lockedTeam}隊`);
                 }
                 return true;
             }
@@ -1629,7 +1679,7 @@
         // ============ 分數提交函數 ============
         async function submitScore() {
             // 如果隊伍被鎖定，自動填入鎖定的隊伍
-            autoFillLockedTeam();
+            const wasAutoFilled = autoFillLockedTeam();
             
             const teamName = document.getElementById('teamName').value.trim();
             const round = document.getElementById('roundSelect').value;
@@ -1638,8 +1688,21 @@
 
             // 驗證輸入
             if (!teamName) {
-                showSubmitResult('請選擇隊伍', 'error');
+                // 檢查是否有鎖定隊伍但自動填入失敗
+                const lockedTeam = (isTeamLocked && selectedTeam) ? selectedTeam : 
+                                  (isScoreTeamLocked && scoreLockedTeam) ? scoreLockedTeam : null;
+                
+                if (lockedTeam) {
+                    showSubmitResult(`🔒 已鎖定 ${lockedTeam}隊，但自動填入失敗\n請檢查隊伍選擇器或重新鎖定`, 'error');
+                } else {
+                    showSubmitResult('請選擇隊伍', 'error');
+                }
                 return;
+            }
+
+            // 如果是自動填入的，顯示提示
+            if (wasAutoFilled) {
+                console.log(`🔒 使用鎖定的隊伍: ${teamName}隊`);
             }
 
             if (isNaN(score) || score < 0 || score > 4800) {
@@ -1821,8 +1884,94 @@
                 showStyleResult('❌ 重置投球方式失敗: ' + error.message, 'error');
             }
         }
+        // ============ 驗證清除結果函數 ============
+        async function verifyBowlingStylesClear() {
+            if (!confirm('🔍 要檢查投球方式是否已完全清除嗎？\n\n這會獲取目前的排名資料來驗證清除結果。')) {
+                return;
+            }
+
+            try {
+                showStyleResult('🔄 正在驗證清除結果...', 'info');
+                
+                // 獲取目前的排名資料
+                const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({
+                        action: "getRankings",
+                        timestamp: new Date().toISOString(),
+                        environment: currentEnvironment
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data || !Array.isArray(data)) {
+                    throw new Error('無效的資料格式');
+                }
+
+                // 檢查投球方式欄位
+                const teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                const rounds = ['第一局投球方式', '第二局投球方式'];
+                
+                let totalChecked = 0;
+                let stillHasData = [];
+                let clearedCount = 0;
+                
+                data.forEach(row => {
+                    if (row.組別 && teams.includes(row.組別)) {
+                        rounds.forEach(round => {
+                            totalChecked++;
+                            const value = row[round];
+                            
+                            if (value && value.trim() !== '') {
+                                stillHasData.push(`${row.組別}隊 ${round}: "${value}"`);
+                            } else {
+                                clearedCount++;
+                            }
+                        });
+                    }
+                });
+
+                // 顯示驗證結果
+                let resultMessage = `🔍 投球方式清除驗證結果\n\n📊 統計:\n• 已檢查: ${totalChecked} 項\n• 已清除: ${clearedCount} 項\n• 仍有資料: ${stillHasData.length} 項`;
+                
+                if (stillHasData.length === 0) {
+                    resultMessage += `\n\n✅ 驗證通過！所有投球方式都已清除`;
+                    showStyleResult(resultMessage, 'success');
+                } else {
+                    resultMessage += `\n\n⚠️ 發現未清除的資料:\n${stillHasData.join('\n')}`;
+                    resultMessage += `\n\n💡 建議:\n• 重新執行清除功能\n• 或手動到 Google Sheets 清除這些項目`;
+                    showStyleResult(resultMessage, 'warning');
+                    
+                    // 詢問是否要重新清除
+                    setTimeout(() => {
+                        if (confirm(`發現 ${stillHasData.length} 項未清除的投球方式資料。\n\n要重新執行清除功能嗎？`)) {
+                            clearBowlingStyles();
+                        }
+                    }, 2000);
+                }
+
+            } catch (error) {
+                console.error('驗證清除結果錯誤:', error);
+                showStyleResult(`❌ 驗證失敗: ${error.message}\n\n💡 可能原因:\n• 網路連線問題\n• Google Sheets 暫時無法存取\n• 請稍後再試`, 'error');
+            }
+        }
+
+        // ============ 清除投球方式函數 ============
+        // 注意：此功能會清除所有隊伍的投球方式設定
+        // 執行完成後，Google Sheets 可能會有 1-2 分鐘的連線不穩定期
+        // 這是正常現象，建議完成後等待一段時間再進行其他操作
         async function clearBowlingStyles() {
-            if (!confirm('⚠️ 確定要清除所有隊伍的投球方式設定嗎？\n此操作無法復原！')) {
+            if (!confirm('⚠️ 確定要清除所有隊伍的投球方式設定嗎？\n此操作無法復原！\n\n⏱️ 預計需要約 1-2 分鐘完成\n💡 請保持網頁開啟，系統會顯示詳細進度')) {
                 return;
             }
 
@@ -1833,14 +1982,18 @@
                 let successCount = 0;
                 let failedItems = [];
                 let totalCount = teams.length * rounds.length;
+                let startTime = Date.now();
                 
                 // 顯示進度條
-                showProgressBar('🎳 清除投球方式', '正在初始化...');
-                initializeTeamGrid(teams);
+                showBowlingProgressBar('🎳 清除投球方式', '正在初始化...');
+                initializeBowlingTeamGrid(teams);
+                
+                // 顯示預估時間
+                updateBowlingProgress(0, totalCount, `準備清除 ${totalCount} 個項目...`);
                 
                 for (let i = 0; i < teams.length; i++) {
                     const team = teams[i];
-                    updateTeamStatus(team, 'processing');
+                    updateBowlingTeamStatus(team, 'processing');
                     
                     let teamSuccessCount = 0;
                     
@@ -1848,81 +2001,163 @@
                         const round = rounds[j];
                         const currentIndex = i * rounds.length + j + 1;
                         
-                        try {
-                            console.log(`正在清除 ${team}隊 ${round} 投球方式...`);
-                            
-                            const clearData = {
-                                action: "setBowlingStyle",
-                                team_name: team,
-                                round: round,
-                                bowling_style: "",
-                                timestamp: new Date().toISOString(),
-                                environment: currentEnvironment
-                            };
+                        // 計算預估剩餘時間
+                        const elapsedTime = Date.now() - startTime;
+                        const avgTimePerItem = currentIndex > 1 ? elapsedTime / (currentIndex - 1) : 1000;
+                        const remainingItems = totalCount - currentIndex + 1;
+                        const estimatedRemainingTime = Math.ceil((avgTimePerItem * remainingItems) / 1000);
+                        
+                        let retryCount = 0;
+                        const maxRetries = 3;
+                        let success = false;
+                        
+                        while (retryCount < maxRetries && !success) {
+                            try {
+                                const statusText = retryCount > 0 ? 
+                                    `重試第 ${retryCount} 次 - ${team}隊 ${round}` : 
+                                    `${team}隊 ${round} (預估剩餘 ${estimatedRemainingTime}秒)`;
+                                
+                                console.log(`正在清除 ${team}隊 ${round} 投球方式... ${retryCount > 0 ? `(重試 ${retryCount}/${maxRetries})` : ''}`);
+                                
+                                const clearData = {
+                                    action: "setBowlingStyle",
+                                    team_name: team,
+                                    round: round,
+                                    bowling_style: "",
+                                    timestamp: new Date().toISOString(),
+                                    environment: currentEnvironment
+                                };
 
-                            const response = await fetch(API_ENDPOINTS[currentEnvironment], {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'ngrok-skip-browser-warning': 'true'
-                                },
-                                body: JSON.stringify(clearData)
-                            });
+                                const response = await fetch(API_ENDPOINTS[currentEnvironment], {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'ngrok-skip-browser-warning': 'true'
+                                    },
+                                    body: JSON.stringify(clearData),
+                                    timeout: 10000 // 10秒超時
+                                });
 
-                            if (response.ok) {
-                                successCount++;
-                                teamSuccessCount++;
-                                console.log(`✅ ${team}隊 ${round} 投球方式清除成功`);
-                            } else {
-                                const errorText = await response.text();
-                                console.error(`❌ ${team}隊 ${round} 投球方式清除失敗:`, response.status, errorText);
-                                failedItems.push(`${team}隊 ${round} (${response.status})`);
+                                if (response.ok) {
+                                    successCount++;
+                                    teamSuccessCount++;
+                                    success = true;
+                                    console.log(`✅ ${team}隊 ${round} 投球方式清除成功 (${successCount}/${totalCount})`);
+                                } else {
+                                    const errorText = await response.text();
+                                    console.error(`❌ ${team}隊 ${round} 投球方式清除失敗:`, response.status, errorText);
+                                    
+                                    if (response.status >= 500 && retryCount < maxRetries - 1) {
+                                        // 伺服器錯誤，可以重試
+                                        retryCount++;
+                                        console.log(`⏳ 等待2秒後重試 ${team}隊 ${round}...`);
+                                        await new Promise(resolve => setTimeout(resolve, 2000)); // 等待2秒後重試
+                                        continue;
+                                    } else {
+                                        failedItems.push(`${team}隊 ${round} (HTTP ${response.status})`);
+                                        break;
+                                    }
+                                }
+                                
+                            } catch (error) {
+                                console.error(`❌ ${team}隊 ${round} 投球方式清除錯誤:`, error);
+                                
+                                if ((error.name === 'TypeError' || error.message.includes('fetch')) && retryCount < maxRetries - 1) {
+                                    // 網路錯誤，可以重試
+                                    retryCount++;
+                                    console.log(`⏳ 網路錯誤，等待2秒後重試 ${team}隊 ${round}...`);
+                                    await new Promise(resolve => setTimeout(resolve, 2000)); // 等待2秒後重試
+                                    continue;
+                                } else {
+                                    failedItems.push(`${team}隊 ${round} (${error.message || '網路錯誤'})`);
+                                    break;
+                                }
                             }
-                            
-                        } catch (error) {
-                            console.error(`❌ ${team}隊 ${round} 投球方式清除錯誤:`, error);
-                            failedItems.push(`${team}隊 ${round} (網路錯誤)`);
                         }
                         
-                        // 加入延遲
-                        await new Promise(resolve => setTimeout(resolve, 300));
+                        // 如果所有重試都失敗了
+                        if (!success && retryCount >= maxRetries) {
+                            console.error(`❌ ${team}隊 ${round} 經過 ${maxRetries} 次重試後仍然失敗`);
+                        }
                         
-                        // 更新進度
-                        updateProgress(currentIndex, totalCount, `${team}隊 ${round}`);
+                        // 更新進度 - 移到這裡，確保每次都會更新
+                        const statusText = retryCount > 0 ? 
+                            `重試第 ${retryCount} 次 - ${team}隊 ${round}` : 
+                            `${team}隊 ${round} (預估剩餘 ${estimatedRemainingTime}秒)`;
+                        updateBowlingProgress(currentIndex, totalCount, statusText);
+                        
+                        // 動態調整延遲時間
+                        const delayTime = success ? 300 : 500; // 失敗後稍微延長等待時間
+                        await new Promise(resolve => setTimeout(resolve, delayTime));
                     }
                     
                     // 更新隊伍狀態
                     if (teamSuccessCount === rounds.length) {
-                        updateTeamStatus(team, 'success');
+                        updateBowlingTeamStatus(team, 'success');
+                    } else if (teamSuccessCount > 0) {
+                        updateBowlingTeamStatus(team, 'warning', `${teamSuccessCount}/${rounds.length} 成功`);
                     } else {
-                        updateTeamStatus(team, 'error', `${teamSuccessCount}/${rounds.length} 成功`);
+                        updateBowlingTeamStatus(team, 'error', '全部失敗');
                     }
                 }
 
+                // 計算總耗時
+                const totalTime = Math.ceil((Date.now() - startTime) / 1000);
+                
                 // 顯示最終結果
-                showProgressSummary(successCount, failedItems.length, totalCount, failedItems);
+                showBowlingProgressSummary(successCount, failedItems.length, totalCount, failedItems);
 
-                let resultMessage = `投球方式清除完成！\n成功: ${successCount}/${totalCount} 項`;
+                let resultMessage = `🎳 投球方式清除完成！\n⏱️ 總耗時: ${totalTime} 秒\n✅ 成功: ${successCount}/${totalCount} 項`;
+                
+                // 檢查是否有未完成的項目
+                const actuallyCleared = successCount;
+                const expectedTotal = totalCount;
                 
                 if (failedItems.length > 0) {
-                    resultMessage += `\n失敗項目:\n${failedItems.join('\n')}`;
-                    showStyleResult(resultMessage, 'error');
+                    resultMessage += `\n❌ 失敗: ${failedItems.length} 項\n\n失敗項目:\n${failedItems.join('\n')}`;
+                    resultMessage += `\n\n💡 建議: 可以稍後再次執行清除功能來處理失敗的項目`;
+                    showStyleResult(resultMessage, 'warning');
+                } else if (actuallyCleared < expectedTotal) {
+                    resultMessage += `\n⚠️ 注意: 可能有部分資料未完全清除`;
+                    resultMessage += `\n💡 建議: 請檢查 Google Sheets 或重新執行清除功能`;
+                    showStyleResult(resultMessage, 'warning');
                 } else {
+                    resultMessage += `\n🎉 所有項目都已成功清除！`;
                     showStyleResult(resultMessage, 'success');
                 }
                 
+                // 顯示連線提醒訊息
+                setTimeout(() => {
+                    let alertMessage = `✅ 投球方式清除作業已完成！\n\n📊 處理結果:\n• 成功: ${actuallyCleared} 項\n• 失敗: ${failedItems.length} 項\n• 總計: ${expectedTotal} 項`;
+                    
+                    if (actuallyCleared < expectedTotal || failedItems.length > 0) {
+                        alertMessage += `\n\n⚠️ 重要提醒:\n• 可能有部分資料未完全清除\n• 建議手動檢查 Google Sheets\n• 如需要，可重新執行清除功能`;
+                    }
+                    
+                    alertMessage += `\n\n⚠️ 注意：系統可能會短暫無法連線\n💡 建議等待 1-2 分鐘後再嘗試其他操作\n\n這是正常現象，請耐心等候。`;
+                    
+                    alert(alertMessage);
+                }, 1000);
+                
+                // 自動更新排名（延遲執行，避免連線問題）
+                // 注意：清除投球方式後，Google Sheets 可能需要 1-2 分鐘才能穩定連線
                 setTimeout(async () => {
                     try {
                         console.log('嘗試更新排名...');
+                        updateBowlingProgress(totalCount, totalCount, '正在更新排名資料...');
                         await getRankings();
+                        console.log('排名更新完成');
                     } catch (error) {
                         console.log('自動更新排名失敗，但清除操作已完成:', error.message);
+                        console.log('這可能是因為 Google Sheets 連線暫時不穩定，請稍後手動重新整理');
+                    } finally {
+                        hideBowlingProgressBar();
                     }
-                }, 1000);
+                }, 2500); // 延長到2.5秒後再更新排名，避免連線問題
                 
             } catch (error) {
-                hideProgressBar();
+                hideBowlingProgressBar();
                 console.error('清除投球方式錯誤:', error);
                 showStyleResult('❌ 清除投球方式失敗: ' + error.message, 'error');
             }
@@ -2383,26 +2618,29 @@
             
             if (!isScoreTeamLocked) {
                 // 鎖定隊伍
-                const selectedTeam = teamSelect.value;
-                if (!selectedTeam) {
+                const selectedTeamValue = teamSelect.value;
+                if (!selectedTeamValue) {
                     alert('請先選擇隊伍');
                     return;
                 }
                 
-                scoreLockedTeam = selectedTeam;
+                // 同步更新兩套鎖定變數
+                scoreLockedTeam = selectedTeamValue;
                 isScoreTeamLocked = true;
+                selectedTeam = selectedTeamValue;  // 同步分數上傳用的變數
+                isTeamLocked = true;               // 同步分數上傳用的變數
                 
                 // 更新UI
                 lockButton.textContent = '🔓 解鎖隊伍';
                 lockButton.classList.add('locked');
-                lockStatus.innerHTML = `🔒 已鎖定：<strong>${selectedTeam}隊</strong>`;
+                lockStatus.innerHTML = `🔒 已鎖定：<strong>${selectedTeamValue}隊</strong>`;
                 lockStatus.style.display = 'block';
                 teamSelect.disabled = true;
                 
                 // 顯示鎖定篩選按鈕
                 if (scoreLockedFilterBtn) {
                     scoreLockedFilterBtn.style.display = 'inline-block';
-                    scoreLockedFilterBtn.innerHTML = `🔒 ${selectedTeam}隊`;
+                    scoreLockedFilterBtn.innerHTML = `🔒 ${selectedTeamValue}隊`;
                 }
                 
                 // 如果當前有排名資料，重新顯示
@@ -2410,10 +2648,15 @@
                     displayRankings(currentRankings, 'total');
                 }
                 
+                // 顯示成功訊息
+                showSubmitResult(`🔒 已鎖定 ${selectedTeamValue}隊\n現在輸入分數時會自動選擇此隊伍\n切換局數時也會保持鎖定狀態`, 'success');
+                
             } else {
                 // 解鎖隊伍
                 scoreLockedTeam = null;
                 isScoreTeamLocked = false;
+                selectedTeam = '';      // 同步清除分數上傳用的變數
+                isTeamLocked = false;   // 同步清除分數上傳用的變數
                 
                 // 更新UI
                 lockButton.textContent = '🔒 鎖定隊伍';
@@ -2432,6 +2675,9 @@
                 } else if (currentRankings && currentRankings.length > 0) {
                     displayRankings(currentRankings, 'total');
                 }
+                
+                // 顯示解鎖訊息
+                showSubmitResult(`🔓 已解鎖隊伍選擇\n現在可以自由選擇其他隊伍`, 'info');
             }
         }
 
@@ -2529,6 +2775,114 @@
             }
         }
 
+        // ============ 投球管理進度條控制函數 ============
+        function showBowlingProgressBar(title, subtitle = '請稍候，正在處理中') {
+            const progressContainer = document.getElementById('bowlingProgress');
+            const progressTitle = document.getElementById('bowlingProgressTitle');
+            const progressSubtitle = document.getElementById('bowlingProgressSubtitle');
+            const progressBar = document.getElementById('bowlingProgressBar');
+            const progressSummary = document.getElementById('bowlingProgressSummary');
+            
+            if (progressContainer && progressTitle && progressSubtitle) {
+                progressTitle.textContent = title;
+                progressSubtitle.textContent = subtitle;
+                progressBar.style.width = '0%';
+                progressBar.textContent = '0%';
+                progressContainer.style.display = 'block';
+                progressSummary.style.display = 'none';
+            }
+        }
+        
+        function updateBowlingProgress(current, total, currentItem = '') {
+            const progressBar = document.getElementById('bowlingProgressBar');
+            const progressSubtitle = document.getElementById('bowlingProgressSubtitle');
+            
+            if (progressBar) {
+                const percentage = Math.round((current / total) * 100);
+                progressBar.style.width = percentage + '%';
+                progressBar.textContent = percentage + '%';
+            }
+            
+            if (progressSubtitle && currentItem) {
+                progressSubtitle.textContent = `正在處理: ${currentItem} (${current}/${total})`;
+            }
+        }
+        
+        function initializeBowlingTeamGrid(teams) {
+            const teamGrid = document.getElementById('bowlingTeamGrid');
+            if (teamGrid) {
+                teamGrid.innerHTML = '';
+                
+                teams.forEach(team => {
+                    const statusDiv = document.createElement('div');
+                    statusDiv.id = `bowling-status-${team}`;
+                    statusDiv.className = 'team-status pending';
+                    statusDiv.textContent = `${team}組 等待中`;
+                    teamGrid.appendChild(statusDiv);
+                });
+            }
+        }
+        
+        function updateBowlingTeamStatus(team, status, message = '') {
+            const statusDiv = document.getElementById(`bowling-status-${team}`);
+            if (statusDiv) {
+                statusDiv.className = `team-status ${status}`;
+                
+                switch(status) {
+                    case 'processing':
+                        statusDiv.textContent = `${team}組 處理中...`;
+                        break;
+                    case 'success':
+                        statusDiv.textContent = `${team}組 ✅`;
+                        break;
+                    case 'warning':
+                        statusDiv.textContent = `${team}組 ⚠️`;
+                        if (message) {
+                            statusDiv.title = message;
+                        }
+                        break;
+                    case 'error':
+                        statusDiv.textContent = `${team}組 ❌`;
+                        if (message) {
+                            statusDiv.title = message;
+                        }
+                        break;
+                    default:
+                        statusDiv.textContent = `${team}組 等待中`;
+                }
+            }
+        }
+        
+        function showBowlingProgressSummary(successCount, errorCount, totalCount, failedItems = []) {
+            const progressSummary = document.getElementById('bowlingProgressSummary');
+            const successCountEl = document.getElementById('bowlingSuccessCount');
+            const errorCountEl = document.getElementById('bowlingErrorCount');
+            const totalCountEl = document.getElementById('bowlingTotalCount');
+            const progressSubtitle = document.getElementById('bowlingProgressSubtitle');
+            
+            if (progressSummary && successCountEl && errorCountEl && totalCountEl) {
+                successCountEl.textContent = successCount;
+                errorCountEl.textContent = errorCount;
+                totalCountEl.textContent = totalCount;
+                progressSummary.style.display = 'block';
+            }
+            
+            if (progressSubtitle) {
+                if (errorCount === 0) {
+                    progressSubtitle.textContent = '🎉 所有項目處理成功！';
+                } else {
+                    progressSubtitle.textContent = `⚠️ ${errorCount} 個項目處理失敗`;
+                }
+            }
+        }
+        
+        function hideBowlingProgressBar() {
+            const progressContainer = document.getElementById('bowlingProgress');
+            if (progressContainer) {
+                progressContainer.style.display = 'none';
+            }
+        }
+
         // ============ 進度條控制函數 ============
         function showProgressBar(title, subtitle = '請稍候，正在處理中') {
             const progressContainer = document.getElementById('clearProgress');
@@ -2588,6 +2942,12 @@
                         break;
                     case 'success':
                         statusDiv.textContent = `${team}組 ✅`;
+                        break;
+                    case 'warning':
+                        statusDiv.textContent = `${team}組 ⚠️`;
+                        if (message) {
+                            statusDiv.title = message;
+                        }
                         break;
                     case 'error':
                         statusDiv.textContent = `${team}組 ❌`;
@@ -2713,22 +3073,48 @@
                 // 顯示最終結果
                 showProgressSummary(successCount, failedItems.length, totalCount, failedItems);
                 
-                let resultMessage = `清除完成！\n成功: ${successCount}/${totalCount} 項`;
+                // 檢查清除結果
+                const actuallyCleared = successCount;
+                const expectedTotal = totalCount;
+                
+                let resultMessage = `🗑️ 分數清除完成！\n✅ 成功: ${actuallyCleared}/${expectedTotal} 項`;
                 
                 if (failedItems.length > 0) {
-                    resultMessage += `\n失敗項目:\n${failedItems.join('\n')}`;
+                    resultMessage += `\n❌ 失敗項目:\n${failedItems.join('\n')}`;
                     showSubmitResult(resultMessage, 'error');
+                } else if (actuallyCleared < expectedTotal) {
+                    resultMessage += `\n⚠️ 注意: 可能有部分資料未完全清除`;
+                    showSubmitResult(resultMessage, 'warning');
                 } else {
                     showSubmitResult(resultMessage, 'success');
                 }
                 
+                // 延遲後自動關閉模態框並顯示提醒
+                setTimeout(() => {
+                    closeClearModal();
+                    
+                    // 顯示詳細的連線提醒訊息
+                    setTimeout(() => {
+                        let alertMessage = `✅ 分數清除作業已完成！\n\n📊 處理結果:\n• 成功: ${actuallyCleared} 項\n• 失敗: ${failedItems.length} 項\n• 總計: ${expectedTotal} 項`;
+                        
+                        if (actuallyCleared < expectedTotal || failedItems.length > 0) {
+                            alertMessage += `\n\n⚠️ 重要提醒:\n• 可能有部分資料未完全清除\n• 建議手動檢查 Google Sheets\n• 如需要，可重新執行清除功能`;
+                        }
+                        
+                        alertMessage += `\n\n⚠️ 注意：系統可能會短暫無法連線\n💡 建議等待 1-2 分鐘後再嘗試其他操作\n\n這是正常現象，請耐心等候。`;
+                        
+                        alert(alertMessage);
+                    }, 500);
+                }, 2000);
+                
+                // 自動更新排名（延遲執行，避免連線問題）
                 setTimeout(async () => {
                     try {
                         await getRankings();
                     } catch (error) {
                         console.log('自動更新排名失敗，但清除操作已完成:', error.message);
                     }
-                }, 1000);
+                }, 3000); // 延長到3秒後再更新排名
                 
             } catch (error) {
                 hideProgressBar();
@@ -2819,22 +3205,33 @@
                 // 顯示最終結果
                 showProgressSummary(successCount, failedItems.length, teams.length, failedItems);
                 
-                let resultMessage = `${selectedRound}清除完成！\n成功: ${successCount}/${teams.length} 隊`;
+                let resultMessage = `📊 ${selectedRound}清除完成！\n✅ 成功: ${successCount}/${teams.length} 隊`;
                 
                 if (failedItems.length > 0) {
-                    resultMessage += `\n失敗項目:\n${failedItems.join('\n')}`;
+                    resultMessage += `\n❌ 失敗項目:\n${failedItems.join('\n')}`;
                     showSubmitResult(resultMessage, 'error');
                 } else {
                     showSubmitResult(resultMessage, 'success');
                 }
                 
+                // 延遲後自動關閉模態框並顯示提醒
+                setTimeout(() => {
+                    closeClearModal();
+                    
+                    // 顯示連線提醒訊息
+                    setTimeout(() => {
+                        alert(`✅ ${selectedRound}清除作業已完成！\n\n⚠️ 注意：系統可能會短暫無法連線\n💡 建議等待 1-2 分鐘後再嘗試其他操作\n\n這是正常現象，請耐心等候。`);
+                    }, 500);
+                }, 2000);
+                
+                // 自動更新排名（延遲執行，避免連線問題）
                 setTimeout(async () => {
                     try {
                         await getRankings();
                     } catch (error) {
                         console.log('自動更新排名失敗，但清除操作已完成:', error.message);
                     }
-                }, 1000);
+                }, 3000); // 延長到3秒後再更新排名
                 
             } catch (error) {
                 hideProgressBar();
@@ -2898,13 +3295,19 @@
                 showSubmitResult(`✅ 成功清除 ${selectedTeam}隊 ${successCount}/${rounds.length} 局分數！`, 'success');
                 closeClearModal();
                 
+                // 顯示連線提醒訊息
+                setTimeout(() => {
+                    alert(`✅ ${selectedTeam}隊分數清除作業已完成！\n\n⚠️ 注意：系統可能會短暫無法連線\n💡 建議等待 1-2 分鐘後再嘗試其他操作\n\n這是正常現象，請耐心等候。`);
+                }, 1000);
+                
+                // 自動更新排名（延遲執行，避免連線問題）
                 setTimeout(async () => {
                     try {
                         await getRankings();
                     } catch (error) {
                         console.log('自動更新排名失敗，但清除操作已完成:', error.message);
                     }
-                }, 1000);
+                }, 3000); // 延長到3秒後再更新排名
                 
             } catch (error) {
                 hideLoadingMessage();
@@ -2985,11 +3388,28 @@ Action 格式: upload/getRankings/setBowlingStyle (符合 n8n Action Switch)
             // 初始化隊伍記憶功能
             initializeTeamMemory();
             
+            // 確保鎖定狀態變數的一致性
+            syncLockStates();
+            
             updateDebugInfo();
             
             // 每30秒自動更新除錯資訊
             setInterval(updateDebugInfo, 30000);
         });
+        
+        // 同步鎖定狀態變數
+        function syncLockStates() {
+            // 如果任一套鎖定變數有值，同步到另一套
+            if (isScoreTeamLocked && scoreLockedTeam && (!isTeamLocked || !selectedTeam)) {
+                selectedTeam = scoreLockedTeam;
+                isTeamLocked = true;
+                console.log('🔄 同步鎖定狀態: 排名 → 分數上傳');
+            } else if (isTeamLocked && selectedTeam && (!isScoreTeamLocked || !scoreLockedTeam)) {
+                scoreLockedTeam = selectedTeam;
+                isScoreTeamLocked = true;
+                console.log('🔄 同步鎖定狀態: 分數上傳 → 排名');
+            }
+        }
     </script>
 </body>
 </html>
