@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>活動分組系統 - 美化版 Google Sheets 匯出</title>
+    <title>活動分組系統 - 可客製化版（修復版）</title>
     <style>
         body {
             font-family: 'Microsoft JhengHei', Arial, sans-serif;
@@ -82,14 +82,6 @@
             background: #138496;
         }
         
-        .export-btn {
-            background: #28a745;
-        }
-        
-        .export-btn:hover {
-            background: #218838;
-        }
-        
         .reset-btn {
             background: #f44336;
         }
@@ -132,6 +124,7 @@
         .group-G h3 { background: #98D8C8; }
         .group-H h3 { background: #F7DC6F; color: #333; }
         .group-I h3 { background: #BB8FCE; }
+        .group-J h3 { background: #F1948A; }
         
         .member {
             background: white;
@@ -146,6 +139,31 @@
             border-left-color: #ff9800;
             background: #fff3e0;
             font-weight: bold;
+            position: relative;
+        }
+        
+        .committee-member::before {
+            content: "👑";
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        
+        .forced-group {
+            border-left-color: #2196f3;
+            background: #e3f2fd;
+            position: relative;
+        }
+        
+        .forced-group::before {
+            content: "🔗";
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        
+        .committee-member.forced-group::before {
+            content: "👑🔗";
+            margin-right: 5px;
+            font-size: 12px;
         }
         
         .member-count {
@@ -164,26 +182,6 @@
             border-left: 4px solid #2196f3;
         }
         
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .legend-color {
-            width: 20px;
-            height: 15px;
-            border-radius: 3px;
-        }
-        
         .stats {
             background: #f0f8f0;
             padding: 15px;
@@ -193,118 +191,71 @@
             border-left: 4px solid #4CAF50;
         }
         
-        .export-area {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-            border-left: 4px solid #28a745;
-        }
-        
-        .export-area h3 {
-            margin-top: 0;
-            color: #28a745;
-        }
-        
-        .copy-btn {
-            background: #6c757d;
-            font-size: 14px;
-            padding: 8px 16px;
-        }
-        
-        .copy-btn:hover {
-            background: #5a6268;
-        }
-        
-        .format-instructions {
+        .debug {
             background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 5px;
             padding: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .format-instructions h4 {
-            margin-top: 0;
-            color: #856404;
-        }
-        
-        .format-instructions ol {
-            margin-bottom: 0;
-            color: #856404;
-        }
-        
-        .preview-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+            font-family: monospace;
             font-size: 12px;
-        }
-        
-        .preview-table th,
-        .preview-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        
-        .preview-table th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        
-        .export-options {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .export-option {
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .export-option label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
-        .export-option select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎯 活動分組系統 - 美化版 Google Sheets 匯出</h1>
+        <h1>🎯 活動分組系統 - 可客製化版（修復版）</h1>
         
         <div class="input-section">
             <h3>📋 從 Google Sheets 匯入名單</h3>
-            <p>請將 Google Sheets 的資料（姓名、英文名、福委會欄位）複製貼上到下方：</p>
+            <p>請將 Google Sheets 的資料（姓名、英文名、福委會/分組欄位）複製貼上到下方：</p>
             <textarea id="importData" placeholder="格式範例：
 王景弘	Angus	
 周柏翰	Poham	✓
 盧佑芊	Ruby	✓
+張益侑	Brad	@
+郭鑫	Kim	@
+陳資涵	Irene	1
+陳嘉葳	Willian	1
 
-每行一個人，用Tab分隔，福委會成員在第三欄標記 ✓"></textarea>
+每行一個人，用Tab分隔：
+✓ = 福委會成員
+相同符號(@, #, *, 1, 2, 3等) = 強制同組"></textarea>
             <div style="margin-top: 10px;">
                 <button onclick="importFromSheets()" class="import-btn">📥 匯入名單</button>
                 <button onclick="clearImport()" class="reset-btn">🗑️ 清空輸入</button>
             </div>
         </div>
         
+        <div class="input-section">
+            <h3>⚙️ 分組設定</h3>
+            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                <div>
+                    <label for="committeeCount" style="display: block; margin-bottom: 5px; font-weight: bold;">福委人數：</label>
+                    <input type="number" id="committeeCount" value="10" min="1" max="20" style="width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <label for="groupCount" style="display: block; margin-bottom: 5px; font-weight: bold;">分組數量：</label>
+                    <input type="number" id="groupCount" value="10" min="1" max="15" style="width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <button onclick="updateGroupSettings()" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">🔄 更新設定</button>
+                </div>
+            </div>
+            <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                💡 提示：福委人數建議設為10人，分組數量會自動調整以確保每組都有福委成員
+            </p>
+        </div>
+        
         <div class="info">
             <strong>使用說明：</strong>
             <ul>
-                <li>共分為 A-I 九組，每組都有福委會成員</li>
+                <li id="groupInfo">目前設定：10組，每組都會有福委會成員</li>
                 <li>支援從 Google Sheets 匯入名單</li>
-                <li>可匯出美化格式到 Google Sheets</li>
-                <li>橘色標記為福委會成員</li>
+                <li>支援強制分組：使用相同符號(@, #, *, 1, 2等)的成員會被分在同一組</li>
+                <li>👑 福委會成員會顯示在每組最上方，並有皇冠標記</li>
+                <li>🔗 強制分組成員有鏈結標記和藍色邊框</li>
+                <li>分組策略：優先5人組，避免4人組，必要時才有6人組</li>
             </ul>
         </div>
         
@@ -312,82 +263,19 @@
             <strong>分組統計：</strong> 請先匯入名單
         </div>
         
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background: #fff3e0; border: 2px solid #ff9800;"></div>
-                <span>福委會成員</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: white; border: 2px solid #4CAF50;"></div>
-                <span>一般成員</span>
-            </div>
+        <div class="debug" id="debugInfo" style="display: none;">
+            <strong>除錯資訊：</strong><br>
+            <div id="debugContent"></div>
         </div>
         
         <div class="controls">
             <button onclick="randomizeGroups()">🎲 重新隨機分組</button>
             <button onclick="resetGroups()" class="reset-btn">🔄 清空分組</button>
-            <button onclick="exportToSheets()" class="export-btn">📤 匯出到 Google Sheets</button>
+            <button onclick="toggleDebug()">🔍 顯示/隱藏除錯資訊</button>
         </div>
         
         <div class="groups-container" id="groupsContainer">
             <!-- 分組將在這裡動態生成 -->
-        </div>
-        
-        <div class="export-area" id="exportArea" style="display: none;">
-            <h3>🎨 美化版 Google Sheets 匯出</h3>
-            
-            <div class="format-instructions">
-                <h4>📝 Google Sheets 美化設定步驟：</h4>
-                <ol>
-                    <li>複製下方資料到 Google Sheets</li>
-                    <li>選取所有資料</li>
-                    <li>點選「格式」→「交替顏色」</li>
-                    <li>或手動套用下方建議的顏色配置</li>
-                    <li>調整欄寬讓內容更美觀</li>
-                </ol>
-            </div>
-            
-            <div class="export-options">
-                <div class="export-option">
-                    <label for="exportFormat">匯出格式：</label>
-                    <select id="exportFormat" onchange="updateExportFormat()">
-                        <option value="detailed">詳細版（含統計）</option>
-                        <option value="simple">簡潔版</option>
-                        <option value="colorCoded">色彩編碼版</option>
-                    </select>
-                </div>
-                <div class="export-option">
-                    <label for="includeStats">包含統計：</label>
-                    <select id="includeStats">
-                        <option value="yes">是</option>
-                        <option value="no">否</option>
-                    </select>
-                </div>
-            </div>
-            
-            <textarea id="exportData" readonly style="height: 300px;"></textarea>
-            
-            <div style="margin-top: 15px;">
-                <button onclick="copyToClipboard()" class="copy-btn">📋 複製到剪貼簿</button>
-                <button onclick="generateColorGuide()" class="export-btn">🎨 生成顏色設定指南</button>
-            </div>
-            
-            <div id="colorGuide" style="display: none; margin-top: 20px;">
-                <h4>🌈 Google Sheets 顏色設定指南</h4>
-                <table class="preview-table">
-                    <thead>
-                        <tr>
-                            <th>組別</th>
-                            <th>建議背景色</th>
-                            <th>HEX 色碼</th>
-                            <th>設定方式</th>
-                        </tr>
-                    </thead>
-                    <tbody id="colorGuideTable">
-                        <!-- 動態生成 -->
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
 
@@ -395,19 +283,67 @@
         let allMembers = [];
         let committeeMembers = [];
         let otherMembers = [];
+        let forcedGroups = {}; // 儲存強制分組的成員 {symbol: [members...]}
         
-        const groupNames = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
-        const groupColors = {
-            'A': { bg: '#FF6B6B', hex: '#ffebee', name: '粉紅色' },
-            'B': { bg: '#4ECDC4', hex: '#e0f2f1', name: '青綠色' },
-            'C': { bg: '#45B7D1', hex: '#e3f2fd', name: '天藍色' },
-            'D': { bg: '#96CEB4', hex: '#e8f5e8', name: '薄荷綠' },
-            'E': { bg: '#FFEAA7', hex: '#fffde7', name: '淺黃色' },
-            'F': { bg: '#DDA0DD', hex: '#f3e5f5', name: '淺紫色' },
-            'G': { bg: '#98D8C8', hex: '#e0f7fa', name: '水藍色' },
-            'H': { bg: '#F7DC6F', hex: '#fff8e1', name: '金黃色' },
-            'I': { bg: '#BB8FCE', hex: '#f1e6ff', name: '薰衣草色' }
-        };
+        // 動態分組設定
+        let currentGroupCount = 10;
+        let currentCommitteeCount = 10;
+        
+        // 動態組名生成
+        function generateGroupNames(count) {
+            const names = [];
+            for (let i = 0; i < count; i++) {
+                if (i < 26) {
+                    names.push(String.fromCharCode(65 + i)); // A-Z
+                } else {
+                    names.push(`G${i - 25}`); // G1, G2, ...
+                }
+            }
+            return names;
+        }
+        
+        let groupNames = generateGroupNames(currentGroupCount);
+        
+        // 更新分組設定
+        function updateGroupSettings() {
+            const newCommitteeCount = parseInt(document.getElementById('committeeCount').value);
+            const newGroupCount = parseInt(document.getElementById('groupCount').value);
+            
+            if (newCommitteeCount < 1 || newCommitteeCount > 20) {
+                alert('福委人數必須在1-20之間！');
+                return;
+            }
+            
+            if (newGroupCount < 1 || newGroupCount > 15) {
+                alert('分組數量必須在1-15之間！');
+                return;
+            }
+            
+            // 如果分組數量大於福委人數，調整為福委人數
+            const actualGroupCount = Math.min(newGroupCount, newCommitteeCount);
+            if (actualGroupCount !== newGroupCount) {
+                document.getElementById('groupCount').value = actualGroupCount;
+                alert(`分組數量已調整為${actualGroupCount}組，以確保每組都有福委成員`);
+            }
+            
+            currentCommitteeCount = newCommitteeCount;
+            currentGroupCount = actualGroupCount;
+            groupNames = generateGroupNames(currentGroupCount);
+            
+            // 更新說明文字
+            document.getElementById('groupInfo').textContent = 
+                `目前設定：${currentGroupCount}組，每組都會有福委會成員`;
+            
+            // 重新初始化分組容器
+            initializeGroups();
+            
+            // 如果已有資料，重新分組
+            if (allMembers.length > 0) {
+                randomizeGroups();
+            }
+            
+            alert(`設定已更新：${currentCommitteeCount}位福委，${currentGroupCount}組`);
+        }
         
         // 從 Google Sheets 匯入資料
         function importFromSheets() {
@@ -420,6 +356,7 @@
             allMembers = [];
             committeeMembers = [];
             otherMembers = [];
+            forcedGroups = {}; // 清空強制分組
             
             const lines = data.split('\n');
             
@@ -429,19 +366,32 @@
                     if (parts.length >= 2) {
                         const name = parts[0].trim();
                         const englishName = parts[1].trim();
-                        const isCommittee = parts[2] && parts[2].trim() === '✓';
+                        const marker = parts[2] ? parts[2].trim() : '';
                         
+                        const isCommittee = marker === '✓';
                         const fullName = englishName ? `${name} ${englishName}` : name;
                         
                         allMembers.push({
                             name: fullName,
-                            isCommittee: isCommittee
+                            isCommittee: isCommittee,
+                            forceGroup: marker !== '✓' && marker !== '' ? marker : null
                         });
                         
                         if (isCommittee) {
                             committeeMembers.push(fullName);
                         } else {
                             otherMembers.push(fullName);
+                        }
+                        
+                        // 處理強制分組
+                        if (marker !== '✓' && marker !== '') {
+                            if (!forcedGroups[marker]) {
+                                forcedGroups[marker] = [];
+                            }
+                            forcedGroups[marker].push({
+                                name: fullName,
+                                isCommittee: isCommittee
+                            });
                         }
                     }
                 }
@@ -452,8 +402,22 @@
                 return;
             }
             
+            // 檢查福委人數並給出建議
+            if (committeeMembers.length !== currentCommitteeCount) {
+                const suggestion = committeeMembers.length < currentCommitteeCount ? 
+                    `建議將福委人數調整為${committeeMembers.length}人` : 
+                    `建議增加福委人數到${committeeMembers.length}人`;
+                
+                if (confirm(`匯入的福委人數（${committeeMembers.length}人）與設定不符（${currentCommitteeCount}人）。\n${suggestion}\n\n是否自動調整設定？`)) {
+                    document.getElementById('committeeCount').value = committeeMembers.length;
+                    updateGroupSettings();
+                    return; // updateGroupSettings 會重新呼叫相關函數
+                }
+            }
+            
             initializeGroups();
             updateStats();
+            updateDebugInfo();
             alert(`成功匯入 ${allMembers.length} 位成員（福委會：${committeeMembers.length} 位）`);
         }
         
@@ -489,7 +453,7 @@
             return newArray;
         }
         
-        // 隨機分組
+        // 隨機分組（支持強制分組）
         function randomizeGroups() {
             if (allMembers.length === 0) {
                 alert('請先匯入名單！');
@@ -501,49 +465,199 @@
                 document.getElementById(`group${groupName}Members`).innerHTML = '';
             });
             
-            // 確保每組至少有一個福委會成員
-            const shuffledCommittee = shuffleArray(committeeMembers);
-            const minGroups = Math.min(groupNames.length, committeeMembers.length);
-            
-            // 先分配福委會成員
-            for (let i = 0; i < minGroups; i++) {
-                addMemberToGroup(groupNames[i], shuffledCommittee[i], true);
+            // 檢查並顯示強制分組資訊
+            const forcedGroupKeys = Object.keys(forcedGroups);
+            if (forcedGroupKeys.length > 0) {
+                let info = '檢測到強制分組：\n';
+                forcedGroupKeys.forEach(key => {
+                    const members = forcedGroups[key].map(m => m.name).join(', ');
+                    info += `${key}: ${members}\n`;
+                });
+                console.log('強制分組資訊:', info);
+                alert(info);
             }
             
-            // 剩餘的福委會成員加入其他成員列表
-            const remainingCommittee = shuffledCommittee.slice(minGroups);
-            const allOtherMembers = shuffleArray([...otherMembers, ...remainingCommittee]);
+            let assignedMembers = new Set();
             
-            // 分配其他成員
-            const membersPerGroup = Math.floor(allOtherMembers.length / groupNames.length);
-            const extraMembers = allOtherMembers.length % groupNames.length;
+            // 第一步：為每組分配一位福委會成員（優先處理強制分組中的福委）
+            const shuffledCommittee = shuffleArray([...committeeMembers]);
+            const groupAssignments = groupNames.map(name => ({ name, hasCommittee: false, members: [] }));
             
-            let memberIndex = 0;
-            
-            for (let i = 0; i < groupNames.length; i++) {
-                const groupSize = membersPerGroup + (i < extraMembers ? 1 : 0);
+            // 先處理強制分組中的福委
+            let committeeIndex = 0;
+            forcedGroupKeys.forEach((forceKey, groupIndex) => {
+                if (groupIndex >= groupNames.length) return; // 防止超出組別數量
                 
-                for (let j = 0; j < groupSize; j++) {
-                    if (memberIndex < allOtherMembers.length) {
-                        const memberName = allOtherMembers[memberIndex];
-                        const isCommittee = remainingCommittee.includes(memberName);
-                        addMemberToGroup(groupNames[i], memberName, isCommittee);
-                        memberIndex++;
+                const forcedMembers = forcedGroups[forceKey];
+                const targetGroup = groupAssignments[groupIndex];
+                
+                // 檢查強制分組中是否有福委
+                const committeeInForced = forcedMembers.find(m => m.isCommittee);
+                
+                if (committeeInForced) {
+                    // 強制分組中有福委，直接分配整組
+                    forcedMembers.forEach(member => {
+                        addMemberToGroup(targetGroup.name, member.name, member.isCommittee, forceKey);
+                        assignedMembers.add(member.name);
+                        if (member.isCommittee) {
+                            targetGroup.hasCommittee = true;
+                            // 從福委列表中移除已分配的
+                            const index = shuffledCommittee.indexOf(member.name);
+                            if (index > -1) shuffledCommittee.splice(index, 1);
+                        }
+                    });
+                } else {
+                    // 強制分組中沒有福委，先分配一位福委給這組
+                    if (committeeIndex < shuffledCommittee.length) {
+                        addMemberToGroup(targetGroup.name, shuffledCommittee[committeeIndex], true);
+                        assignedMembers.add(shuffledCommittee[committeeIndex]);
+                        targetGroup.hasCommittee = true;
+                        committeeIndex++;
                     }
+                    
+                    // 然後分配強制分組成員
+                    forcedMembers.forEach(member => {
+                        addMemberToGroup(targetGroup.name, member.name, member.isCommittee, forceKey);
+                        assignedMembers.add(member.name);
+                    });
+                }
+                
+                console.log(`分配強制分組 ${forceKey} 到 ${targetGroup.name} 組`);
+            });
+            
+            // 為剩餘沒有福委的組別分配福委
+            for (let i = 0; i < groupAssignments.length; i++) {
+                if (!groupAssignments[i].hasCommittee && committeeIndex < shuffledCommittee.length) {
+                    addMemberToGroup(groupAssignments[i].name, shuffledCommittee[committeeIndex], true);
+                    assignedMembers.add(shuffledCommittee[committeeIndex]);
+                    groupAssignments[i].hasCommittee = true;
+                    committeeIndex++;
+                }
+            }
+            
+            // 第二步：分配剩餘成員，優化人數分配
+            const unassignedMembers = allMembers.filter(member => !assignedMembers.has(member.name));
+            const shuffledUnassigned = shuffleArray(unassignedMembers);
+            
+            // 計算目前每組已有的人數
+            const currentGroupSizes = groupNames.map(groupName => {
+                return document.getElementById(`group${groupName}Members`).children.length;
+            });
+            
+            // 計算理想分配：47人÷10組 = 7組×5人 + 3組×4人
+            const totalMembers = allMembers.length;
+            const totalGroups = groupNames.length;
+            const baseSize = Math.floor(totalMembers / totalGroups); // 4人
+            const extraMembers = totalMembers % totalGroups; // 7組需要多1人
+            
+            console.log(`總人數: ${totalMembers}, 基礎人數: ${baseSize}, 需要5人的組數: ${extraMembers}`);
+            
+            // 創建目標人數陣列：前7組5人，後3組4人
+            const targetSizes = [];
+            for (let i = 0; i < totalGroups; i++) {
+                targetSizes.push(i < extraMembers ? baseSize + 1 : baseSize);
+            }
+            
+            console.log('目標人數分配:', targetSizes);
+            
+            // 按目標人數分配剩餘成員
+            let memberIndex = 0;
+            for (let i = 0; i < totalGroups && memberIndex < shuffledUnassigned.length; i++) {
+                const targetSize = targetSizes[i];
+                const currentSize = currentGroupSizes[i];
+                const needMembers = Math.max(0, targetSize - currentSize);
+                
+                for (let j = 0; j < needMembers && memberIndex < shuffledUnassigned.length; j++) {
+                    const member = shuffledUnassigned[memberIndex];
+                    addMemberToGroup(groupNames[i], member.name, member.isCommittee);
+                    memberIndex++;
                 }
             }
             
             updateMemberCounts();
             updateStats();
+            updateDebugInfo();
+            
+            // 顯示分組結果統計
+            const finalGroupSizes = groupNames.map(groupName => {
+                return document.getElementById(`group${groupName}Members`).children.length;
+            });
+            
+            const sizeDistribution = {};
+            finalGroupSizes.forEach(size => {
+                sizeDistribution[size] = (sizeDistribution[size] || 0) + 1;
+            });
+            
+            let distributionText = '分組人數分佈：';
+            Object.keys(sizeDistribution).sort().forEach(size => {
+                distributionText += ` ${size}人組×${sizeDistribution[size]}`;
+            });
+            
+            console.log(distributionText);
+            console.log('各組人數:', finalGroupSizes);
+            
+            // 檢查每組是否都有福委
+            let allGroupsHaveCommittee = true;
+            groupNames.forEach(groupName => {
+                const groupElement = document.getElementById(`group${groupName}Members`);
+                const hasCommittee = Array.from(groupElement.children).some(child => 
+                    child.classList.contains('committee-member')
+                );
+                if (!hasCommittee) {
+                    allGroupsHaveCommittee = false;
+                    console.error(`${groupName}組沒有福委！`);
+                }
+            });
+            
+            if (allGroupsHaveCommittee) {
+                distributionText += '\n✅ 每組都有福委會成員';
+            } else {
+                distributionText += '\n❌ 有組別缺少福委會成員';
+            }
+            
+            setTimeout(() => alert(distributionText), 500);
         }
         
         // 添加成員到指定組別
-        function addMemberToGroup(groupName, memberName, isCommittee = false) {
+        function addMemberToGroup(groupName, memberName, isCommittee = false, forceGroupSymbol = null) {
             const groupMembers = document.getElementById(`group${groupName}Members`);
             const memberDiv = document.createElement('div');
-            memberDiv.className = isCommittee ? 'member committee-member' : 'member';
-            memberDiv.textContent = memberName;
-            groupMembers.appendChild(memberDiv);
+            
+            let className = 'member';
+            if (isCommittee) {
+                className += ' committee-member';
+            }
+            if (forceGroupSymbol) {
+                className += ' forced-group';
+            }
+            
+            memberDiv.className = className;
+            
+            // 如果有強制分組標記，顯示在名字後面
+            let displayName = memberName;
+            if (forceGroupSymbol) {
+                displayName += ` [${forceGroupSymbol}]`;
+            }
+            
+            memberDiv.textContent = displayName;
+            
+            // 福委會成員插入到最前面，其他成員加到後面
+            if (isCommittee) {
+                // 找到第一個非福委成員的位置
+                const children = Array.from(groupMembers.children);
+                let insertIndex = children.findIndex(child => !child.classList.contains('committee-member'));
+                
+                if (insertIndex === -1) {
+                    // 全部都是福委，直接加到最後
+                    groupMembers.appendChild(memberDiv);
+                } else {
+                    // 插入到第一個非福委成員之前
+                    groupMembers.insertBefore(memberDiv, children[insertIndex]);
+                }
+            } else {
+                // 非福委成員直接加到最後
+                groupMembers.appendChild(memberDiv);
+            }
         }
         
         // 更新各組人數統計
@@ -583,151 +697,43 @@
             `;
         }
         
-        // 匯出到 Google Sheets
-        function exportToSheets() {
-            if (allMembers.length === 0) {
-                alert('請先匯入名單並進行分組！');
-                return;
+        // 更新除錯資訊
+        function updateDebugInfo() {
+            const forcedGroupKeys = Object.keys(forcedGroups);
+            let debugContent = `總成員數: ${allMembers.length}<br>`;
+            debugContent += `福委成員數: ${committeeMembers.length}<br>`;
+            debugContent += `強制分組數: ${forcedGroupKeys.length}<br><br>`;
+            
+            if (forcedGroupKeys.length > 0) {
+                debugContent += '<strong>強制分組詳情:</strong><br>';
+                forcedGroupKeys.forEach(key => {
+                    const members = forcedGroups[key];
+                    debugContent += `${key}: ${members.map(m => `${m.name}${m.isCommittee ? '(福委)' : ''}`).join(', ')}<br>`;
+                });
+                debugContent += '<br>';
             }
             
-            updateExportFormat();
-            document.getElementById('exportArea').style.display = 'block';
-            document.getElementById('exportArea').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        // 更新匯出格式
-        function updateExportFormat() {
-            const format = document.getElementById('exportFormat').value;
-            const includeStats = document.getElementById('includeStats').value === 'yes';
-            
-            let exportText = '';
-            
-            if (format === 'detailed') {
-                exportText = generateDetailedFormat(includeStats);
-            } else if (format === 'simple') {
-                exportText = generateSimpleFormat(includeStats);
-            } else if (format === 'colorCoded') {
-                exportText = generateColorCodedFormat(includeStats);
+            // 顯示各組人數分佈
+            if (groupNames.length > 0) {
+                debugContent += '<strong>各組人數:</strong><br>';
+                groupNames.forEach(groupName => {
+                    const groupElement = document.getElementById(`group${groupName}Members`);
+                    if (groupElement) {
+                        const members = Array.from(groupElement.children);
+                        const committeeCount = members.filter(m => m.classList.contains('committee-member')).length;
+                        const forcedCount = members.filter(m => m.classList.contains('forced-group')).length;
+                        debugContent += `${groupName}組: ${members.length}人 (福委:${committeeCount}, 強制:${forcedCount})<br>`;
+                    }
+                });
             }
             
-            document.getElementById('exportData').value = exportText;
+            document.getElementById('debugContent').innerHTML = debugContent;
         }
         
-        // 生成詳細格式
-        function generateDetailedFormat(includeStats) {
-            let text = '🎯 活動分組結果\n';
-            text += `生成時間：${new Date().toLocaleString('zh-TW')}\n\n`;
-            
-            if (includeStats) {
-                text += '📊 分組統計\n';
-                text += `總參與人數：${allMembers.length} 人\n`;
-                text += `福委會成員：${committeeMembers.length} 人\n`;
-                text += `一般成員：${otherMembers.length} 人\n`;
-                text += `分組數量：${groupNames.length} 組\n\n`;
-            }
-            
-            text += '組別\t成員姓名\t身份\t備註\n';
-            text += '====\t========\t====\t====\n';
-            
-            groupNames.forEach(groupName => {
-                const members = document.getElementById(`group${groupName}Members`).children;
-                const groupSize = members.length;
-                
-                for (let i = 0; i < members.length; i++) {
-                    const member = members[i];
-                    const isCommittee = member.classList.contains('committee-member');
-                    const rowPrefix = i === 0 ? `${groupName}組 (${groupSize}人)` : '';
-                    
-                    text += `${rowPrefix}\t${member.textContent}\t${isCommittee ? '福委會' : '一般成員'}\t${isCommittee ? '⭐' : ''}\n`;
-                }
-                text += '\n';
-            });
-            
-            return text;
-        }
-        
-        // 生成簡潔格式
-        function generateSimpleFormat(includeStats) {
-            let text = '';
-            
-            if (includeStats) {
-                text += `總人數：${allMembers.length}｜福委會：${committeeMembers.length}｜分組：${groupNames.length}\n\n`;
-            }
-            
-            text += '組別\t姓名\t福委會\n';
-            
-            groupNames.forEach(groupName => {
-                const members = document.getElementById(`group${groupName}Members`).children;
-                for (let member of members) {
-                    const isCommittee = member.classList.contains('committee-member');
-                    text += `${groupName}組\t${member.textContent}\t${isCommittee ? '✓' : ''}\n`;
-                }
-            });
-            
-            return text;
-        }
-        
-        // 生成色彩編碼格式
-        function generateColorCodedFormat(includeStats) {
-            let text = '🌈 彩色分組表 - 請套用對應顏色\n\n';
-            
-            if (includeStats) {
-                text += `📊 統計：總計 ${allMembers.length} 人，${groupNames.length} 組\n\n`;
-            }
-            
-            text += '組別\t顏色代碼\t成員姓名\t身份\t建議背景色\n';
-            
-            groupNames.forEach(groupName => {
-                const members = document.getElementById(`group${groupName}Members`).children;
-                const colorInfo = groupColors[groupName];
-                
-                for (let i = 0; i < members.length; i++) {
-                    const member = members[i];
-                    const isCommittee = member.classList.contains('committee-member');
-                    
-                    text += `${groupName}組\t${colorInfo.name}\t${member.textContent}\t${isCommittee ? '福委會⭐' : '一般成員'}\t${colorInfo.hex}\n`;
-                }
-            });
-            
-            text += '\n💡 提示：在 Google Sheets 中選取各組資料，套用對應的背景色\n';
-            
-            return text;
-        }
-        
-        // 生成顏色設定指南
-        function generateColorGuide() {
-            const colorGuide = document.getElementById('colorGuide');
-            const table = document.getElementById('colorGuideTable');
-            
-            table.innerHTML = '';
-            
-            groupNames.forEach(groupName => {
-                const colorInfo = groupColors[groupName];
-                const row = table.insertRow();
-                
-                row.innerHTML = `
-                    <td style="background-color: ${colorInfo.bg}; color: white; font-weight: bold; text-align: center;">${groupName}組</td>
-                    <td style="background-color: ${colorInfo.hex};">${colorInfo.name}</td>
-                    <td style="font-family: monospace;">${colorInfo.hex}</td>
-                    <td>選取${groupName}組資料 → 格式 → 填滿顏色</td>
-                `;
-            });
-            
-            colorGuide.style.display = 'block';
-        }
-        
-        // 複製到剪貼簿
-        function copyToClipboard() {
-            const exportData = document.getElementById('exportData');
-            exportData.select();
-            exportData.setSelectionRange(0, 99999);
-            
-            try {
-                document.execCommand('copy');
-                alert('已複製到剪貼簿！可以直接貼到 Google Sheets\n\n💡 建議步驟：\n1. 貼上資料\n2. 選取資料範圍\n3. 套用顏色格式\n4. 調整欄寬');
-            } catch (err) {
-                alert('複製失敗，請手動選取複製');
-            }
+        // 切換除錯資訊顯示
+        function toggleDebug() {
+            const debugDiv = document.getElementById('debugInfo');
+            debugDiv.style.display = debugDiv.style.display === 'none' ? 'block' : 'none';
         }
         
         // 清空所有分組
@@ -742,69 +748,17 @@
                     countElement.textContent = '0 人';
                 }
             });
-            document.getElementById('exportArea').style.display = 'none';
             updateStats();
         }
         
-                // 頁面載入時初始化
+        // 頁面載入時初始化
         window.onload = function() {
-            // 載入完整的預設資料
-            const defaultData = `
-            王景弘	Angus	
-            王滋琳	Marina	
-            吳宜涓	Gina	
-            吳冠瑩	Grace	
-            吳庭宛	Morrie			
-            李妍慧	Kat	
-            李婉禎	Nicole	
-            李雅晴	Sunny	
-            李睿軒	Charlie	
-            周柏翰	Poham	✓
-            林佳穎	Mia	
-            林怡安	Ann	
-            林姿辰	Keira	
-            林政宇	Tony	
-            邵柔菡	Zoe	
-            凃彥宇	Andy	
-            唐翰霖	Hanlin	
-            孫寧	Sunny	
-            徐雅慧	Hedy	
-            馬譽維	Frank	
-            高于雯	Ally	
-            張家誠	Henry	
-            張益侑	Brad	✓
-            張堤雅	Teeya	
-            張雅涵	Mavis	
-            郭鑫	Kim	✓
-            陳亭宇	Ellen	
-            陳盈臻	Vivi	
-            陳資涵	Irene	✓
-            陳嘉葳	Willian	✓
-            傅惠敏	Amy	
-            彭筠喬	Joy	
-            黃玉丰	Clare	
-            楊芷薇	Cindy	
-            楊詒珊	Sophie	
-            葉詩宣	Jennifer	
-            董伊淇	Eri	
-            劉世華	Jessica	✓
-            蔡珮馨	Judy	
-            鄭人豪	Hank	
-            鄭仰壹	Leo	✓
-            鄭凱文	Kevin	
-            盧佑芊	Ruby	✓
-            戴佳萱	Hailey	
-            謝孟哲	Naeco	
-            簡妤	Sara	✓
-            羅萱	Vivian	
-            羅震紳	Josh	
-            關瑋	David	
-            關浩雲	Rickey	
-            嚴婉真	Ivy	
-            蘇愷傑	Aaron	
-`;
+            // 初始化設定
+            document.getElementById('committeeCount').value = currentCommitteeCount;
+            document.getElementById('groupCount').value = currentGroupCount;
+            document.getElementById('groupInfo').textContent = 
+                `目前設定：${currentGroupCount}組，每組都會有福委會成員`;
             
-            document.getElementById('importData').value = defaultData;
             initializeGroups();
         };
     </script>
