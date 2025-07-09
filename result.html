@@ -990,6 +990,32 @@
                     </div>
                 </div>
                 
+                <!-- 隊伍選擇區域 -->
+                <div class="team-selection-section" style="background: #f8f9fa; border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #e9ecef;">
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 1.1em;">🏆 我的隊伍</h3>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <select id="teamSelect" style="flex: 1; min-width: 120px; padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px;">
+                            <option value="">選擇我的隊伍</option>
+                            <option value="A">A隊</option>
+                            <option value="B">B隊</option>
+                            <option value="C">C隊</option>
+                            <option value="D">D隊</option>
+                            <option value="E">E隊</option>
+                            <option value="F">F隊</option>
+                            <option value="G">G隊</option>
+                            <option value="H">H隊</option>
+                            <option value="I">I隊</option>
+                            <option value="J">J隊</option>
+                        </select>
+                        <button id="lockTeamBtn" onclick="toggleTeamLock()" style="padding: 10px 15px; background: linear-gradient(135deg, #6c757d, #5a6268); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                            🔒 鎖定隊伍
+                        </button>
+                    </div>
+                    <div id="teamLockStatus" style="margin-top: 10px; padding: 8px 12px; border-radius: 6px; font-size: 14px; display: none;">
+                        🔒 已鎖定：<strong>A隊</strong>
+                    </div>
+                </div>
+                
                 <div class="ranking-buttons">
                     <button class="ranking-btn" onclick="displayRankings('round1')">🎯 第一局排名</button>
                     <button class="ranking-btn" onclick="displayRankings('total')">📊 總分排名</button>
@@ -2210,18 +2236,79 @@
             }
         }
         
+        // 切換隊伍鎖定功能
+        function toggleTeamLock() {
+            const teamSelect = document.getElementById('teamSelect');
+            const lockBtn = document.getElementById('lockTeamBtn');
+            const lockStatus = document.getElementById('teamLockStatus');
+            const lockedFilterBtn = document.getElementById('lockedFilterBtn');
+            
+            if (isTeamLocked) {
+                // 解鎖
+                isTeamLocked = false;
+                lockedTeam = null;
+                
+                lockBtn.innerHTML = '🔒 鎖定隊伍';
+                lockBtn.style.background = 'linear-gradient(135deg, #6c757d, #5a6268)';
+                lockStatus.style.display = 'none';
+                teamSelect.disabled = false;
+                
+                if (lockedFilterBtn) {
+                    lockedFilterBtn.style.display = 'none';
+                }
+                
+                if (currentRankingFilter === 'locked') {
+                    setRankingFilter('all');
+                } else {
+                    displayRankings(currentDisplayMode);
+                }
+            } else {
+                // 鎖定
+                const selectedTeam = teamSelect.value;
+                if (!selectedTeam) {
+                    alert('請先選擇一個隊伍');
+                    return;
+                }
+                
+                isTeamLocked = true;
+                lockedTeam = selectedTeam;
+                
+                lockBtn.innerHTML = '🔓 解除鎖定';
+                lockBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                lockStatus.innerHTML = `🔒 已鎖定：<strong>${selectedTeam}隊</strong>`;
+                lockStatus.style.display = 'block';
+                lockStatus.style.background = 'rgba(40, 167, 69, 0.1)';
+                lockStatus.style.border = '1px solid rgba(40, 167, 69, 0.3)';
+                lockStatus.style.color = '#155724';
+                teamSelect.disabled = true;
+                
+                if (lockedFilterBtn) {
+                    lockedFilterBtn.style.display = 'inline-block';
+                    lockedFilterBtn.innerHTML = `🔒 ${selectedTeam}隊`;
+                }
+                
+                displayRankings(currentDisplayMode);
+            }
+        }
+        
         // 解鎖隊伍功能
         function unlockTeam() {
-            lockedTeam = null;
-            isTeamLocked = false;
-            
-            // 隱藏鎖定篩選按鈕
+            const teamSelect = document.getElementById('teamSelect');
+            const lockBtn = document.getElementById('lockTeamBtn');
+            const lockStatus = document.getElementById('teamLockStatus');
             const lockedFilterBtn = document.getElementById('lockedFilterBtn');
-            if (lockedFilterBtn) {
-                lockedFilterBtn.style.display = 'none';
-            }
             
-            // 如果當前篩選是鎖定模式，切換回全部顯示
+            isTeamLocked = false;
+            lockedTeam = null;
+            
+            if (lockBtn) {
+                lockBtn.innerHTML = '🔒 鎖定隊伍';
+                lockBtn.style.background = 'linear-gradient(135deg, #6c757d, #5a6268)';
+            }
+            if (lockStatus) lockStatus.style.display = 'none';
+            if (teamSelect) teamSelect.disabled = false;
+            if (lockedFilterBtn) lockedFilterBtn.style.display = 'none';
+            
             if (currentRankingFilter === 'locked') {
                 setRankingFilter('all');
             } else {
