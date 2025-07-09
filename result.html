@@ -334,6 +334,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            margin: 5px;
         }
 
         .refresh-btn:hover {
@@ -555,6 +556,28 @@
 
             .main-content {
                 padding: 15px;
+            }
+            
+            .scoring-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .scoring-method-btn {
+                min-width: 200px;
+            }
+            
+            .refresh-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+            }
+            
+            .refresh-btn {
+                margin: 0;
+                width: 80%;
+                max-width: 250px;
             }
 
             .section {
@@ -867,6 +890,64 @@
             color: #155724;
         }
 
+        /* 計分方式選擇樣式 */
+        .scoring-method-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .scoring-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .scoring-method-btn {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 140px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .scoring-method-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .scoring-method-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .scoring-method-btn small {
+            display: block;
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .scoring-info {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #495057;
+        }
+
         @media (max-width: 768px) {
             .lottery-lock-btn {
                 padding: 8px 12px;
@@ -884,80 +965,30 @@
         </div>
 
         <div class="main-content">
-            <!-- 抽籤區域 -->
-            <div class="section">
-                <h2>🎲 投球方式抽籤</h2>
-                
-                <div class="lottery-container">
-                    <!-- 投球方式來源狀態 -->
-                    <div id="styleSourceStatus" class="source-status">
-                        <span class="status-indicator">📊</span>
-                        <span class="status-text">投球方式來源：載入中...</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lotteryTeam">🏆 選擇隊伍</label>
-                        <div style="display: flex; gap: 10px; align-items: flex-end;">
-                            <select id="lotteryTeam" style="flex: 1;">
-                                <option value="">請選擇隊伍</option>
-                                <option value="A">A隊</option>
-                                <option value="B">B隊</option>
-                                <option value="C">C隊</option>
-                                <option value="D">D隊</option>
-                                <option value="E">E隊</option>
-                                <option value="F">F隊</option>
-                                <option value="G">G隊</option>
-                                <option value="H">H隊</option>
-                                <option value="I">I隊</option>
-                                <option value="J">J隊</option>
-                            </select>
-                            <button type="button" id="lotteryLockButton" class="lottery-lock-btn" onclick="toggleLotteryTeamLock()">
-                                🔒 鎖定隊伍
-                            </button>
-                        </div>
-                        
-                        <!-- 隊伍鎖定狀態顯示 -->
-                        <div id="lotteryLockStatus" class="lottery-lock-status" style="display: none;">
-                            🔒 已鎖定：<strong>A隊</strong>
-                        </div>
-                        
-                        <!-- 隊伍鎖定提示 -->
-                        <div id="lotteryLockHint" style="display: none;">
-                            <!-- 提示內容會動態填入 -->
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lotteryRound">🎯 選擇局數</label>
-                        <select id="lotteryRound">
-                            <option value="第一局">第一局</option>
-                            <option value="第二局">第二局</option>
-                        </select>
-                    </div>
-
-                    <div class="lottery-buttons">
-                        <button class="lottery-btn" onclick="drawLottery()">
-                            🎲 開始抽籤
-                        </button>
-                    </div>
-
-                    <div id="lotteryResult" class="lottery-result" style="display: none;">
-                        <div class="lottery-animation">
-                            <div class="lottery-wheel">🎲</div>
-                        </div>
-                        <div class="lottery-text">
-                            <h3>抽籤結果</h3>
-                            <div class="result-display">
-                                <span id="resultTeam"></span> - <span id="resultRound"></span><br>
-                                <span id="resultStyle"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="section">
                 <h2>🏅 比賽排名</h2>
+                
+                <!-- 計分方式選擇 -->
+                <div class="scoring-method-section" style="margin-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 1.2em;">📊 計分方式選擇</h3>
+                    <div class="scoring-options" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                        <button class="scoring-method-btn active" onclick="setScoringMethod(1)" data-method="1">
+                            📈 標準化分數<br>
+                            <small>總分÷(人數×300)</small>
+                        </button>
+                        <button class="scoring-method-btn" onclick="setScoringMethod(2)" data-method="2">
+                            🎳 每球平均<br>
+                            <small>總分÷(人數×球數)</small>
+                        </button>
+                        <button class="scoring-method-btn" onclick="setScoringMethod(3)" data-method="3">
+                            👥 每人平均<br>
+                            <small>總分÷人數</small>
+                        </button>
+                    </div>
+                    <div id="scoringMethodInfo" class="scoring-info" style="text-align: center; margin-top: 10px; font-size: 14px; color: #666;">
+                        目前使用：標準化分數 (結果為百分比，適合比較不同人數隊伍)
+                    </div>
+                </div>
                 
                 <div class="ranking-buttons">
                     <button class="ranking-btn" onclick="displayRankings('round1')">🎯 第一局排名</button>
@@ -1001,6 +1032,10 @@
                         🔄 立即更新排名
                     </button>
                     
+                    <button class="refresh-btn" onclick="testConnection()" style="background: linear-gradient(135deg, #ffc107, #fd7e14); margin-left: 10px;">
+                        🔧 測試連線
+                    </button>
+                    
                     <div class="auto-refresh">
                         <input type="checkbox" id="autoRefresh" >
                         <label for="autoRefresh">自動更新 (每30秒)</label>
@@ -1038,317 +1073,243 @@
         let lockedTeam = null;
         let isTeamLocked = false;
         
-        // 投球方式對應表
-        const BOWLING_STYLES = {
-            '正常投球': { name: '正常', class: 'style-normal', icon: '🎳' },
-            '胯下投球': { name: '胯下', class: 'style-underhand', icon: '🤸' },
-            '輔具投球': { name: '輔具', class: 'style-assisted', icon: '🛠️' },
-            '矇眼投球': { name: '矇眼', class: 'style-blindfold', icon: '👁️' },
-            '左手投球': { name: '左手', class: 'style-lefthand', icon: '👈' }
-        };
+        // 計分方式變數
+        let currentScoringMethod = 1; // 1: 標準化, 2: 每球平均, 3: 每人平均
 
-        // 動態投球方式陣列（從 Google Sheets 讀取）
-        let LOTTERY_STYLES = [
-            '正常投球',
-            '胯下投球', 
-            '輔具投球',
-            '矇眼投球',
-            '左手投球'
-        ];
+        // ============ 計分方式選擇功能 ============
+        function setScoringMethod(method) {
+            currentScoringMethod = method;
+            
+            // 更新按鈕狀態
+            document.querySelectorAll('.scoring-method-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-method="${method}"]`).classList.add('active');
+            
+            // 更新說明文字
+            const infoDiv = document.getElementById('scoringMethodInfo');
+            const methodInfo = {
+                1: '標準化分數 (結果為百分比，適合比較不同人數隊伍)',
+                2: '每球平均分數 (考慮實際投球數量)',
+                3: '每人平均分數 (最簡單的計算方式)'
+            };
+            
+            infoDiv.textContent = `目前使用：${methodInfo[method]}`;
+            
+            // 重新計算並顯示排名
+            if (currentRankings && currentRankings.length > 0) {
+                recalculateRankings();
+                displayRankings(currentDisplayMode);
+            }
+            
+            console.log(`切換到計分方式 ${method}`);
+        }
 
-        // 投球方式來源狀態
-        let stylesSource = 'default'; // 'google-sheets', 'fallback', 'error'
-        
-        // 已抽籤記錄（用於限制每組每局只能抽一次）
-        let lotteryHistory = new Set();
-        
-        // 抽籤歷史記錄（用於避免連續相同結果）
-        let recentLotteryResults = [];
-        const MAX_RECENT_RESULTS = 5; // 記錄最近5次結果，更好地分析模式
-        
-        // 抽籤併發控制
-        let isDrawingLottery = false;
-        
-        // ============ 智慧抽籤功能 ============
-        
-        // 智慧選擇投球方式（避免重複）
-        function selectSmartLotteryStyle() {
-            if (LOTTERY_STYLES.length === 0) {
-                return '正常投球';
-            }
+        // ============ 重新計算排名 ============
+        function recalculateRankings() {
+            if (!currentRankings || currentRankings.length === 0) return;
             
-            // 如果只有1種方式，直接返回
-            if (LOTTERY_STYLES.length === 1) {
-                return LOTTERY_STYLES[0];
-            }
-            
-            // 如果只有2種方式，確保不重複
-            if (LOTTERY_STYLES.length === 2) {
-                if (recentLotteryResults.length > 0) {
-                    const lastResult = recentLotteryResults[recentLotteryResults.length - 1];
-                    const otherStyle = LOTTERY_STYLES.find(style => style !== lastResult);
-                    if (otherStyle) {
-                        console.log(`2種方式避免重複: 上次 ${lastResult}, 這次 ${otherStyle}`);
-                        return otherStyle;
-                    }
-                }
-                // 如果沒有歷史記錄，隨機選擇
-                const randomIndex = Math.floor(Math.random() * LOTTERY_STYLES.length);
-                return LOTTERY_STYLES[randomIndex];
-            }
-            
-            // 3種或以上方式的智慧選擇
-            let availableStyles = [...LOTTERY_STYLES];
-            
-            // 排除最近1次的結果（更積極避免重複）
-            if (recentLotteryResults.length >= 1) {
-                const lastResult = recentLotteryResults[recentLotteryResults.length - 1];
-                availableStyles = availableStyles.filter(style => style !== lastResult);
-                console.log(`避免重複上次結果: ${lastResult}, 可選項目:`, availableStyles);
-            }
-            
-            // 如果最近2次結果相同，更強力排除
-            if (recentLotteryResults.length >= 2) {
-                const lastTwo = recentLotteryResults.slice(-2);
-                if (lastTwo[0] === lastTwo[1]) {
-                    // 強制排除連續出現的結果
-                    availableStyles = availableStyles.filter(style => style !== lastTwo[0]);
-                    console.log(`強制避免連續重複: ${lastTwo[0]}, 剩餘選項:`, availableStyles);
-                }
-            }
-            
-            // 如果最近3次中有2次相同，也要避免
-            if (recentLotteryResults.length >= 3) {
-                const lastThree = recentLotteryResults.slice(-3);
-                const counts = {};
-                lastThree.forEach(style => {
-                    counts[style] = (counts[style] || 0) + 1;
-                });
+            currentRankings.forEach(team => {
+                const total = parseInt(team['總分'] || team.total_score || 0) || 0;
+                const members = parseInt(team['人數'] || team.members || 1) || 1;
+                const balls = parseInt(team['球數'] || team.balls || 0) || 0;
                 
-                // 找出出現2次或以上的投球方式
-                const frequentStyles = Object.keys(counts).filter(style => counts[style] >= 2);
-                if (frequentStyles.length > 0) {
-                    const originalLength = availableStyles.length;
-                    availableStyles = availableStyles.filter(style => !frequentStyles.includes(style));
-                    if (availableStyles.length < originalLength) {
-                        console.log(`避免頻繁出現的方式: ${frequentStyles.join(', ')}, 剩餘選項:`, availableStyles);
-                    }
+                let average = 0;
+                
+                switch(currentScoringMethod) {
+                    case 1:
+                        // 標準化分數：總分 ÷ (人數 × 300) × 100
+                        const maxPossibleScore = members * 300;
+                        if (maxPossibleScore > 0) {
+                            average = Math.round((total / maxPossibleScore) * 100 * 10) / 10;
+                        }
+                        break;
+                        
+                    case 2:
+                        // 每球平均：總分 ÷ (人數 × 球數)
+                        const totalBalls = members * balls;
+                        if (totalBalls > 0) {
+                            average = Math.round((total / totalBalls) * 10) / 10;
+                        } else {
+                            // 球數為0時，無法計算每球平均，顯示為0
+                            average = 0;
+                        }
+                        break;
+                        
+                    case 3:
+                        // 每人平均：總分 ÷ 人數
+                        average = Math.round((total / members) * 10) / 10;
+                        break;
+                        
+                    default:
+                        average = Math.round(total / members);
                 }
-            }
+                
+                team.calculated_average = average;
+                team.display_balls = balls; // 儲存球數供顯示使用
+            });
             
-            // 如果過濾後沒有可選項目，至少排除最近1次的結果
-            if (availableStyles.length === 0) {
-                availableStyles = [...LOTTERY_STYLES];
-                if (recentLotteryResults.length >= 1) {
-                    const lastResult = recentLotteryResults[recentLotteryResults.length - 1];
-                    const filtered = availableStyles.filter(style => style !== lastResult);
-                    if (filtered.length > 0) {
-                        availableStyles = filtered;
-                    }
-                }
-                console.log('重置選項但避免最近結果:', availableStyles);
-            }
-            
-            // 從可選項目中隨機選擇
-            const randomIndex = Math.floor(Math.random() * availableStyles.length);
-            const selectedStyle = availableStyles[randomIndex];
-            
-            console.log(`智慧抽籤結果: ${selectedStyle}, 歷史:`, recentLotteryResults, '可選項:', availableStyles);
-            return selectedStyle;
+            console.log('重新計算排名完成，使用計分方式:', currentScoringMethod);
         }
-        
-        // 記錄抽籤結果
-        function recordLotteryResult(style) {
-            recentLotteryResults.push(style);
+
+        // ============ 獲取排名函數 ============
+        async function getRankings() {
+            const resultDiv = document.getElementById('rankingResult');
             
-            // 只保留最近的結果
-            if (recentLotteryResults.length > MAX_RECENT_RESULTS) {
-                recentLotteryResults.shift();
-            }
-            
-            console.log('抽籤歷史更新:', recentLotteryResults);
-        }
-        
-        // 清除抽籤歷史（可用於重置）
-        function clearLotteryHistory() {
-            const previousLength = recentLotteryResults.length;
-            recentLotteryResults = [];
-            
-            // 顯示清除結果
-            const resultDiv = document.getElementById('lotteryResult');
-            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
             resultDiv.innerHTML = `
                 <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 3em; margin-bottom: 15px;">🗑️</div>
-                    <h3 style="color: #28a745;">抽籤歷史已清除</h3>
-                    <p style="color: #666; margin-top: 10px;">
-                        已清除 ${previousLength} 筆歷史記錄<br>
-                        下次抽籤將不會避免重複
-                    </p>
+                    <div style="font-size: 2em; margin-bottom: 10px;">🔄</div>
+                    <h3>正在載入排名資料...</h3>
+                    <p>資料將在幾秒鐘內顯示</p>
+                    <div class="loading" style="margin-top: 20px;"></div>
                 </div>
             `;
             
-            // 3秒後隱藏結果
-            setTimeout(() => {
-                resultDiv.style.display = 'none';
-            }, 3000);
-            
-            console.log('抽籤歷史已清除，之前有', previousLength, '筆記錄');
+            try {
+                const requestData = {
+                    action: "getRankings",
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(requestData),
+                    mode: 'cors'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const responseText = await response.text();
+                console.log('Raw ranking response:', responseText);
+
+                if (!responseText || responseText.trim() === '') {
+                    throw new Error('伺服器回應為空');
+                }
+
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                    console.log('解析後的資料:', data);
+                    console.log('資料類型:', typeof data);
+                    console.log('是否為陣列:', Array.isArray(data));
+                } catch (parseError) {
+                    console.log('JSON 解析失敗:', parseError);
+                    console.log('原始回應:', responseText.substring(0, 500));
+                    throw new Error(`伺服器回應不是有效的 JSON`);
+                }
+                
+                // 直接使用資料，不進行複雜的格式轉換
+                if (data && Array.isArray(data) && data.length > 0) {
+                    console.log('成功讀取排名資料:', data.length, '支隊伍');
+                    console.log('第一支隊伍資料:', data[0]);
+                    currentRankings = data;
+                    recalculateRankings();
+                    displayRankings(currentDisplayMode);
+                } else {
+                    console.log('資料格式不符預期:', {
+                        data: data,
+                        isArray: Array.isArray(data),
+                        length: data ? data.length : 'no length property',
+                        keys: data && typeof data === 'object' ? Object.keys(data) : 'not object'
+                    });
+                    throw new Error('資料格式不正確');
+                }
+                
+                updateLastUpdatedTime();
+                
+            } catch (error) {
+                console.error('獲取排名失敗:', error);
+                
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3>❌ 獲取排名失敗</h3>
+                        <p><strong>錯誤訊息：</strong>${error.message}</p>
+                        
+                        <div style="margin-top: 15px;">
+                            <button onclick="testConnection()" style="margin: 5px; padding: 8px 16px; background: #ffc107; color: black; border: none; border-radius: 4px; cursor: pointer;">
+                                🔧 測試連線
+                            </button>
+                            <button onclick="getRankings()" style="margin: 5px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                🔄 重試
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
         }
 
-        // ============ 隊伍鎖定功能 ============
-        let selectedLotteryTeam = '';
-        let isLotteryTeamLocked = false;
-        
-        // 初始化隊伍鎖定功能
-        function initializeLotteryTeamLock() {
-            const teamSelect = document.getElementById('lotteryTeam');
+        // ============ 測試連線函數 ============
+        async function testConnection() {
+            const resultDiv = document.getElementById('rankingResult');
             
-            if (teamSelect) {
-                // 監聽隊伍選擇變化
-                teamSelect.addEventListener('change', function() {
-                    const newTeam = this.value;
-                    if (newTeam && newTeam !== selectedLotteryTeam) {
-                        selectedLotteryTeam = newTeam;
-                        updateLotteryLockStatus();
-                        
-                        // 顯示鎖定提示
-                        if (!isLotteryTeamLocked && newTeam) {
-                            showLotteryLockHint();
-                        }
-                    }
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h3>🔧 正在測試連線...</h3>
+                    <p>檢查 API 端點是否可達</p>
+                </div>
+            `;
+
+            try {
+                const testData = {
+                    action: "test",
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify(testData),
+                    mode: 'cors'
                 });
-            }
-        }
-        
-        // 顯示抽籤隊伍鎖定提示
-        function showLotteryLockHint() {
-            const hintDiv = document.getElementById('lotteryLockHint');
-            if (hintDiv) {
-                hintDiv.style.display = 'block';
-                hintDiv.innerHTML = `
-                    <div style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 8px; padding: 12px; margin: 10px 0; font-size: 14px;">
-                        💡 <strong>提示：</strong>點擊 🔒 按鈕可以鎖定 <strong>${selectedLotteryTeam}隊</strong>，方便連續為該隊伍抽第一局和第二局
-                    </div>
-                `;
+
+                const responseText = await response.text();
                 
-                // 5秒後自動隱藏提示
-                setTimeout(() => {
-                    if (hintDiv && !isLotteryTeamLocked) {
-                        hintDiv.style.display = 'none';
-                    }
-                }, 5000);
-            }
-        }
-        
-        // 切換抽籤隊伍鎖定狀態
-        function toggleLotteryTeamLock() {
-            const teamSelect = document.getElementById('lotteryTeam');
-            const lockButton = document.getElementById('lotteryLockButton');
-            
-            if (!selectedLotteryTeam || !teamSelect.value) {
-                alert('請先選擇隊伍！');
-                return;
-            }
-            
-            isLotteryTeamLocked = !isLotteryTeamLocked;
-            selectedLotteryTeam = teamSelect.value;
-            updateLotteryLockStatus();
-            
-            // 顯示鎖定結果
-            const resultDiv = document.getElementById('lotteryResult');
-            if (isLotteryTeamLocked) {
-                resultDiv.style.display = 'block';
+                resultDiv.className = response.ok ? 'result success' : 'result error';
                 resultDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <div style="font-size: 2em; margin-bottom: 10px;">🔒</div>
-                        <h3 style="color: #28a745;">已鎖定 ${selectedLotteryTeam}隊</h3>
-                        <p style="color: #666; margin-top: 10px;">現在可以連續為該隊伍抽第一局和第二局投球方式</p>
+                    <div style="padding: 20px;">
+                        <h3>🔧 連線測試結果</h3>
+                        <p><strong>狀態碼：</strong>${response.status} ${response.statusText}</p>
+                        <p><strong>回應大小：</strong>${responseText.length} 字元</p>
+                        <p><strong>API 端點：</strong>${API_ENDPOINT}</p>
+                        
+                        <div style="margin-top: 15px;">
+                            ${response.ok ? 
+                                '<button onclick="getRankings()" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">🔄 嘗試獲取排名</button>' :
+                                '<button onclick="testConnection()" style="margin: 5px; padding: 8px 16px; background: #ffc107; color: black; border: none; border-radius: 4px; cursor: pointer;">🔄 重新測試</button>'
+                            }
+                        </div>
                     </div>
                 `;
-            } else {
+
+            } catch (error) {
+                resultDiv.className = 'result error';
                 resultDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <div style="font-size: 2em; margin-bottom: 10px;">🔓</div>
-                        <h3 style="color: #6c757d;">已解鎖隊伍選擇</h3>
-                        <p style="color: #666; margin-top: 10px;">現在可以自由選擇其他隊伍進行抽籤</p>
+                    <div style="padding: 20px;">
+                        <h3>❌ 連線測試失敗</h3>
+                        <p><strong>錯誤訊息：</strong>${error.message}</p>
+                        <p><strong>API 端點：</strong>${API_ENDPOINT}</p>
+                        
+                        <div style="margin-top: 15px;">
+                            <button onclick="testConnection()" style="padding: 8px 16px; background: #ffc107; color: black; border: none; border-radius: 4px; cursor: pointer;">
+                                🔄 重新測試
+                            </button>
+                        </div>
                     </div>
                 `;
             }
-            
-            // 3秒後隱藏結果
-            setTimeout(() => {
-                if (resultDiv.innerHTML.includes('已鎖定') || resultDiv.innerHTML.includes('已解鎖')) {
-                    resultDiv.style.display = 'none';
-                }
-            }, 3000);
-        }
-        
-        // 更新抽籤隊伍鎖定狀態顯示
-        function updateLotteryLockStatus() {
-            const teamSelect = document.getElementById('lotteryTeam');
-            const lockButton = document.getElementById('lotteryLockButton');
-            const lockStatus = document.getElementById('lotteryLockStatus');
-            const hintDiv = document.getElementById('lotteryLockHint');
-            
-            if (lockButton && lockStatus) {
-                if (isLotteryTeamLocked && selectedLotteryTeam) {
-                    // 鎖定狀態
-                    lockButton.innerHTML = '🔓 解鎖';
-                    lockButton.className = 'lottery-lock-btn locked';
-                    lockStatus.innerHTML = `🔒 已鎖定：<strong>${selectedLotteryTeam}隊</strong>`;
-                    lockStatus.className = 'lottery-lock-status locked';
-                    lockStatus.style.display = 'block';
-                    
-                    // 禁用隊伍選擇
-                    if (teamSelect) {
-                        teamSelect.disabled = true;
-                        teamSelect.style.opacity = '0.6';
-                    }
-                    
-                    // 隱藏提示
-                    if (hintDiv) {
-                        hintDiv.style.display = 'none';
-                    }
-                    
-                    // 同時觸發排名鎖定功能
-                    lockTeamFromExternal(selectedLotteryTeam);
-                    
-                } else {
-                    // 解鎖狀態
-                    lockButton.innerHTML = '🔒 鎖定隊伍';
-                    lockButton.className = 'lottery-lock-btn';
-                    lockStatus.style.display = 'none';
-                    
-                    // 啟用隊伍選擇
-                    if (teamSelect) {
-                        teamSelect.disabled = false;
-                        teamSelect.style.opacity = '1';
-                    }
-                    
-                    // 同時解鎖排名功能
-                    unlockTeam();
-                }
-            }
-        }
-        
-        // 自動填入鎖定的抽籤隊伍
-        function autoFillLockedLotteryTeam() {
-            if (isLotteryTeamLocked && selectedLotteryTeam) {
-                const teamSelect = document.getElementById('lotteryTeam');
-                if (teamSelect && teamSelect.value !== selectedLotteryTeam) {
-                    teamSelect.value = selectedLotteryTeam;
-                }
-                return true;
-            }
-            return false;
-        }
-        
-        // 重置抽籤隊伍鎖定
-        function resetLotteryTeamLock() {
-            isLotteryTeamLocked = false;
-            selectedLotteryTeam = '';
-            updateLotteryLockStatus();
         }
         
         // ============ 表格放大功能 ============
@@ -1785,290 +1746,6 @@
             }
         }
         
-        // ============ 抽籤功能 ============
-        async function drawLottery() {
-            // 防止重複抽籤
-            if (isDrawingLottery) {
-                alert('⏳ 正在抽籤中，請稍候...');
-                return;
-            }
-            
-            const teamSelect = document.getElementById('lotteryTeam');
-            const roundSelect = document.getElementById('lotteryRound');
-            const resultDiv = document.getElementById('lotteryResult');
-            const lotteryBtn = document.querySelector('.lottery-btn');
-            
-            // 如果隊伍被鎖定，自動填入鎖定的隊伍
-            autoFillLockedLotteryTeam();
-            
-            const team = teamSelect.value;
-            const round = roundSelect.value;
-            
-            if (!team) {
-                alert('請選擇隊伍！');
-                return;
-            }
-            
-            // 設置抽籤狀態
-            isDrawingLottery = true;
-            
-            // 禁用按鈕
-            lotteryBtn.disabled = true;
-            lotteryBtn.textContent = '檢查抽籤狀態...';
-            
-            // 顯示檢查狀態
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 2em; margin-bottom: 10px;">🔍</div>
-                    <h3>正在檢查 ${team}隊 ${round} 抽籤狀態...</h3>
-                    <p>請稍候</p>
-                </div>
-            `;
-            
-            try {
-                // 檢查是否已經抽過籤
-                const hasDrawn = await checkLotteryHistory(team, round);
-                
-                if (hasDrawn) {
-                    // 顯示已抽籤的錯誤訊息
-                    resultDiv.innerHTML = `
-                        <div style="text-align: center; padding: 20px;">
-                            <div style="font-size: 3em; margin-bottom: 15px;">❌</div>
-                            <h3 style="color: #d32f2f; margin-bottom: 15px;">抽籤被拒絕</h3>
-                        <div style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-                            <p style="font-weight: 600; margin-bottom: 10px;">
-                                <strong>${team}隊</strong> 的 <strong>${round}</strong> 已經抽過籤了！
-                            </p>
-                            <p style="font-size: 14px; opacity: 0.8;">
-                                每組每局只能抽籤一次，這是為了確保比賽的公平性。
-                            </p>
-                        </div>
-                        <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 10px; padding: 15px;">
-                            <p style="font-weight: 600; margin-bottom: 8px;">如需重新抽籤：</p>
-                            <p style="font-size: 14px;">
-                                1. 聯繫管理員<br>
-                                2. 在管理介面重置該隊伍的投球方式<br>
-                                3. 重置後即可重新抽籤
-                            </p>
-                        </div>
-                    </div>
-                `;
-                
-                // 重置併發狀態
-                isDrawingLottery = false;
-                lotteryBtn.disabled = false;
-                lotteryBtn.textContent = '🎲 開始抽籤';
-                return;
-            }
-            
-            lotteryBtn.textContent = '載入投球方式...';
-            
-            // 先載入最新的投球方式
-            await loadBowlingStyles();
-            
-            // 檢查是否有可用的投球方式
-            if (LOTTERY_STYLES.length === 0) {
-                resultDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <div style="font-size: 3em; margin-bottom: 15px;">⚠️</div>
-                        <h3 style="color: #f57c00;">沒有可用的投球方式</h3>
-                        <p>請檢查 Google Sheets 設定或聯繫管理員</p>
-                    </div>
-                `;
-                updateSourceStatus('error', '沒有可用的投球方式');
-                // 重置併發狀態
-                isDrawingLottery = false;
-                lotteryBtn.disabled = false;
-                lotteryBtn.textContent = '🎲 開始抽籤';
-                return;
-            }
-            
-            lotteryBtn.textContent = '抽籤中...';
-            
-            // 顯示抽籤進行中
-            resultDiv.innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <div class="lottery-animation">
-                        <div class="lottery-wheel">🎲</div>
-                    </div>
-                    <div class="lottery-text">
-                        <h3>正在為 ${team}隊 ${round} 抽籤...</h3>
-                        <p>投球方式來源: ${stylesSource === 'google-sheets' ? 'Google Sheets' : '預設備份'}</p>
-                        ${isLotteryTeamLocked ? `<p style="color: #28a745; font-weight: 600;">🔒 隊伍已鎖定</p>` : ''}
-                    </div>
-                </div>
-            `;
-            
-            // 開始轉輪動畫
-            const wheel = document.querySelector('.lottery-wheel');
-            wheel.classList.remove('stopped');
-            
-            // 模擬抽籤過程（2秒）
-            setTimeout(async () => {
-                // 智慧選擇投球方式（避免重複）
-                const selectedStyle = selectSmartLotteryStyle();
-                const styleInfo = BOWLING_STYLES[selectedStyle] || { 
-                    name: selectedStyle, 
-                    icon: '🎳', 
-                    class: 'style-normal' 
-                };
-                
-                // 記錄抽籤結果
-                recordLotteryResult(selectedStyle);
-                
-                // 停止動畫，但保持骰子圖案
-                wheel.classList.add('stopped');
-                
-                // 顯示結果
-                resultDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <div class="lottery-animation">
-                            <div class="lottery-wheel stopped">🎲</div>
-                        </div>
-                        <div class="lottery-text">
-                            <h3>抽籤結果</h3>
-                            <div class="result-display">
-                                <span id="resultTeam">${team}隊</span> - <span id="resultRound">${round}</span><br>
-                                <div style="margin: 15px 0;">
-                                    <span style="font-size: 2em;">${styleInfo.icon}</span><br>
-                                    <span style="font-size: 1.5em; font-weight: bold;">${selectedStyle}</span>
-                                </div>
-                                <small style="opacity: 0.8;">來源: ${stylesSource === 'google-sheets' ? 'Google Sheets' : '預設備份'}</small>
-                                ${isLotteryTeamLocked ? `<br><small style="color: #28a745; font-weight: 600;">🔒 隊伍鎖定中</small>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                // 自動儲存抽籤結果
-                try {
-                    await saveLotteryResult(team, round, selectedStyle);
-                    
-                    // 記錄抽籤歷史（本地記錄，防止重複點擊）
-                    lotteryHistory.add(`${team}-${round}`);
-                    
-                    // 顯示成功訊息
-                    setTimeout(() => {
-                        const successMsg = document.createElement('div');
-                        successMsg.innerHTML = `
-                            <div style="
-                                background: rgba(76, 175, 80, 0.9);
-                                color: white;
-                                padding: 15px;
-                                border-radius: 10px;
-                                margin-top: 15px;
-                                font-weight: 600;
-                            ">
-                                ✅ 抽籤結果已自動儲存！<br>
-                                <small style="opacity: 0.9;">
-                                    ${team}隊 ${round} 已完成抽籤<br>
-                                    該組合已被鎖定，無法再次抽籤
-                                    ${isLotteryTeamLocked ? '<br>🔒 隊伍保持鎖定狀態，可繼續為該隊伍抽其他局數' : ''}
-                                </small>
-                            </div>
-                        `;
-                        resultDiv.appendChild(successMsg);
-                        
-                        // 5秒後移除成功訊息
-                        setTimeout(() => {
-                            if (successMsg.parentNode) {
-                                successMsg.remove();
-                            }
-                        }, 5000);
-                        
-                        // 更新排名顯示
-                        setTimeout(() => {
-                            getRankings();
-                        }, 1000);
-                    }, 500);
-                    
-                } catch (error) {
-                    console.error('儲存抽籤結果失敗:', error);
-                    
-                    // 顯示錯誤訊息
-                    const errorMsg = document.createElement('div');
-                    errorMsg.innerHTML = `
-                        <div style="
-                            background: rgba(244, 67, 54, 0.9);
-                            color: white;
-                            padding: 15px;
-                            border-radius: 10px;
-                            margin-top: 15px;
-                            font-weight: 600;
-                        ">
-                            ❌ 儲存失敗！<br>
-                            <small style="opacity: 0.9;">
-                                抽籤結果無法儲存到系統中<br>
-                                請聯繫管理員或重新嘗試
-                            </small>
-                        </div>
-                    `;
-                    resultDiv.appendChild(errorMsg);
-                }
-                
-                // 重新啟用按鈕並重置併發狀態
-                isDrawingLottery = false;
-                lotteryBtn.disabled = false;
-                lotteryBtn.textContent = '🎲 開始抽籤';
-                
-            }, 2000);
-            
-            } catch (error) {
-                console.error('抽籤過程發生錯誤:', error);
-                resultDiv.innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <div style="font-size: 3em; margin-bottom: 15px;">⚠️</div>
-                        <h3 style="color: #f57c00;">抽籤發生錯誤</h3>
-                        <p style="color: #666; margin-top: 10px;">
-                            ${error.message || '未知錯誤，請稍後再試'}
-                        </p>
-                    </div>
-                `;
-            } finally {
-                // 確保併發狀態被重置
-                isDrawingLottery = false;
-                if (lotteryBtn.disabled) {
-                    lotteryBtn.disabled = false;
-                    lotteryBtn.textContent = '🎲 開始抽籤';
-                }
-            }
-        }
-        
-        // ============ 儲存抽籤結果 ============
-        async function saveLotteryResult(team, round, style) {
-            const styleData = {
-                action: "setBowlingStyle",
-                team_name: team,
-                round: round,
-                bowling_style: style,
-                timestamp: new Date().toISOString(),
-                source: "lottery"
-            };
-
-            console.log('儲存抽籤結果:', styleData);
-
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'ngrok-skip-browser-warning': 'true'
-                },
-                body: JSON.stringify(styleData)
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const result = await response.text();
-            console.log('抽籤結果儲存成功:', result);
-            
-            return result;
-        }
-        
         // ============ 獲取排名函數 ============
         async function getRankings() {
             const resultDiv = document.getElementById('rankingResult');
@@ -2103,26 +1780,38 @@
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
-                let data;
                 const responseText = await response.text();
-
+                console.log('Raw response:', responseText);
+                
+                let data;
                 try {
                     data = JSON.parse(responseText);
+                    console.log('解析後的資料:', data);
+                    console.log('資料類型:', typeof data);
+                    console.log('是否為陣列:', Array.isArray(data));
                 } catch (parseError) {
+                    console.log('JSON 解析失敗:', parseError);
                     throw new Error(`伺服器回應不是有效的 JSON`);
                 }
                 
-                if (data && data.success && data.rankings && Array.isArray(data.rankings)) {
-                    currentRankings = data.rankings;
-                    displayRankings(currentDisplayMode);
-                } else if (data && Array.isArray(data)) {
-                    currentRankings = data;
+                // 處理 API 回傳的資料格式
+                if (data && data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+                    console.log('成功讀取排名資料:', data.data.length, '支隊伍');
+                    console.log('第一支隊伍資料:', data.data[0]);
+                    currentRankings = data.data;
+                    recalculateRankings();
                     displayRankings(currentDisplayMode);
                 } else {
-                    throw new Error(`資料格式不正確`);
+                    console.log('資料格式不符預期:', {
+                        data: data,
+                        hasSuccess: data && data.success,
+                        hasData: data && data.data,
+                        isDataArray: data && Array.isArray(data.data),
+                        dataLength: data && data.data ? data.data.length : 'no data array'
+                    });
+                    throw new Error('資料格式不正確');
                 }
                 
-                // 更新最後更新時間
                 updateLastUpdatedTime();
                 
             } catch (error) {
@@ -2131,8 +1820,9 @@
                 resultDiv.className = 'result error';
                 resultDiv.innerHTML = `
                     <div style="text-align: center; padding: 20px;">
-                        <h3>❌ 無法獲取排名</h3>
-                        <p>請稍後再試</p>
+                        <h3>❌ 獲取排名失敗</h3>
+                        <p><strong>錯誤訊息：</strong>${error.message}</p>
+                        <p><strong>請檢查開發者工具 Console 查看詳細資訊</strong></p>
                         
                         <div style="margin-top: 15px;">
                             <button onclick="getRankings()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
@@ -2168,17 +1858,69 @@
             const typeTitle = type === 'round1' ? '第一局排名' : '總分排名';
             const showTotal = type === 'total';
             
-            // 排序邏輯
+            // 重要：根據計分方式重新排序
             let sortedRankings = [...currentRankings];
+            
             if (type === 'round1') {
+                // 第一局排名：按第一局分數排序
                 sortedRankings.sort((a, b) => (b.round1_score || 0) - (a.round1_score || 0));
             } else {
-                sortedRankings.sort((a, b) => (b.total_score || 0) - (a.total_score || 0));
+                // 總分排名：根據選擇的計分方式排序
+                switch(currentScoringMethod) {
+                    case 1:
+                        // 標準化分數：按標準化分數排序
+                        sortedRankings.sort((a, b) => {
+                            const avgA = a.calculated_average || 0;
+                            const avgB = b.calculated_average || 0;
+                            if (avgB !== avgA) return avgB - avgA;
+                            // 相同時按總分排序
+                            return (b.total_score || 0) - (a.total_score || 0);
+                        });
+                        break;
+                        
+                    case 2:
+                        // 每球平均：按每球平均分排序
+                        sortedRankings.sort((a, b) => {
+                            const avgA = a.calculated_average || 0;
+                            const avgB = b.calculated_average || 0;
+                            if (avgB !== avgA) return avgB - avgA;
+                            // 相同時按總分排序
+                            return (b.total_score || 0) - (a.total_score || 0);
+                        });
+                        break;
+                        
+                    case 3:
+                        // 每人平均：按每人平均分排序
+                        sortedRankings.sort((a, b) => {
+                            const avgA = a.calculated_average || 0;
+                            const avgB = b.calculated_average || 0;
+                            if (avgB !== avgA) return avgB - avgA;
+                            // 相同時按總分排序
+                            return (b.total_score || 0) - (a.total_score || 0);
+                        });
+                        break;
+                        
+                    default:
+                        // 預設按總分排序
+                        sortedRankings.sort((a, b) => (b.total_score || 0) - (a.total_score || 0));
+                }
             }
+            
+            // 重新計算排名（基於新的排序）
+            sortedRankings.forEach((team, index) => {
+                team.current_rank = index + 1;
+            });
             
             // 應用智慧排名篩選
             let filteredRankings = applyRankingFilter(sortedRankings);
             let titleSuffix = '';
+            
+            // 計分方式說明
+            const scoringMethodName = {
+                1: '標準化分數',
+                2: '每球平均',
+                3: '每人平均'
+            };
             
             switch (currentRankingFilter) {
                 case 'top3':
@@ -2199,7 +1941,10 @@
                     <h3 style="color: #333; margin: 0;">
                         ${showTotal ? '🏆' : '🎯'} ${typeTitle}${titleSuffix}
                     </h3>
-                    <p style="color: #666; margin: 5px 0;">共 ${filteredRankings.length} 支隊伍${currentRankingFilter === 'all' ? '參賽' : '顯示'}</p>
+                    <p style="color: #666; margin: 5px 0;">
+                        共 ${filteredRankings.length} 支隊伍${currentRankingFilter === 'all' ? '參賽' : '顯示'}
+                        ${showTotal ? ` | 排名依據：${scoringMethodName[currentScoringMethod]}` : ''}
+                    </p>
                 </div>
                 
                 <div style="overflow-x: auto;">
@@ -2209,43 +1954,45 @@
                                 <th>🏅 排名</th>
                                 <th>🏆 隊伍</th>
                                 <th>🎯 第一局</th>
-                                <th>🎳 第一局方式</th>
                                 ${showTotal ? '<th>🎯 第二局</th>' : ''}
-                                ${showTotal ? '<th>🎳 第二局方式</th>' : ''}
                                 ${showTotal ? '<th>📊 總分</th>' : ''}
                                 <th>👥 人數</th>
-                                <th>📈 平均</th>
+                                ${currentScoringMethod === 2 ? '<th>🎳 球數</th>' : ''}
+                                <th>📈 ${currentScoringMethod === 1 ? '標準化(%)' : currentScoringMethod === 2 ? '每球平均' : '每人平均'}</th>
                             </tr>
                         </thead>
                         <tbody>
             `;
 
             filteredRankings.forEach((team, index) => {
-                // 使用原始排名而不是篩選後的排名
-                const originalRank = sortedRankings.findIndex(t => t.team_name === team.team_name) + 1;
-                const round1 = team.round1_score || 0;
-                const round2 = team.round2_score || 0;
-                const total = team.total_score || round1 + round2;
-                const members = team.members || 1;
-                const average = Math.round(total / members);
+                // 使用新的排名
+                const currentRank = team.current_rank;
+                const teamName = team['組別'] || '未知隊伍';
+                const round1 = parseInt(team['第一局總分'] || 0) || 0;
+                const round2 = parseInt(team['第二局總分'] || 0) || 0;
+                const total = parseInt(team['總分'] || 0) || 0;
+                const members = parseInt(team['人數'] || 1) || 1;
+                const balls = parseInt(team['球數'] || 0) || 0;
+                const average = team.calculated_average || Math.round(total / members);
                 
-                const rankIcon = originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : originalRank;
+                const rankIcon = currentRank === 1 ? '🥇' : currentRank === 2 ? '🥈' : currentRank === 3 ? '🥉' : currentRank;
                 
-                // 獲取投球方式
-                const round1Style = getBowlingStyleDisplay(team.round1_style);
-                const round2Style = getBowlingStyleDisplay(team.round2_style);
+                // 球數顯示處理
+                const ballsDisplay = balls === 0 ? '<span style="color: #999;">未設定</span>' : balls;
+                
+                // 平均分顯示處理
+                const averageDisplay = currentScoringMethod === 1 ? `${average}%` : `${average}分`;
                 
                 tableHTML += `
                     <tr>
                         <td data-label="排名"><strong>${rankIcon}</strong></td>
-                        <td data-label="隊伍"><strong>${team.team_name || '未知隊伍'}</strong></td>
+                        <td data-label="隊伍"><strong>${teamName}</strong></td>
                         <td data-label="第一局分數">${round1}</td>
-                        <td data-label="第一局方式">${round1Style}</td>
                         ${showTotal ? `<td data-label="第二局分數">${round2}</td>` : ''}
-                        ${showTotal ? `<td data-label="第二局方式">${round2Style}</td>` : ''}
                         ${showTotal ? `<td data-label="總分"><strong>${total}</strong></td>` : ''}
                         <td data-label="人數">${members}</td>
-                        <td data-label="平均分數">${average}</td>
+                        ${currentScoringMethod === 2 ? `<td data-label="球數">${ballsDisplay}</td>` : ''}
+                        <td data-label="平均分數"><strong>${averageDisplay}</strong></td>
                     </tr>
                 `;
             });
@@ -2308,7 +2055,7 @@
                     
                 case 'locked':
                     if (lockedTeam) {
-                        const teamData = sortedRankings.find(team => team.team_name === lockedTeam);
+                        const teamData = sortedRankings.find(team => team['組別'] === lockedTeam);
                         filteredData = teamData ? [teamData] : [];
                     } else {
                         filteredData = [];
@@ -2319,9 +2066,9 @@
                 default:
                     // 全部隊伍模式才處理鎖定隊伍置頂
                     if (isTeamLocked && lockedTeam) {
-                        const lockedTeamData = filteredData.find(team => team.team_name === lockedTeam);
+                        const lockedTeamData = filteredData.find(team => team['組別'] === lockedTeam);
                         if (lockedTeamData) {
-                            filteredData = filteredData.filter(team => team.team_name !== lockedTeam);
+                            filteredData = filteredData.filter(team => team['組別'] !== lockedTeam);
                             filteredData.unshift(lockedTeamData); // 置頂
                         }
                     }
@@ -2337,33 +2084,32 @@
             
             // 檢查是否有鎖定隊伍且在全部隊伍模式
             const hasLockedTeamOnTop = currentRankingFilter === 'all' && isTeamLocked && lockedTeam && 
-                                      filteredRankings.length > 0 && filteredRankings[0].team_name === lockedTeam;
+                                      filteredRankings.length > 0 && filteredRankings[0]['組別'] === lockedTeam;
             
             filteredRankings.forEach((team, index) => {
-                const originalRank = allRankings.findIndex(t => t.team_name === team.team_name) + 1;
-                const round1 = team.round1_score || 0;
-                const round2 = team.round2_score || 0;
-                const total = team.total_score || round1 + round2;
-                const members = team.members || 1;
-                const average = Math.round(total / members);
+                const teamName = team['組別'] || '未知隊伍';
+                const originalRank = allRankings.findIndex(t => t['組別'] === teamName) + 1;
+                const round1 = parseInt(team['第一局總分'] || 0) || 0;
+                const round2 = parseInt(team['第二局總分'] || 0) || 0;
+                const total = parseInt(team['總分'] || 0) || 0;
+                const members = parseInt(team['人數'] || 1) || 1;
+                const balls = parseInt(team['球數'] || 0) || 0;
+                const average = team.calculated_average || Math.round(total / members); // 使用重新計算的平均分
                 
                 const rankIcon = originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : originalRank;
-                const isLockedTeam = isTeamLocked && team.team_name === lockedTeam;
-                
-                const round1Style = getBowlingStyleDisplay(team.round1_style);
-                const round2Style = getBowlingStyleDisplay(team.round2_style);
+                const isLockedTeam = isTeamLocked && teamName === lockedTeam;
                 
                 // 在鎖定隊伍後添加分隔空間
                 const separatorHTML = (hasLockedTeamOnTop && index === 0) ? 
                     '<div style="height: 20px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px; margin: 10px 0;"><span style="background: #f8f9fa; padding: 5px 15px; border-radius: 15px;">── 其他隊伍 ──</span></div>' : '';
                 
                 cardsHTML += `
-                    <div class="ranking-card rank-${originalRank <= 3 ? originalRank : 'other'}" data-team="${team.team_name}">
-                        <div class="card-header ${isLockedTeam ? 'locked-team' : ''}" onclick="toggleRankingCardDetails('${team.team_name}')">
+                    <div class="ranking-card rank-${originalRank <= 3 ? originalRank : 'other'}" data-team="${teamName}">
+                        <div class="card-header ${isLockedTeam ? 'locked-team' : ''}" onclick="toggleRankingCardDetails('${teamName}')">
                             <div class="team-basic-info">
                                 <div class="rank-badge">${rankIcon}</div>
-                                <div class="team-name">${team.team_name}隊</div>
-                                <div class="team-average">${average}分</div>
+                                <div class="team-name">${teamName}隊</div>
+                                <div class="team-average">${average}${currentScoringMethod === 1 ? '%' : '分'}</div>
                                 <div class="expand-icon">▼</div>
                             </div>
                         </div>
@@ -2373,18 +2119,10 @@
                                     <span class="detail-label">🎯 第一局分數</span>
                                     <span class="detail-value score">${round1}</span>
                                 </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">🎳 第一局方式</span>
-                                    <span class="detail-value">${round1Style}</span>
-                                </div>
                                 ${showTotal ? `
                                 <div class="detail-row">
                                     <span class="detail-label">🎯 第二局分數</span>
                                     <span class="detail-value score">${round2}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">🎳 第二局方式</span>
-                                    <span class="detail-value">${round2Style}</span>
                                 </div>
                                 <div class="detail-row">
                                     <span class="detail-label">📊 總分</span>
@@ -2395,9 +2133,15 @@
                                     <span class="detail-label">👥 隊員人數</span>
                                     <span class="detail-value">${members}</span>
                                 </div>
+                                ${currentScoringMethod === 2 ? `
+                                <div class="detail-row">
+                                    <span class="detail-label">🎳 球數</span>
+                                    <span class="detail-value" style="${balls === 0 ? 'color: #999;' : ''}">${balls === 0 ? '未設定' : balls}</span>
+                                </div>
+                                ` : ''}
                                 <div class="detail-row">
                                     <span class="detail-label">📈 平均分數</span>
-                                    <span class="detail-value">${average}</span>
+                                    <span class="detail-value">${average}${currentScoringMethod === 1 ? '%' : '分'}</span>
                                 </div>
                             </div>
                         </div>
@@ -2412,9 +2156,23 @@
         
         // 切換排名卡片詳情
         function toggleRankingCardDetails(teamName) {
+            if (!teamName || teamName === 'undefined') {
+                console.error('無效的隊伍名稱:', teamName);
+                return;
+            }
+            
             const card = document.querySelector(`[data-team="${teamName}"]`);
+            if (!card) {
+                console.error('找不到隊伍卡片:', teamName);
+                return;
+            }
             const details = card.querySelector('.card-details');
             const icon = card.querySelector('.expand-icon');
+            
+            if (!details || !icon) {
+                console.error('卡片元素不完整:', { details: !!details, icon: !!icon });
+                return;
+            }
             
             if (details.classList.contains('expanded')) {
                 details.classList.remove('expanded');
@@ -2471,20 +2229,6 @@
             }
         }
 
-        // ============ 投球方式顯示函數 ============
-        function getBowlingStyleDisplay(style) {
-            if (!style || style === '' || style === null) {
-                return '<span class="bowling-style style-unknown">未設定</span>';
-            }
-            
-            const styleInfo = BOWLING_STYLES[style];
-            if (styleInfo) {
-                return `<span class="bowling-style ${styleInfo.class}">${styleInfo.icon} ${styleInfo.name}</span>`;
-            } else {
-                return `<span class="bowling-style style-unknown">${style}</span>`;
-            }
-        }
-
         // 更新最後更新時間
         function updateLastUpdatedTime() {
             const now = new Date();
@@ -2536,14 +2280,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🎳 保齡球比賽即時排名頁面已載入');
             
-            // 初始化投球方式來源狀態
-            updateSourceStatus('default', '尚未載入');
-            
             // 初始化表格放大功能
             initTableZoom();
-            
-            // 初始化抽籤隊伍鎖定功能
-            initializeLotteryTeamLock();
             
             getRankings();
             setupAutoRefresh();
