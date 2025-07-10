@@ -295,10 +295,9 @@
 
         .ranking-table th,
         .ranking-table td {
-            padding: 8px 6px;
+            padding: 12px 8px;
             text-align: center;
             border-bottom: 1px solid #e9ecef;
-            font-size: 12px;
         }
 
         .ranking-table th {
@@ -974,15 +973,15 @@
                     <div class="scoring-options" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
                         <button class="scoring-method-btn active" onclick="setScoringMethod(1)" data-method="1">
                             📈 標準化分數<br>
-                            <small>總分÷(人數×300)</small>
+                            <small>2局總分÷(人數×300×2)</small>
                         </button>
                         <button class="scoring-method-btn" onclick="setScoringMethod(2)" data-method="2">
                             🎳 每球平均<br>
-                            <small>總分÷(人數×球數)</small>
+                            <small>2局總分÷(人數×2局總球數)</small>
                         </button>
                         <button class="scoring-method-btn" onclick="setScoringMethod(3)" data-method="3">
                             👥 每人平均<br>
-                            <small>總分÷人數</small>
+                            <small>2局總分÷人數</small>
                         </button>
                     </div>
                     <div id="scoringMethodInfo" class="scoring-info" style="text-align: center; margin-top: 10px; font-size: 14px; color: #666;">
@@ -1115,9 +1114,9 @@
             // 更新說明文字
             const infoDiv = document.getElementById('scoringMethodInfo');
             const methodInfo = {
-                1: '標準化分數 (結果為百分比，適合比較不同人數隊伍)',
-                2: '每球平均分數 (考慮實際投球數量)',
-                3: '每人平均分數 (最簡單的計算方式)'
+                1: '標準化分數 (2局總分÷(人數×300×2)×100，結果為百分比)',
+                2: '每球平均分數 (2局總分÷(人數×2局總球數)，考慮實際投球數量)',
+                3: '每人平均分數 (2局總分÷人數，最簡單的計算方式)'
             };
             
             infoDiv.textContent = `目前使用：${methodInfo[method]}`;
@@ -1144,31 +1143,23 @@
                 
                 switch(currentScoringMethod) {
                     case 1:
-                        // 標準化分數：總分 ÷ (人數 × 300) × 100
-                        const maxPossibleScore = members * 300;
-                        if (maxPossibleScore > 0) {
-                            average = Math.round((total / maxPossibleScore) * 100 * 10) / 10;
-                        }
+                        // 標準化分數，直接使用 Google Sheets 的計算結果，保留小數點後兩位
+                        const standardScore = parseFloat(team['標準化'] || 0) || 0;
+                        average = Math.round(standardScore * 100) / 100;
                         break;
                         
                     case 2:
-                        // 每球平均：總分 ÷ (人數 × 球數)
-                        const totalBalls = members * balls;
-                        if (totalBalls > 0) {
-                            average = Math.round((total / totalBalls) * 10) / 10;
-                        } else {
-                            // 球數為0時，無法計算每球平均，顯示為0
-                            average = 0;
-                        }
+                        // 每球平均，直接使用 Google Sheets 的計算結果
+                        average = parseFloat(team['每球平均'] || 0) || 0;
                         break;
                         
                     case 3:
-                        // 每人平均：總分 ÷ 人數
-                        average = Math.round((total / members) * 10) / 10;
+                        // 每人平均，直接使用 Google Sheets 的計算結果
+                        average = parseFloat(team['每人平均'] || 0) || 0;
                         break;
                         
                     default:
-                        average = Math.round(total / members);
+                        average = parseFloat(team['每人平均'] || 0) || 0;
                 }
                 
                 team.calculated_average = average;
@@ -1983,7 +1974,8 @@
                                 ${showTotal ? '<th>🎯 第二局</th>' : ''}
                                 ${showTotal ? '<th>📊 總分</th>' : ''}
                                 <th>👥 人數</th>
-                                ${currentScoringMethod === 2 ? '<th>🎳 球數</th>' : ''}
+                                ${currentScoringMethod === 2 ? '<th>🎳 第一局球數</th>' : ''}
+                                ${currentScoringMethod === 2 ? '<th>🎳 第二局球數</th>' : ''}
                                 <th>📈 ${currentScoringMethod === 1 ? '標準化(%)' : currentScoringMethod === 2 ? '每球平均' : '每人平均'}</th>
                             </tr>
                         </thead>
@@ -2017,7 +2009,8 @@
                         ${showTotal ? `<td data-label="第二局分數">${round2}</td>` : ''}
                         ${showTotal ? `<td data-label="總分"><strong>${total}</strong></td>` : ''}
                         <td data-label="人數">${members}</td>
-                        ${currentScoringMethod === 2 ? `<td data-label="球數">${ballsDisplay}</td>` : ''}
+                        ${currentScoringMethod === 2 ? `<td data-label="第一局球數">${parseInt(team['第一局球數'] || 0) || '<span style="color: #999;">未設定</span>'}</td>` : ''}
+                        ${currentScoringMethod === 2 ? `<td data-label="第二局球數">${parseInt(team['第二局球數'] || 0) || '<span style="color: #999;">未設定</span>'}</td>` : ''}
                         <td data-label="平均分數"><strong>${averageDisplay}</strong></td>
                     </tr>
                 `;
@@ -2161,8 +2154,12 @@
                                 </div>
                                 ${currentScoringMethod === 2 ? `
                                 <div class="detail-row">
-                                    <span class="detail-label">🎳 球數</span>
-                                    <span class="detail-value" style="${balls === 0 ? 'color: #999;' : ''}">${balls === 0 ? '未設定' : balls}</span>
+                                    <span class="detail-label">🎳 第一局球數</span>
+                                    <span class="detail-value">${parseInt(team['第一局球數'] || 0) || '未設定'}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">🎳 第二局球數</span>
+                                    <span class="detail-value">${parseInt(team['第二局球數'] || 0) || '未設定'}</span>
                                 </div>
                                 ` : ''}
                                 <div class="detail-row">
