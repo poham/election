@@ -1293,22 +1293,26 @@
                 </div>
 
                 <div class="form-group" id="ballsInputGroup">
-                    <label for="balls">🎳 總球數</label>
-                    <input type="number" id="balls" placeholder="0-200" min="0" max="200" value="0">
-                    <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">此局投球總數（用於每球平均計算）</small>
+                    <label for="balls">🎳 第一局球數</label>
+                    <input type="number" id="balls" placeholder="0-100" min="0" max="100" value="0">
+                    <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">第一局投球總數（用於每球平均計算）</small>
                 </div>
 
                 <script>
                     // 監聽局數選擇變化
                     document.getElementById('roundSelect').addEventListener('change', function() {
-                        const scoreInputGroup = document.getElementById('scoreInputGroup');
-                        const ballsInputGroup = document.getElementById('ballsInputGroup');
-                        if (this.value === '第二局') {
-                            scoreInputGroup.style.display = 'none';
-                            ballsInputGroup.style.display = 'block';
+                        const ballsLabel = document.querySelector('label[for="balls"]');
+                        const ballsInput = document.getElementById('balls');
+                        const ballsSmall = ballsInput.nextElementSibling;
+                        
+                        if (this.value === '第一局') {
+                            ballsLabel.innerHTML = '🎳 第一局球數';
+                            ballsInput.placeholder = '0-100';
+                            ballsSmall.textContent = '第一局投球總數（用於每球平均計算）';
                         } else {
-                            scoreInputGroup.style.display = 'block';
-                            ballsInputGroup.style.display = 'block';
+                            ballsLabel.innerHTML = '🎳 第二局球數';
+                            ballsInput.placeholder = '0-100';
+                            ballsSmall.textContent = '第二局投球總數（用於每球平均計算）';
                         }
                     });
                 </script>
@@ -1389,19 +1393,25 @@
                     <button class="ranking-btn update-btn" onclick="getRankings()">🔄 更新排名</button>
                 </div>
                 
-                <!-- 計分模式頁籤 -->
-                <div class="scoring-mode-tabs" id="scoringModeTabs" style="display: none;">
-                    <div class="tab-header">
-                        <span style="font-size: 14px; color: #666; margin-right: 15px;">計分模式：</span>
-                        <button class="mode-tab active" onclick="setScoringMode('standard')">
-                            📊 標準化 (%)
+                <!-- 計分模式選擇 -->
+                <div class="scoring-method-section" id="scoringModeTabs" style="display: none; background: #f8f9fa; border-radius: 15px; padding: 20px; border: 1px solid #e9ecef; margin-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 1.2em;">📈 計分方式選擇</h3>
+                    <div class="scoring-options" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                        <button class="scoring-method-btn active" onclick="setScoringMode('standard')" data-method="standard" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 15px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-align: center; min-width: 140px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                            📈 標準化分數<br>
+                            <small style="display: block; font-size: 11px; opacity: 0.9; margin-top: 5px;">2局總分÷(人數×300×2)</small>
                         </button>
-                        <button class="mode-tab" onclick="setScoringMode('per_ball')">
-                            🎯 每球平均
+                        <button class="scoring-method-btn" onclick="setScoringMode('per_ball')" data-method="per_ball" style="background: linear-gradient(135deg, #6c757d, #5a6268); color: white; border: none; padding: 15px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-align: center; min-width: 140px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                            🎳 每球平均<br>
+                            <small style="display: block; font-size: 11px; opacity: 0.9; margin-top: 5px;">2局總分÷(人數×2局總球數)</small>
                         </button>
-                        <button class="mode-tab" onclick="setScoringMode('per_person')">
-                            👥 每人平均
+                        <button class="scoring-method-btn" onclick="setScoringMode('per_person')" data-method="per_person" style="background: linear-gradient(135deg, #6c757d, #5a6268); color: white; border: none; padding: 15px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-align: center; min-width: 140px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                            👥 每人平均<br>
+                            <small style="display: block; font-size: 11px; opacity: 0.9; margin-top: 5px;">2局總分÷人數</small>
                         </button>
+                    </div>
+                    <div id="scoringMethodInfo" class="scoring-info" style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; padding: 10px 15px; margin-top: 15px; font-size: 14px; color: #495057; text-align: center;">
+                        目前使用：標準化分數 (2局總分÷(人數×300×2)×100，結果為百分比)
                     </div>
                 </div>
                 
@@ -3314,29 +3324,18 @@
                     throw new Error(`伺服器回應不是有效的 JSON:\n${responseText.substring(0, 200)}...`);
                 }
                 
-                // 處理多種可能的資料格式
+                // 處理 API 回傳的資料格式（與 result.html 保持一致）
                 let rankingsData = null;
                 
-                if (data && data.success && data.rankings && Array.isArray(data.rankings)) {
-                    console.log('使用 data.rankings 格式');
-                    rankingsData = data.rankings;
+                if (data && data.success && data.data && Array.isArray(data.data)) {
+                    console.log('使用 data.data 格式');
+                    rankingsData = data.data;
                 } else if (data && Array.isArray(data)) {
                     console.log('使用直接陣列格式');
                     rankingsData = data;
-                } else if (data && typeof data === 'object') {
-                    // 檢查是否為 Google Sheets 格式的資料
-                    const possibleArrays = Object.values(data).filter(value => Array.isArray(value));
-                    if (possibleArrays.length > 0) {
-                        console.log('使用物件中的陣列格式');
-                        rankingsData = possibleArrays[0];
-                    } else {
-                        console.log('嘗試將物件轉換為陣列格式');
-                        // 如果資料是物件格式，嘗試轉換
-                        const keys = Object.keys(data);
-                        if (keys.length > 0 && typeof data[keys[0]] === 'object') {
-                            rankingsData = keys.map(key => ({ team_name: key, ...data[key] }));
-                        }
-                    }
+                } else {
+                    console.log('未知的資料格式:', data);
+                    throw new Error('無法解析排名資料');
                 }
                 
                 if (rankingsData && Array.isArray(rankingsData) && rankingsData.length > 0) {
@@ -3494,10 +3493,26 @@
             currentScoringMode = mode;
             
             // 更新按鈕狀態
-            document.querySelectorAll('.mode-tab').forEach(btn => {
+            document.querySelectorAll('.scoring-method-btn').forEach(btn => {
                 btn.classList.remove('active');
+                btn.style.background = 'linear-gradient(135deg, #6c757d, #5a6268)';
             });
-            document.querySelector(`[onclick="setScoringMode('${mode}')"]`).classList.add('active');
+            const activeBtn = document.querySelector(`[data-method="${mode}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            }
+            
+            // 更新說明文字
+            const infoDiv = document.getElementById('scoringMethodInfo');
+            if (infoDiv) {
+                const methodInfo = {
+                    'standard': '標準化分數 (2局總分÷(人數×300×2)×100，結果為百分比)',
+                    'per_ball': '每球平均分數 (2局總分÷(人數×2局總球數)，考慮實際投球數量)',
+                    'per_person': '每人平均分數 (2局總分÷人數，最簡單的計算方式)'
+                };
+                infoDiv.textContent = `目前使用：${methodInfo[mode]}`;
+            }
             
             // 重新顯示排名
             if (currentRankings && currentRankings.length > 0) {
@@ -3507,50 +3522,36 @@
             }
         }
         
-        // 計算分數根據模式
-        function calculateScore(team, mode) {
-            const round1 = parseInt(team['第一局總分'] || 0) || 0;
-            const round2 = parseInt(team['第二局總分'] || 0) || 0;
-            const total = parseInt(team['總分'] || 0) || 0;
-            const members = parseInt(team['人數'] || 1) || 1;
-            
+        // 直接使用 Google Sheets 的計算結果
+        function getCalculatedScore(team, mode) {
             switch (mode) {
                 case 'standard':
-                    // 標準化：總分 ÷ (人數 × 300)
-                    const standardScore = (total / (members * 300)) * 100;
-                    return Math.round(standardScore * 100) / 100; // 保留兩位小數
-                    
+                    const standardScore = parseFloat(team['標準化'] || 0) || 0;
+                    return Math.round(standardScore * 10000) / 100; // 保留小數點後兩位
                 case 'per_ball':
-                    // 每球平均：總分 ÷ (人數 × 球數)
-                    const perBallScore = total / (members * ballsPerPerson);
-                    return Math.round(perBallScore * 100) / 100; // 保留兩位小數
-                    
+                    return parseFloat(team['每球平均'] || 0) || 0;
                 case 'per_person':
                 default:
-                    // 每人平均：總分 ÷ 人數
-                    return Math.round(total / members);
+                    return parseFloat(team['每人平均'] || 0) || 0;
             }
         }
         
-        // 計算第一局分數根據模式
-        function calculateRound1Score(team, mode) {
+        // 第一局使用简化計算（因為 Google Sheets 只有總分計算）
+        function getRound1Score(team, mode) {
             const round1 = parseInt(team['第一局總分'] || 0) || 0;
             const members = parseInt(team['人數'] || 1) || 1;
             
             switch (mode) {
                 case 'standard':
-                    // 標準化：第一局分數 ÷ (人數 × 150) - 假設第一局滿分150
-                    const standardScore = (round1 / (members * 150)) * 100;
-                    return Math.round(standardScore * 100) / 100;
-                    
+                    const standardScore = (round1 / (members * 300)) * 100;
+                    return Math.round(standardScore * 100) / 100; // 保留小數點後兩位
                 case 'per_ball':
-                    // 每球平均：第一局分數 ÷ (人數 × 球數/2) - 假設第一局投一半的球
-                    const perBallScore = round1 / (members * (ballsPerPerson / 2));
+                    const round1Balls = parseInt(team['第一局球數'] || 0) || 0;
+                    if (round1Balls === 0) return 0;
+                    const perBallScore = round1 / (members * round1Balls);
                     return Math.round(perBallScore * 100) / 100;
-                    
                 case 'per_person':
                 default:
-                    // 每人平均：第一局分數 ÷ 人數
                     return Math.round(round1 / members);
             }
         }
@@ -3609,19 +3610,22 @@
             const typeTitle = type === 'round1' ? '第一局排名' : '總分排名';
             const showTotal = type === 'total';
             
-            // 排序邏輯 - 根據當前計分模式
+            // 排序邏輯 - 使用 Google Sheets 的計算結果
             let sortedRankings = [...rankings];
             if (type === 'round1') {
                 sortedRankings.sort((a, b) => {
-                    const scoreA = calculateRound1Score(a, currentScoringMode);
-                    const scoreB = calculateRound1Score(b, currentScoringMode);
+                    const scoreA = getRound1Score(a, currentScoringMode);
+                    const scoreB = getRound1Score(b, currentScoringMode);
                     return scoreB - scoreA;
                 });
             } else {
+                // 總分排名使用 Google Sheets 的計算結果
                 sortedRankings.sort((a, b) => {
-                    const scoreA = calculateScore(a, currentScoringMode);
-                    const scoreB = calculateScore(b, currentScoringMode);
-                    return scoreB - scoreA;
+                    const scoreA = getCalculatedScore(a, currentScoringMode);
+                    const scoreB = getCalculatedScore(b, currentScoringMode);
+                    if (scoreB !== scoreA) return scoreB - scoreA;
+                    // 相同時按總分排序
+                    return (parseInt(b['總分'] || 0) || 0) - (parseInt(a['總分'] || 0) || 0);
                 });
             }
             
@@ -3665,7 +3669,8 @@
                                 ${showTotal ? '<th>🎯 第二局</th>' : ''}
                                 ${showTotal ? '<th>📊 總分</th>' : ''}
                                 <th>👥 人數</th>
-                                ${showTotal && currentScoringMode === 'per_ball' ? '<th>🎳 總球數</th>' : ''}
+                                ${showTotal && currentScoringMode === 'per_ball' ? '<th>🎳 第一局球數</th>' : ''}
+                                ${showTotal && currentScoringMode === 'per_ball' ? '<th>🎳 第二局球數</th>' : ''}
                                 <th>📈 ${modeLabel}</th>
                             </tr>
                         </thead>
@@ -3685,10 +3690,10 @@
                 
 
                 
-                // 根據當前模式計算分數
+                // 根據當前模式取得分數
                 const calculatedScore = showTotal ? 
-                    calculateScore(team, currentScoringMode) : 
-                    calculateRound1Score(team, currentScoringMode);
+                    getCalculatedScore(team, currentScoringMode) : 
+                    getRound1Score(team, currentScoringMode);
                 
                 const rankIcon = originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : originalRank;
                 
@@ -3705,7 +3710,8 @@
                         ${showTotal ? `<td data-label="第二局分數">${round2}</td>` : ''}
                         ${showTotal ? `<td data-label="總分"><strong>${total}</strong></td>` : ''}
                         <td data-label="人數">${members}</td>
-                        ${showTotal && currentScoringMode === 'per_ball' ? `<td data-label="總球數">${parseInt(team['球數'] || 0) || 0}</td>` : ''}
+                        ${showTotal && currentScoringMode === 'per_ball' ? `<td data-label="第一局球數">${parseInt(team['第一局球數'] || 0) || 0}</td>` : ''}
+                        ${showTotal && currentScoringMode === 'per_ball' ? `<td data-label="第二局球數">${parseInt(team['第二局球數'] || 0) || 0}</td>` : ''}
                         <td data-label="${modeLabel}"><strong>${calculatedScore}${modeUnit}</strong></td>
                     </tr>
                 `;
@@ -3803,10 +3809,10 @@
                 const total = parseInt(team['總分'] || 0) || 0;
                 const members = parseInt(team['人數'] || 1) || 1;
                 
-                // 根據當前模式計算分數
+                // 根據當前模式取得分數
                 const calculatedScore = showTotal ? 
-                    calculateScore(team, scoringMode) : 
-                    calculateRound1Score(team, scoringMode);
+                    getCalculatedScore(team, scoringMode) : 
+                    getRound1Score(team, scoringMode);
                 
                 const rankIcon = originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : originalRank;
                 const isLockedTeam = isScoreTeamLocked && teamName === scoreLockedTeam;
@@ -3850,8 +3856,12 @@
                                 </div>
                                 ${showTotal && scoringMode === 'per_ball' ? `
                                 <div class="detail-row">
-                                    <span class="detail-label">🎳 總球數</span>
-                                    <span class="detail-value">${parseInt(team['球數'] || 0) || 0}</span>
+                                    <span class="detail-label">🎳 第一局球數</span>
+                                    <span class="detail-value">${parseInt(team['第一局球數'] || 0) || 0}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">🎳 第二局球數</span>
+                                    <span class="detail-value">${parseInt(team['第二局球數'] || 0) || 0}</span>
                                 </div>
                                 ` : ''}
                                 <div class="detail-row">
