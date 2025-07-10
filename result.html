@@ -1149,8 +1149,16 @@
                         break;
                         
                     case 2:
-                        // 每球平均，直接使用 Google Sheets 的計算結果
-                        average = parseFloat(team['每球平均'] || 0) || 0;
+                        // 每球平均，檢查球數是否為0，為0時顯示"未設定"
+                        const round1Balls = parseInt(team['第一局球數'] || 0) || 0;
+                        const round2Balls = parseInt(team['第二局球數'] || 0) || 0;
+                        const totalBalls = round1Balls + round2Balls;
+                        
+                        if (totalBalls === 0) {
+                            average = '未設定'; // 球數為0時顯示未設定
+                        } else {
+                            average = parseFloat(team['每球平均'] || 0) || 0;
+                        }
                         break;
                         
                     case 3:
@@ -1898,9 +1906,21 @@
                     case 2:
                         // 每球平均：按每球平均分排序
                         sortedRankings.sort((a, b) => {
-                            const avgA = a.calculated_average || 0;
-                            const avgB = b.calculated_average || 0;
-                            if (avgB !== avgA) return avgB - avgA;
+                            const avgA = a.calculated_average;
+                            const avgB = b.calculated_average;
+                            
+                            // 如果其中一個是"未設定"，將其排在後面
+                            if (avgA === '未設定' && avgB !== '未設定') return 1;
+                            if (avgB === '未設定' && avgA !== '未設定') return -1;
+                            if (avgA === '未設定' && avgB === '未設定') {
+                                // 兩個都是未設定時，按總分排序
+                                return (b.total_score || 0) - (a.total_score || 0);
+                            }
+                            
+                            // 正常數值比較
+                            const numAvgA = parseFloat(avgA) || 0;
+                            const numAvgB = parseFloat(avgB) || 0;
+                            if (numAvgB !== numAvgA) return numAvgB - numAvgA;
                             // 相同時按總分排序
                             return (b.total_score || 0) - (a.total_score || 0);
                         });
@@ -1991,7 +2011,7 @@
                 const total = parseInt(team['總分'] || 0) || 0;
                 const members = parseInt(team['人數'] || 1) || 1;
                 const balls = parseInt(team['球數'] || 0) || 0;
-                const average = team.calculated_average || Math.round(total / members);
+                const average = team.calculated_average === '未設定' ? '未設定' : (team.calculated_average || Math.round(total / members));
                 
                 const rankIcon = currentRank === 1 ? '🥇' : currentRank === 2 ? '🥈' : currentRank === 3 ? '🥉' : currentRank;
                 
@@ -1999,7 +2019,9 @@
                 const ballsDisplay = balls === 0 ? '<span style="color: #999;">未設定</span>' : balls;
                 
                 // 平均分顯示處理
-                const averageDisplay = currentScoringMethod === 1 ? `${average}%` : `${average}分`;
+                const averageDisplay = average === '未設定' ? 
+                    '<span style="color: #999;">未設定</span>' : 
+                    (currentScoringMethod === 1 ? `${average}%` : `${average}分`);
                 
                 tableHTML += `
                     <tr>
@@ -2009,8 +2031,8 @@
                         ${showTotal ? `<td data-label="第二局分數">${round2}</td>` : ''}
                         ${showTotal ? `<td data-label="總分"><strong>${total}</strong></td>` : ''}
                         <td data-label="人數">${members}</td>
-                        ${currentScoringMethod === 2 ? `<td data-label="第一局球數">${parseInt(team['第一局球數'] || 0) || '<span style="color: #999;">未設定</span>'}</td>` : ''}
-                        ${currentScoringMethod === 2 ? `<td data-label="第二局球數">${parseInt(team['第二局球數'] || 0) || '<span style="color: #999;">未設定</span>'}</td>` : ''}
+                        ${currentScoringMethod === 2 ? `<td data-label="第一局球數">${(parseInt(team['第一局球數'] || 0) || 0) === 0 ? '<span style="color: #999;">未設定</span>' : parseInt(team['第一局球數'] || 0)}</td>` : ''}
+                        ${currentScoringMethod === 2 ? `<td data-label="第二局球數">${(parseInt(team['第二局球數'] || 0) || 0) === 0 ? '<span style="color: #999;">未設定</span>' : parseInt(team['第二局球數'] || 0)}</td>` : ''}
                         <td data-label="平均分數"><strong>${averageDisplay}</strong></td>
                     </tr>
                 `;
@@ -2113,7 +2135,7 @@
                 const total = parseInt(team['總分'] || 0) || 0;
                 const members = parseInt(team['人數'] || 1) || 1;
                 const balls = parseInt(team['球數'] || 0) || 0;
-                const average = team.calculated_average || Math.round(total / members); // 使用重新計算的平均分
+                const average = team.calculated_average === '未設定' ? '未設定' : (team.calculated_average || Math.round(total / members)); // 使用重新計算的平均分
                 
                 const rankIcon = originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : originalRank;
                 const isLockedTeam = isTeamLocked && teamName === lockedTeam;
@@ -2155,16 +2177,16 @@
                                 ${currentScoringMethod === 2 ? `
                                 <div class="detail-row">
                                     <span class="detail-label">🎳 第一局球數</span>
-                                    <span class="detail-value">${parseInt(team['第一局球數'] || 0) || '未設定'}</span>
+                                    <span class="detail-value">${(parseInt(team['第一局球數'] || 0) || 0) === 0 ? '未設定' : parseInt(team['第一局球數'] || 0)}</span>
                                 </div>
                                 <div class="detail-row">
                                     <span class="detail-label">🎳 第二局球數</span>
-                                    <span class="detail-value">${parseInt(team['第二局球數'] || 0) || '未設定'}</span>
+                                    <span class="detail-value">${(parseInt(team['第二局球數'] || 0) || 0) === 0 ? '未設定' : parseInt(team['第二局球數'] || 0)}</span>
                                 </div>
                                 ` : ''}
                                 <div class="detail-row">
                                     <span class="detail-label">📈 平均分數</span>
-                                    <span class="detail-value">${average}${currentScoringMethod === 1 ? '%' : '分'}</span>
+                                    <span class="detail-value">${average === '未設定' ? '未設定' : (average + (currentScoringMethod === 1 ? '%' : '分'))}</span>
                                 </div>
                             </div>
                         </div>

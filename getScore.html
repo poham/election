@@ -3527,7 +3527,7 @@
             switch (mode) {
                 case 'standard':
                     const standardScore = parseFloat(team['標準化'] || 0) || 0;
-                    return Math.round(standardScore * 10000) / 100; // 保留小數點後兩位
+                    return Math.round(standardScore * 100) / 100; // 保留小數點後兩位
                 case 'per_ball':
                     return parseFloat(team['每球平均'] || 0) || 0;
                 case 'per_person':
