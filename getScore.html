@@ -2420,7 +2420,7 @@
 
         // ============ 抽籤輔助函數 ============
         
-        // 智慧選擇投球方式（避免重複）
+        // 智慧選擇投球方式（避免重複，輔具投球低機率）
         function selectSmartLotteryStyle() {
             if (LOTTERY_STYLES.length === 0) {
                 return '正常投球';
@@ -2431,57 +2431,42 @@
                 return LOTTERY_STYLES[0];
             }
             
-            // 如果只有2種方式，確保不重複
-            if (LOTTERY_STYLES.length === 2) {
-                if (recentLotteryResults.length > 0) {
-                    const lastResult = recentLotteryResults[recentLotteryResults.length - 1];
-                    const otherStyle = LOTTERY_STYLES.find(style => style !== lastResult);
-                    if (otherStyle) {
-                        console.log(`2種方式避免重複: 上次 ${lastResult}, 這次 ${otherStyle}`);
-                        return otherStyle;
-                    }
-                }
-                // 如果沒有歷史記錄，隨機選擇
-                const randomIndex = Math.floor(Math.random() * LOTTERY_STYLES.length);
-                return LOTTERY_STYLES[randomIndex];
+            // 輔具投球超低機率抽籤（約0.2%機率）
+            const hasAssisted = LOTTERY_STYLES.includes('輔具投球');
+            if (hasAssisted && Math.random() < 0.002) {
+                console.log('🎰 超稀有！抽中輔具投球！');
+                recordLotteryResult('輔具投球'); // 記錄結果
+                return '輔具投球';
             }
             
-            // 3種或以上方式的智慧選擇
-            let availableStyles = [...LOTTERY_STYLES];
+            // 排除輔具投球的正常抽籤
+            let availableStyles = LOTTERY_STYLES.filter(style => style !== '輔具投球');
             
-            // 排除最近1次的結果（更積極避免重複）
-            if (recentLotteryResults.length >= 1) {
+            // 如果只有1種方式（排除輔具後），直接返回
+            if (availableStyles.length === 1) {
+                const result = availableStyles[0];
+                recordLotteryResult(result);
+                return result;
+            }
+            
+            // 避免與上次結果相同（但不要過度限制）
+            if (recentLotteryResults.length > 0) {
                 const lastResult = recentLotteryResults[recentLotteryResults.length - 1];
-                availableStyles = availableStyles.filter(style => style !== lastResult);
-                console.log(`避免重複上次結果: ${lastResult}, 可選項目:`, availableStyles);
-            }
-            
-            // 如果最近2次結果相同，更強力排除
-            if (recentLotteryResults.length >= 2) {
-                const lastTwo = recentLotteryResults.slice(-2);
-                if (lastTwo[0] === lastTwo[1]) {
-                    // 強制排除連續出現的結果
-                    availableStyles = availableStyles.filter(style => style !== lastTwo[0]);
-                    console.log(`強制避免連續重複: ${lastTwo[0]}, 剩餘選項:`, availableStyles);
+                const filtered = availableStyles.filter(style => style !== lastResult);
+                
+                // 只有在有其他選項時才避免重複
+                if (filtered.length > 0) {
+                    availableStyles = filtered;
+                    console.log(`避免重複上次結果: ${lastResult}, 可選項目:`, availableStyles);
                 }
-            }
-            
-            // 如果過濾後沒有可選項目，至少排除最近1次的結果
-            if (availableStyles.length === 0) {
-                availableStyles = [...LOTTERY_STYLES];
-                if (recentLotteryResults.length >= 1) {
-                    const lastResult = recentLotteryResults[recentLotteryResults.length - 1];
-                    const filtered = availableStyles.filter(style => style !== lastResult);
-                    if (filtered.length > 0) {
-                        availableStyles = filtered;
-                    }
-                }
-                console.log('重置選項但避免最近結果:', availableStyles);
             }
             
             // 從可選項目中隨機選擇
             const randomIndex = Math.floor(Math.random() * availableStyles.length);
             const selectedStyle = availableStyles[randomIndex];
+            
+            // 記錄抽籤結果
+            recordLotteryResult(selectedStyle);
             
             console.log(`智慧抽籤結果: ${selectedStyle}, 歷史:`, recentLotteryResults, '可選項:', availableStyles);
             return selectedStyle;
@@ -2491,8 +2476,8 @@
         function recordLotteryResult(style) {
             recentLotteryResults.push(style);
             
-            // 只保留最近的結果
-            if (recentLotteryResults.length > MAX_RECENT_RESULTS) {
+            // 只保留最近3次結果（減少歷史影響）
+            if (recentLotteryResults.length > 3) {
                 recentLotteryResults.shift();
             }
             
@@ -2862,8 +2847,7 @@
         // ============ 手動抽籤功能 ============
         async function manualDrawLottery() {
             if (isDrawingLottery) {
-                alert('⏳ 正在抽籤中，請稍候...');
-                return;
+                return; // 移除警告訊息，直接返回
             }
             
             await drawSimpleLottery();
@@ -2899,9 +2883,8 @@
                 // 等待2秒模擬抽籤過程
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 
-                // 隨機選擇投球方式
-                const randomIndex = Math.floor(Math.random() * LOTTERY_STYLES.length);
-                const selectedStyle = LOTTERY_STYLES[randomIndex];
+                // 使用智慧選擇投球方式（包含輔具投球低機率）
+                const selectedStyle = selectSmartLotteryStyle();
                 const styleInfo = BOWLING_STYLES[selectedStyle] || { 
                     name: selectedStyle, 
                     icon: '🎳', 
@@ -2909,17 +2892,19 @@
                 };
                 
                 // 顯示結果
+                const isRare = selectedStyle === '輔具投球';
                 resultDiv.innerHTML = `
                     <div style="text-align: center; padding: 20px;">
                         <div class="lottery-animation">
                             <div class="lottery-wheel stopped">🎲</div>
                         </div>
                         <div class="lottery-text">
-                            <h3>抽籤結果</h3>
+                            <h3>抽籤結果${isRare ? ' 🌟 超稀有！' : ''}</h3>
                             <div class="result-display">
                                 <div style="margin: 15px 0;">
                                     <span style="font-size: 2em;">${styleInfo.icon}</span><br>
-                                    <span style="font-size: 1.5em; font-weight: bold;">${selectedStyle}</span>
+                                    <span style="font-size: 1.5em; font-weight: bold; ${isRare ? 'color: #ff6b6b;' : ''}">${selectedStyle}</span>
+                                    ${isRare ? '<br><small style="color: #ff6b6b; font-weight: bold;">🎰 超低機率 (0.2%)</small>' : ''}
                                 </div>
                                 <small style="opacity: 0.8;">來源: ${stylesSource === 'google-sheets' ? 'Google Sheets' : '預設備份'}</small>
                             </div>
@@ -2927,24 +2912,22 @@
                     </div>
                 `;
                 
-                // 1秒後顯示繼續抽籤提示
-                setTimeout(() => {
-                    const continueMsg = document.createElement('div');
-                    continueMsg.innerHTML = `
-                        <div style="
-                            background: rgba(33, 150, 243, 0.9);
-                            color: white;
-                            padding: 15px;
-                            border-radius: 10px;
-                            margin-top: 15px;
-                            font-weight: 600;
-                            cursor: pointer;
-                        " onclick="manualDrawLottery()">
-                            🎲 點擊繼續抽籤
-                        </div>
-                    `;
-                    resultDiv.appendChild(continueMsg);
-                }, 1000);
+                // 立即顯示繼續抽籤按鈕
+                const continueMsg = document.createElement('div');
+                continueMsg.innerHTML = `
+                    <div style="
+                        background: rgba(33, 150, 243, 0.9);
+                        color: white;
+                        padding: 15px;
+                        border-radius: 10px;
+                        margin-top: 15px;
+                        font-weight: 600;
+                        cursor: pointer;
+                    " onclick="manualDrawLottery()">
+                        🎲 點擊繼續抽籤
+                    </div>
+                `;
+                resultDiv.appendChild(continueMsg);
                 
             } catch (error) {
                 console.error('抽籤失敗:', error);
