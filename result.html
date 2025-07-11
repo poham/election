@@ -977,7 +977,7 @@
                         </button>
                         <button class="scoring-method-btn" onclick="setScoringMethod(2)" data-method="2">
                             🎳 每球平均<br>
-                            <small>2局總分÷(人數×2局總球數)</small>
+                            <small>兩局總分÷兩局總球數</small>
                         </button>
                         <button class="scoring-method-btn" onclick="setScoringMethod(3)" data-method="3">
                             👥 每人平均<br>
@@ -1115,7 +1115,7 @@
             const infoDiv = document.getElementById('scoringMethodInfo');
             const methodInfo = {
                 1: '標準化分數 (2局總分÷(人數×300×2)×100，結果為百分比)',
-                2: '每球平均分數 (2局總分÷(人數×2局總球數)，考慮實際投球數量)',
+                2: '每球平均分數 (兩局總分÷兩局總球數，考慮實際投球數量)',
                 3: '每人平均分數 (2局總分÷人數，最簡單的計算方式)'
             };
             

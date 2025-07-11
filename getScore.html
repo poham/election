@@ -1485,7 +1485,7 @@
                         </button>
                         <button class="scoring-method-btn" onclick="setScoringMode('per_ball')" data-method="per_ball" style="background: linear-gradient(135deg, #6c757d, #5a6268); color: white; border: none; padding: 15px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-align: center; min-width: 140px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
                             🎳 每球平均<br>
-                            <small style="display: block; font-size: 11px; opacity: 0.9; margin-top: 5px;">2局總分÷(人數×2局總球數)</small>
+                            <small style="display: block; font-size: 11px; opacity: 0.9; margin-top: 5px;">兩局總分÷兩局總球數</small>
                         </button>
                         <button class="scoring-method-btn" onclick="setScoringMode('per_person')" data-method="per_person" style="background: linear-gradient(135deg, #6c757d, #5a6268); color: white; border: none; padding: 15px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-align: center; min-width: 140px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
                             👥 每人平均<br>
@@ -3591,7 +3591,7 @@
             if (infoDiv) {
                 const methodInfo = {
                     'standard': '標準化分數 (2局總分÷(人數×300×2)×100，結果為百分比)',
-                    'per_ball': '每球平均分數 (2局總分÷(人數×2局總球數)，考慮實際投球數量)',
+                    'per_ball': '每球平均分數 (兩局總分÷兩局總球數，考慮實際投球數量)',
                     'per_person': '每人平均分數 (2局總分÷人數，最簡單的計算方式)'
                 };
                 infoDiv.textContent = `目前使用：${methodInfo[mode]}`;
@@ -3612,7 +3612,16 @@
                     const standardScore = parseFloat(team['標準化'] || 0) || 0;
                     return Math.round(standardScore * 100) / 100; // 保留小數點後兩位
                 case 'per_ball':
-                    return parseFloat(team['每球平均'] || 0) || 0;
+                    // 檢查球數是否為0，為0時返回0
+                    const round1Balls = parseInt(team['第一局球數'] || 0) || 0;
+                    const round2Balls = parseInt(team['第二局球數'] || 0) || 0;
+                    const totalBalls = round1Balls + round2Balls;
+                    
+                    if (totalBalls === 0) {
+                        return 0; // 球數為0時返回0
+                    } else {
+                        return parseFloat(team['每球平均'] || 0) || 0;
+                    }
                 case 'per_person':
                 default:
                     return parseFloat(team['每人平均'] || 0) || 0;
